@@ -1,3 +1,8 @@
+# 0.2.2
+
+* Fix running dmenv on Windows
+* The configuration file is now read from $HOME (`~/.config` on Linux and macOS, `%HOME%\AppData\Local` on Windows).
+
 # 0.2.1
 
 The `.dmenv.toml` file is now required. No need to guess, and once it exists it's easier
