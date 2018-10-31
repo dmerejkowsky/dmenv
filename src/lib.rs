@@ -152,7 +152,12 @@ impl App {
 
     fn run_pip_freeze(&self) -> Result<(), Error> {
         let python = self.get_path_in_venv("python")?;
-        let args = vec!["-m".to_string(), "pip".to_string(), "freeze".to_string(), "--exclude-editable".to_string()];
+        let args = vec![
+            "-m".to_string(),
+            "pip".to_string(),
+            "freeze".to_string(),
+            "--exclude-editable".to_string(),
+        ];
         let python_str = python.to_string_lossy().to_string();
         Self::print_cmd(&python_str, &args);
         let command = std::process::Command::new(python).args(args).output()?;
@@ -179,14 +184,26 @@ impl App {
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
-        let args = vec!["-m".to_string(), "pip".to_string(), "install".to_string(), "pip".to_string(), "--upgrade".to_string()];
+        let args = vec![
+            "-m".to_string(),
+            "pip".to_string(),
+            "install".to_string(),
+            "pip".to_string(),
+            "--upgrade".to_string(),
+        ];
         self.run_venv_bin("python", args)
     }
 
     fn install_editable(&self) -> Result<(), Error> {
         // tells pip to run `setup.py develop` (that's -e), and
         // install the dev requirements too
-        let args = vec!["-m".to_string(), "pip".to_string(), "install".to_string(), "-e".to_string(), ".[dev]".to_string()];
+        let args = vec![
+            "-m".to_string(),
+            "pip".to_string(),
+            "install".to_string(),
+            "-e".to_string(),
+            ".[dev]".to_string(),
+        ];
         self.run_venv_bin("python", args)
     }
 
