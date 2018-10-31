@@ -1,0 +1,7 @@
+[package]
+authors = ["Dimitri Merejkowsky <d.merej@gmail.com>"]
+name = "dmenv"
+version = "0.1.0"
+[dependencies]
+appdirs = "*"
+structopt = "0.2"
