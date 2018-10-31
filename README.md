@@ -50,7 +50,22 @@ Q: What if I don't want to install the dev dependencies?<br/>
 A: Don't use dmenv. Run `pip install` without `[dev]` extras.
 
 Q: How do I upgrade a dependency?
-A: Just run `dmenv freeze` again. If something breaks, either fix your code or use `<=` in the setup.py.
+A: Just run `dmenv freeze` again. If something breaks, either fix your code or use more precise version specifiers
+
+Q: How do I depend on a git specific repo/branch?
+A: Edit the `requirements.lock` by hand like this:
+
+```
+foo==0.1
+https://gitlab.com/foo/bar@my-branch
+```
+
+Q: But that sucks and it will disappear when I re-run `dmenv freeze`! <br />
+A: Yes that sucks. Feel free to:
+  * Open a pull request if you've forked an upstream project
+  * Use a local pipy mirror and a little bit of CI to publish your sources there
+
+
 
 ## Why?
 
@@ -69,7 +84,7 @@ A: Just run `dmenv freeze` again. If something breaks, either fix your code or u
 
 ## But I don't want to maintain a `setup.py`!
 
-Too bad. Don't use dmenv, then.
+Too bad. Don't use dmenv, then. poetry is cool.
 
 ## Why Rust?
 
