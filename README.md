@@ -3,16 +3,15 @@
 ## Basic usage
 
 
-`dmenv` only needs one config file: the `.dmenv.toml`.
+`dmenv` only needs one config file: the `.dmenv.toml`, located in `~/.config`
+on Linux and macOS, and `~/AppData/Local` on Windows.
 
-The config **must** contain a `default` config, like this:
+The config **must** contain a `default` environment, like this:
 
 ```
 [env.default]
 python = /path/to/python
 ```
-
-Note: do *not* put the `.dmenv.toml` under version control, you never know what people install where :)
 
 Then, make sure to have `setup.py` file looking like this:
 
