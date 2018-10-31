@@ -101,20 +101,10 @@ impl App {
         self.install_from_lock()
     }
 
-    pub fn run(&self, args: &Vec<String>) -> Result<(), Error> {
-        let bin_path = &self.venv_path.join("bin").join(&args[0]);
-        let args = &args[1..];
-        println!(
-            "{} running {} {}",
-            "->".blue(),
-            bin_path.to_string_lossy().bold(),
-            args.join(" ")
-        );
-        let command = std::process::Command::new(bin_path).args(args).status()?;
-        if !command.success() {
-            return Err(Error::new("command failed"));
-        }
-        Ok(())
+    pub fn run(&self, args: Vec<String>) -> Result<(), Error> {
+        let cmd = args[0].clone();
+        let args: Vec<String> = args.into_iter().skip(1).collect();
+        self.run_venv_bin(&cmd, args)
     }
 
     pub fn freeze(&self) -> Result<(), Error> {
@@ -146,7 +136,7 @@ impl App {
         );
         std::fs::create_dir_all(&parent_venv_path)?;
         let venv_path = &self.venv_path.to_string_lossy();
-        let args = vec!["-m", "venv", venv_path];
+        let args = vec!["-m".to_string(), "venv".to_string(), venv_path.to_string()];
         Self::print_cmd(&self.python_binary, &args);
         let status = std::process::Command::new(&self.python_binary)
             .args(&args)
@@ -162,8 +152,9 @@ impl App {
 
     fn run_pip_freeze(&self) -> Result<(), Error> {
         let python = self.get_path_in_venv("python")?;
-        let args = vec!["-m", "pip", "freeze", "--exclude-editable"];
-        Self::print_cmd(&python.to_string_lossy(), &args);
+        let args = vec!["-m".to_string(), "pip".to_string(), "freeze".to_string(), "--exclude-editable".to_string()];
+        let python_str = python.to_string_lossy().to_string();
+        Self::print_cmd(&python_str, &args);
         let command = std::process::Command::new(python).args(args).output()?;
         if !command.status.success() {
             return Err(Error::new("pip freeze failed"));
@@ -176,30 +167,30 @@ impl App {
     fn install_from_lock(&self) -> Result<(), Error> {
         let as_str = &self.requirements_lock_path.to_string_lossy();
         let args = vec![
-            "-m",
-            "pip",
-            "install",
-            "--requirement",
-            as_str,
-            "-e",
-            ".[dev]",
+            "-m".to_string(),
+            "pip".to_string(),
+            "install".to_string(),
+            "--requirement".to_string(),
+            as_str.to_string(),
+            "-e".to_string(),
+            ".[dev]".to_string(),
         ];
         self.run_venv_bin("python", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
-        let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
+        let args = vec!["-m".to_string(), "pip".to_string(), "install".to_string(), "pip".to_string(), "--upgrade".to_string()];
         self.run_venv_bin("python", args)
     }
 
     fn install_editable(&self) -> Result<(), Error> {
         // tells pip to run `setup.py develop` (that's -e), and
         // install the dev requirements too
-        let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
+        let args = vec!["-m".to_string(), "pip".to_string(), "install".to_string(), "-e".to_string(), ".[dev]".to_string()];
         self.run_venv_bin("python", args)
     }
 
-    fn run_venv_bin(&self, name: &str, args: Vec<&str>) -> Result<(), Error> {
+    fn run_venv_bin(&self, name: &str, args: Vec<String>) -> Result<(), Error> {
         let bin_path = &self.get_path_in_venv(name)?;
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path).args(args).status()?;
@@ -213,13 +204,24 @@ impl App {
     fn get_path_in_venv(&self, name: &str) -> Result<std::path::PathBuf, Error> {
         if !self.venv_path.exists() {
             return Err(Error::new(&format!(
-                "virtualenv in '{}' does not exist",
+                "virtualenv in {} does not exist",
                 &self.venv_path.to_string_lossy()
             )));
         }
 
         // TODO: on Windows this is `Scripts`, not `bin`
-        let path = self.venv_path.join("bin").join(name);
+        #[cfg(not(windows))]
+        let binaries_subdirs = "bin";
+        #[cfg(not(windows))]
+        let suffix = "";
+
+        #[cfg(windows)]
+        let binaries_subdirs = "Scripts";
+        #[cfg(windows)]
+        let suffix = ".exe";
+
+        let name = format!("{}{}", name, suffix);
+        let path = self.venv_path.join(binaries_subdirs).join(name);
         if !path.exists() {
             return Err(Error::new(&format!(
                 "Cannot run: '{}' does not exist",
@@ -229,7 +231,7 @@ impl App {
         Ok(path)
     }
 
-    fn print_cmd(bin_path: &str, args: &Vec<&str>) {
+    fn print_cmd(bin_path: &str, args: &Vec<String>) {
         println!(
             "{} running {} {}",
             "->".blue(),

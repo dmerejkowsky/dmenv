@@ -63,7 +63,7 @@ fn run_app() -> Result<(), dmenv::Error> {
             }
         }
         Command::Freeze {} => app.freeze(),
-        Command::Run { cmd } => app.run(&cmd),
+        Command::Run { cmd } => app.run(cmd),
         Command::Show {} => app.show(),
     }
 }
