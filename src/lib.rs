@@ -1,4 +1,3 @@
-extern crate appdirs;
 extern crate colored;
 use colored::*;
 
@@ -35,21 +34,7 @@ impl std::fmt::Display for Error {
 impl App {
     pub fn new() -> Result<Self, Error> {
         let current_dir = std::env::current_dir()?;
-        let name = current_dir.file_name();
-        if name.is_none() {
-            // Dude, wtf?
-            return Err(Error::new("current directory has no filename"));
-        }
-        let name = name.unwrap();
-        let data_dir = appdirs::user_data_dir(Some("dmenv"), None, false);
-        // The type is Result<PathBuf, ()> I blame upstream
-        if data_dir.is_err() {
-            return Err(Error::new(
-                "appdirs::user_data_dir() failed. That's all we know",
-            ));
-        }
-        let data_dir = data_dir.unwrap();
-        let venv_path = data_dir.join("venvs").join(name);
+        let venv_path = current_dir.join(".venv");
         let requirements_lock_path = current_dir.join("requirements.lock");
         let app = App {
             venv_path,

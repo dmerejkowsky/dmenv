@@ -10,6 +10,5 @@ keywords = ["python", "virtualenv"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-appdirs = "0.2"
 colored = "1.6"
 structopt = "0.2"
