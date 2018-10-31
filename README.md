@@ -1,6 +1,6 @@
 # dmenv: the stupid virtualenv manager
 
-## Usage
+## Basic usage
 
 Start with a `setup.py` like this:
 
@@ -41,6 +41,32 @@ As a convenience, you can use:
 * `dmenv run` to run any binary from the virtualenv
 * something like `source $(dmenv show)` to activate the virtualenv for your current shell
 
+## Specifying the python interpreter
+
+By default, dmenv runs `python -m venv` to create the virtualenv. This works if `python` point to a Python >= 3.3, but that
+may not be the case for instance on certain (non arch) Linux distros or macOS.
+
+Fear not, you can specify the binary to use in a `.dmenv.toml` file, like this:
+
+```toml
+[env.default]
+python = "/usr/bin/python3"  # on linux
+```
+
+`dmenv` can also support multiple versions. For instance, if you add a `3.8` section in the `.dmenv.toml` file, like this:
+
+```toml
+[env.3.8]
+python = "/path/to/python3.8"
+```
+
+Then you can use all the `dmenv` commands by prefixing them with `dmenv --env 3.8`.
+
+Cool, no?
+
+Note: do *not* put the `.dmenv.toml` under version control, you never know what people install where :)
+
+
 # FAQ
 
 Q: How do I add dependencies to build the documentation?<br/>
@@ -49,10 +75,10 @@ A: Stick them in the `dev` section.
 Q: What if I don't want to install the dev dependencies?<br/>
 A: Don't use dmenv. Run `pip install` without `[dev]` extras.
 
-Q: How do I upgrade a dependency?
+Q: How do I upgrade a dependency?<br/>
 A: Just run `dmenv freeze` again. If something breaks, either fix your code or use more precise version specifiers
 
-Q: How do I depend on a git specific repo/branch?
+Q: How do I depend on a git specific repo/branch?<br/>
 A: Edit the `requirements.lock` by hand like this:
 
 ```
