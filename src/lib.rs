@@ -45,11 +45,24 @@ impl std::fmt::Display for Error {
 impl App {
     pub fn new(env_name: &str) -> Result<Self, Error> {
         let current_dir = std::env::current_dir()?;
-        let cfg_path = current_dir.join(".dmenv.toml");
-        if !cfg_path.exists() {
-            return Err(Error::new(".dmenv.toml not found"));
+        let config_dir = appdirs::user_config_dir(None, None, false);
+        // The type is Result<PathBuf, ()> I blame upstream
+        if config_dir.is_err() {
+            return Err(Error::new(
+                "appdirs::user_data_dir() failed. That's all we know",
+            ));
         }
-        let config = std::fs::read_to_string(".dmenv.toml")?;
+        let config_dir = config_dir.unwrap();
+        let cfg_path = config_dir.join("dmenv.toml");
+        let config = std::fs::read_to_string(&cfg_path);
+        if let Err(error) = config {
+            return Err(Error::new(&format!(
+                "Could not read from {}: {}",
+                cfg_path.to_string_lossy(),
+                error
+            )));
+        }
+        let config = config.unwrap();
         let python_binary = get_python_for_env(&config, env_name)?;
         let venv_path = current_dir.join(".venv").join(env_name);
         let requirements_lock_path = current_dir.join("requirements.lock");

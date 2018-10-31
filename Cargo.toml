@@ -5,11 +5,13 @@ version = "0.2.1"
 description = "The stupid virtualenv manager"
 license = "BSD-3-Clause"
 readme = "README.md"
+repository = "https://github.com/dmerejkowsky/dmenv"
 
 keywords = ["python", "virtualenv"]
 categories = ["command-line-utilities"]
 
 [dependencies]
+appdirs = "0.2"
 colored = "1.6"
 structopt = "0.2"
 toml = "0.4"
