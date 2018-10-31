@@ -141,6 +141,7 @@ impl App {
         std::fs::create_dir_all(&parent_venv_path)?;
         let venv_path = &self.venv_path.to_string_lossy();
         let args = vec!["-m", "venv", venv_path];
+        Self::print_cmd(&self.python_binary, &args);
         let status = std::process::Command::new(&self.python_binary)
             .args(&args)
             .status()?;
