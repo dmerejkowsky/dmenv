@@ -48,6 +48,12 @@ impl App {
         let python_binary = if env_name == "default" {
             Ok("python".to_string())
         } else {
+            let cfg_path = current_dir.join(".dmenv.toml");
+            if !cfg_path.exists() {
+                return Err(Error::new(&format!(
+                    "--env used, need a `.dmenv.toml` config file",
+                )));
+            }
             let config = std::fs::read_to_string(".dmenv.toml")?;
             get_python_for_env(&config, env_name)
         };
