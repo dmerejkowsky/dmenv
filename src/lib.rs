@@ -40,7 +40,7 @@ impl App {
         }
         let name = name.unwrap();
         let data_dir = appdirs::user_data_dir(Some("dmenv"), None, false);
-        // The type is Result<PathBuf, ()> ...
+        // The type is Result<PathBuf, ()> I blame upstream
         if data_dir.is_err() {
             return Err(Error::new(
                 "appdirs::user_data_dir() failed. That's all we know",
@@ -121,59 +121,64 @@ impl App {
         self.upgrade_pip()
     }
 
-    fn run_venv_bin(args: Vec<String>) -> Result<(), Error> {
-        Ok(())
-    }
-
     fn run_pip_freeze(&self) -> Result<(), Error> {
-        let python = self.venv_path.join("bin/python");
-        let command = std::process::Command::new(python)
+        let command = &mut self.build_command("python")?;
+
+        let command = command
             .args(&["-m", "pip", "freeze", "--exclude-editable"])
             .output()?;
         if !command.status.success() {
             return Err(Error::new("pip freeze failed"));
         }
-        let to_write = command.stdout;
-        std::fs::write("requirements.lock", &to_write)?;
+        std::fs::write("requirements.lock", &command.stdout)?;
         println!("Requirements written to requirements.lock");
         Ok(())
     }
 
     fn run_pip_install(&self) -> Result<(), Error> {
-        let python = self.venv_path.join("bin/python");
-        let command = std::process::Command::new(python)
-            .args(&[
-                "-m",
-                "pip",
-                "install",
-                "--requirement",
-                &self.requirements_lock_path.to_string_lossy(),
-            ]).status()?;
-        if !command.success() {
-            return Err(Error::new("pip freeze failed"));
-        }
-        Ok(())
+        let as_str = &self.requirements_lock_path.to_string_lossy();
+        let args = vec!["-m", "pip", "install", "--requirement", as_str];
+        self.run_venv_bin("python", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
-        let python = self.venv_path.join("bin/python");
-        let status = std::process::Command::new(python)
-            .args(&["-m", "pip", "install", "pip", "--upgrade"])
-            .status()?;
-        if !status.success() {
-            return Err(Error::new("failed to upgrade pip"));
-        }
-        Ok(())
+        let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
+        self.run_venv_bin("python", args)
     }
 
     fn install_editable(&self) -> Result<(), Error> {
-        let python = self.venv_path.join("bin/python");
-        let status = std::process::Command::new(python)
-            .args(&["-m", "pip", "install", "-e.[dev]"])
-            .status()?;
-        if !status.success() {
-            return Err(Error::new("failed to upgrade pip"));
+        // tells pip to run `setup.py develop` (that's -e), and
+        // install the dev requirements too
+        let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
+        self.run_venv_bin("python", args)
+    }
+
+    fn run_venv_bin(&self, name: &str, args: Vec<&str>) -> Result<(), Error> {
+        let command = &mut self.build_command(&name)?;
+        let command = command.args(args).status()?;
+        if !command.success() {
+            return Err(Error::new("command failed"));
         }
+
         Ok(())
+    }
+
+    fn build_command(&self, name: &str) -> Result<std::process::Command, Error> {
+        if !self.venv_path.exists() {
+            return Err(Error::new(&format!(
+                "virtualenv in '{}' does not exist",
+                &self.venv_path.to_string_lossy()
+            )));
+        }
+
+        // TODO: on Windows this is `Scripts`, not `bin`
+        let cmd_path = self.venv_path.join("bin").join(name);
+        if !cmd_path.exists() {
+            return Err(Error::new(&format!(
+                "Cannot run: '{}' does not exist",
+                &cmd_path.to_string_lossy()
+            )));
+        }
+        Ok(std::process::Command::new(cmd_path))
     }
 }
