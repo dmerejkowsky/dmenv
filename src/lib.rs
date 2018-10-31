@@ -97,7 +97,11 @@ impl App {
     }
 
     pub fn freeze(&self) -> Result<(), Error> {
-        println!("{}, Generating requirements.txt from setup.py", "::".blue());
+        if !self.venv_path.exists() {
+            self.create_venv()?;
+        }
+
+        println!("{} Generating requirements.txt from setup.py", "::".blue());
         self.install_editable()?;
         self.run_pip_freeze()?;
         Ok(())
