@@ -159,7 +159,10 @@ impl App {
         Self::print_cmd(&python_str, &args);
         let command = std::process::Command::new(python).args(args).output()?;
         if !command.status.success() {
-            return Err(Error::new("pip freeze failed"));
+            return Err(Error::new(&format!(
+                "pip freeze failed: {}",
+                String::from_utf8_lossy(&command.stderr)
+            )));
         }
         std::fs::write("requirements.lock", &command.stdout)?;
         println!("{} Requirements written to requirements.lock", "::".blue());
