@@ -144,10 +144,7 @@ impl App {
         if !status.success() {
             return Err(Error::new("Failed to create virtualenv"));
         }
-        // Always upgrade pip right after creation. We use 'venv' from the
-        // stdlib, so the pip in the virtualenv is the one bundle with python
-        // which in all likelyhood is old
-        self.upgrade_pip()
+        Ok(())
     }
 
     fn run_pip_freeze(&self) -> Result<(), Error> {

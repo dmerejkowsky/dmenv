@@ -25,11 +25,6 @@ enum Command {
     Install {
         #[structopt(long = "clean", help = "clean existing virtualenv",)]
         clean: bool,
-        #[structopt(
-            long = "upgrade-pip",
-            help = "upgrade pip inside the virtualenv",
-        )]
-        upgrade_pip: bool,
     },
 
     #[structopt(name = "freeze", about = "(Re)-generate requirements.txt")]
@@ -43,6 +38,13 @@ enum Command {
         #[structopt(name = "command")]
         cmd: Vec<String>,
     },
+
+    #[structopt(
+        name = "upgrade-pip",
+        about = "Upgrade pip in the virtualenv"
+    )]
+    UpgradePip {},
+
     #[structopt(name = "show", about = "Show path of the virtualenv")]
     Show {},
 }
@@ -51,20 +53,16 @@ fn run_app() -> Result<(), dmenv::Error> {
     let opt = DmEnv::from_args();
     let app = App::new(&opt.env_name)?;
     match opt.cmd {
-        Command::Install { clean, upgrade_pip } => {
+        Command::Install { clean } => {
             if clean {
-                app.clean()?;
+                app.clean()?
             }
-            app.install()?;
-            if upgrade_pip {
-                app.upgrade_pip()
-            } else {
-                Ok(())
-            }
+            Ok(app.install()?)
         }
         Command::Freeze {} => app.freeze(),
         Command::Run { cmd } => app.run(cmd),
         Command::Show {} => app.show(),
+        Command::UpgradePip {} => app.upgrade_pip(),
     }
 }
 
