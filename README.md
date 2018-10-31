@@ -133,7 +133,7 @@ Too bad. Don't use dmenv, then. poetry is cool.
 
 ## Why Rust?
 
-* Because I want to make to **never depend** on pip, setuptools or any other internals of pip and virtualenv
 * Because it has excellent support for what we need: manipulate paths and run commands in a cross-platform way
 * Because it's my second favorite language
 * Because distribution is really easy
+* Because by *not* using Python I'm less likely to depend on pip or virtualenv's internals
