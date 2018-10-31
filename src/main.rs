@@ -1,3 +1,5 @@
+extern crate colored;
+use colored::*;
 extern crate dmenv;
 extern crate structopt;
 use dmenv::App;
@@ -57,7 +59,7 @@ fn run_app() -> Result<(), dmenv::Error> {
 fn main() {
     let result = run_app();
     if let Err(error) = result {
-        eprintln!("{}", error);
+        eprintln!("{} {}", "Error".bold().red(), error);
         std::process::exit(1)
     };
 }

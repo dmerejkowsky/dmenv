@@ -2,6 +2,8 @@
 authors = ["Dimitri Merejkowsky <d.merej@gmail.com>"]
 name = "dmenv"
 version = "0.1.0"
+
 [dependencies]
 appdirs = "*"
+colored = "1.6"
 structopt = "0.2"
