@@ -2,7 +2,19 @@
 
 ## Basic usage
 
-Start with a `setup.py` like this:
+
+`dmenv` only needs one config file: the `.dmenv.toml`.
+
+The config **must** contain a `default` config, like this:
+
+```
+[env.default]
+python = /path/to/python
+```
+
+Note: do *not* put the `.dmenv.toml` under version control, you never know what people install where :)
+
+Then, make sure to have `setup.py` file looking like this:
 
 ```python
 setup(
@@ -34,37 +46,25 @@ Run `dmenv freeze`: it will
   created
 * Run `pip freeze` to generate a `requirements.lock` file.
 
-Now you can add `requirements.lock` to your git repo, and anyone can run `dmenv install` to install all the deps.
+Now you can add `requirements.lock` to your git repo, and then anyone can run `dmenv install` to install all the deps and get exactly the same versions you got when you ran `dmenv freeze`. Hooray reproducible builds!
 
 As a convenience, you can use:
 
 * `dmenv run` to run any binary from the virtualenv
 * something like `source $(dmenv show)` to activate the virtualenv for your current shell
 
-## Specifying the python interpreter
+## Using an other python version
 
-By default, dmenv runs `python -m venv` to create the virtualenv. This works if `python` point to a Python >= 3.3, but that
-may not be the case for instance on certain (non arch) Linux distros or macOS.
-
-Fear not, you can specify the binary to use in a `.dmenv.toml` file, like this:
-
-```toml
-[env.default]
-python = "/usr/bin/python3"  # on linux
-```
-
-`dmenv` can also support multiple versions. For instance, if you add a `3.8` section in the `.dmenv.toml` file, like this:
+To use a different Python, version add a new section in `.dmenv` with the name and the path to the binary, like this:
 
 ```toml
 [env.3.8]
 python = "/path/to/python3.8"
 ```
-
 Then you can use all the `dmenv` commands by prefixing them with `dmenv --env 3.8`.
 
 Cool, no?
 
-Note: do *not* put the `.dmenv.toml` under version control, you never know what people install where :)
 
 
 # FAQ

@@ -45,19 +45,12 @@ impl std::fmt::Display for Error {
 impl App {
     pub fn new(env_name: &str) -> Result<Self, Error> {
         let current_dir = std::env::current_dir()?;
-        let python_binary = if env_name == "default" {
-            Ok("python".to_string())
-        } else {
-            let cfg_path = current_dir.join(".dmenv.toml");
-            if !cfg_path.exists() {
-                return Err(Error::new(&format!(
-                    "--env used, need a `.dmenv.toml` config file",
-                )));
-            }
-            let config = std::fs::read_to_string(".dmenv.toml")?;
-            get_python_for_env(&config, env_name)
-        };
-        let python_binary = python_binary?;
+        let cfg_path = current_dir.join(".dmenv.toml");
+        if !cfg_path.exists() {
+            return Err(Error::new(".dmenv.toml not found"));
+        }
+        let config = std::fs::read_to_string(".dmenv.toml")?;
+        let python_binary = get_python_for_env(&config, env_name)?;
         let venv_path = current_dir.join(".venv").join(env_name);
         let requirements_lock_path = current_dir.join("requirements.lock");
         let app = App {
