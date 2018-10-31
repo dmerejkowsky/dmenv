@@ -103,6 +103,11 @@ impl App {
         Ok(())
     }
 
+    pub fn show(&self) -> Result<(), Error> {
+        println!("{}", self.venv_path.to_string_lossy());
+        Ok(())
+    }
+
     fn create_venv(&self) -> Result<(), Error> {
         let parent_venv_path = &self.venv_path.parent();
         if parent_venv_path.is_none() {

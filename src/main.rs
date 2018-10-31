@@ -6,13 +6,9 @@ use dmenv::App;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(
-    name = "dmenv",
-    about = "The stupid virtualenv manager",
-    author = ""   // hide the author
-)]
+#[structopt(name = "dmenv", about = "The stupid virtualenv manager",)]
 enum DmEnv {
-    #[structopt(name = "install", help = "install all dependencies")]
+    #[structopt(name = "install", about = "Install all dependencies")]
     Install {
         #[structopt(long = "clean", help = "clean existing virtualenv",)]
         clean: bool,
@@ -23,17 +19,19 @@ enum DmEnv {
         upgrade_pip: bool,
     },
 
-    #[structopt(name = "freeze", help = "(re)-generate requirements.txt")]
+    #[structopt(name = "freeze", about = "(Re)-generate requirements.txt")]
     Freeze {},
 
     #[structopt(
         name = "run",
-        help = "run the given binary from the virtualenv"
+        about = "Run the given binary from the virtualenv"
     )]
     Run {
         #[structopt(name = "command")]
         cmd: Vec<String>,
     },
+    #[structopt(name = "show", about = "Show path of the virtualenv")]
+    Show {},
 }
 
 fn run_app() -> Result<(), dmenv::Error> {
@@ -53,6 +51,7 @@ fn run_app() -> Result<(), dmenv::Error> {
         }
         DmEnv::Freeze {} => app.freeze(),
         DmEnv::Run { cmd } => app.run(cmd),
+        DmEnv::Show {} => app.show(),
     }
 }
 
