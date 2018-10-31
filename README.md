@@ -49,6 +49,8 @@ A: Stick them in the `dev` section.
 Q: What if I don't want to install the dev dependencies?<br/>
 A: Don't use dmenv. Run `pip install` without `[dev]` extras.
 
+Q: How do I upgrade a dependency?
+A: Just run `dmenv freeze` again. If something breaks, either fix your code or use `<=` in the setup.py.
 
 ## Why?
 
