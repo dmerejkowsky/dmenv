@@ -95,7 +95,7 @@ A: Yes that sucks. Feel free to:
 
 ## Why?
 
-* Because pipenv, poetry and the like are too big and too complex
+* Because pipenv, poetry and tox are too big and too complex
 * Because virtualenv + requirements.txt has worked for 10 years and will continue to work for 10 years
 * Because it will continue to work if / when pip supports pipfile
 * Because dependency management is very hard, and pip already does a good enough job
