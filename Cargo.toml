@@ -2,8 +2,14 @@
 authors = ["Dimitri Merejkowsky <d.merej@gmail.com>"]
 name = "dmenv"
 version = "0.1.0"
+description = "The stupid virtualenv manager"
+license = "BSD-3-Clause"
+readme = "README.md"
+
+keywords = ["python", "virtualenv"]
+categories = ["command-line-utilities"]
 
 [dependencies]
-appdirs = "*"
+appdirs = "0.2"
 colored = "1.6"
 structopt = "0.2"
