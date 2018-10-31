@@ -5,9 +5,22 @@ extern crate structopt;
 use dmenv::App;
 use structopt::StructOpt;
 
-#[derive(Debug, StructOpt)]
+#[derive(StructOpt)]
 #[structopt(name = "dmenv", about = "The stupid virtualenv manager",)]
-enum DmEnv {
+struct DmEnv {
+    #[structopt(
+        long = "env",
+        help = "environment name",
+        default_value = "default"
+    )]
+    env_name: String,
+
+    #[structopt(subcommand)]
+    cmd: Command,
+}
+
+#[derive(StructOpt)]
+enum Command {
     #[structopt(name = "install", about = "Install all dependencies")]
     Install {
         #[structopt(long = "clean", help = "clean existing virtualenv",)]
@@ -36,9 +49,9 @@ enum DmEnv {
 
 fn run_app() -> Result<(), dmenv::Error> {
     let opt = DmEnv::from_args();
-    let app = App::new()?;
-    match opt {
-        DmEnv::Install { clean, upgrade_pip } => {
+    let app = App::new(&opt.env_name)?;
+    match opt.cmd {
+        Command::Install { clean, upgrade_pip } => {
             if clean {
                 app.clean()?;
             }
@@ -49,9 +62,9 @@ fn run_app() -> Result<(), dmenv::Error> {
                 Ok(())
             }
         }
-        DmEnv::Freeze {} => app.freeze(),
-        DmEnv::Run { cmd } => app.run(cmd),
-        DmEnv::Show {} => app.show(),
+        Command::Freeze {} => app.freeze(),
+        Command::Run { cmd } => app.run(&cmd),
+        Command::Show {} => app.show(),
     }
 }
 
