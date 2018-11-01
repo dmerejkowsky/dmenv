@@ -21,13 +21,16 @@ impl TestApp {
     }
 
     fn ensure_cfg(&self) {
-        std::fs::write(
-            &self.cfg_path,
+        let python_binary = std::env::var("PYTHON_BINARY")
+            .expect("PYTHON_BINARY environment variable should be set to a python3 binary");
+        let to_write = format!(
             r#"
-[env.default]
-python = "/usr/bin/python"
-"#,
-        ).expect("");
+            [env.default]
+            python = "{}"
+            "#,
+            python_binary
+        );
+        std::fs::write(&self.cfg_path, to_write).expect("");
     }
 
     fn copy_demo_files(&self) {
