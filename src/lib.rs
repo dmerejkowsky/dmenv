@@ -5,12 +5,6 @@ extern crate serde;
 use colored::*;
 use std::collections::BTreeMap as Map;
 
-pub struct App {
-    venv_path: std::path::PathBuf,
-    requirements_lock_path: std::path::PathBuf,
-    python_binary: String,
-}
-
 #[derive(Debug)]
 pub struct Error {
     description: String,
@@ -40,6 +34,12 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", &self.description)
     }
+}
+
+pub struct App {
+    venv_path: std::path::PathBuf,
+    requirements_lock_path: std::path::PathBuf,
+    python_binary: String,
 }
 
 impl App {
@@ -87,9 +87,7 @@ impl App {
     }
 
     pub fn install(&self) -> Result<(), Error> {
-        if !self.venv_path.exists() {
-            self.create_venv()?;
-        }
+        self.ensure_venv()?;
 
         if !self.requirements_lock_path.exists() {
             return Err(Error::new(&format!(
@@ -104,13 +102,11 @@ impl App {
     pub fn run(&self, args: Vec<String>) -> Result<(), Error> {
         let cmd = args[0].clone();
         let args: Vec<String> = args.into_iter().skip(1).collect();
-        self.run_venv_bin(&cmd, args)
+        self.run_venv_cmd(&cmd, args)
     }
 
     pub fn freeze(&self) -> Result<(), Error> {
-        if !self.venv_path.exists() {
-            self.create_venv()?;
-        }
+        self.ensure_venv()?;
 
         println!("{} Generating requirements.txt from setup.py", "::".blue());
         self.install_editable()?;
@@ -120,6 +116,28 @@ impl App {
 
     pub fn show(&self) -> Result<(), Error> {
         println!("{}", self.venv_path.to_string_lossy());
+        Ok(())
+    }
+
+    pub fn init(&self, name: &str, version: &str) -> Result<(), Error> {
+        let template = include_str!("setup.in.py");
+        let template = template.replace("<NAME>", name);
+        let template = template.replace("<VERSION>", version);
+        std::fs::write("setup.py", template)?;
+        println!("{} Generated a new setup.py", "::".blue());
+        Ok(())
+    }
+
+    fn ensure_venv(&self) -> Result<(), Error> {
+        if self.venv_path.exists() {
+            println!(
+                "{} Using existing virtualenv: {}",
+                "->".blue(),
+                self.venv_path.to_string_lossy()
+            );
+        } else {
+            self.create_venv()?;
+        }
         Ok(())
     }
 
@@ -136,7 +154,8 @@ impl App {
         );
         std::fs::create_dir_all(&parent_venv_path)?;
         let venv_path = &self.venv_path.to_string_lossy();
-        let args = vec!["-m".to_string(), "venv".to_string(), venv_path.to_string()];
+        let args = vec!["-m", "venv", venv_path];
+        let args = Self::to_string_args(args);
         Self::print_cmd(&self.python_binary, &args);
         let status = std::process::Command::new(&self.python_binary)
             .args(&args)
@@ -149,12 +168,8 @@ impl App {
 
     fn run_pip_freeze(&self) -> Result<(), Error> {
         let python = self.get_path_in_venv("python")?;
-        let args = vec![
-            "-m".to_string(),
-            "pip".to_string(),
-            "freeze".to_string(),
-            "--exclude-editable".to_string(),
-        ];
+        let args = vec!["-m", "pip", "freeze", "--exclude-editable"];
+        let args = Self::to_string_args(args);
         let python_str = python.to_string_lossy().to_string();
         Self::print_cmd(&python_str, &args);
         let command = std::process::Command::new(python).args(args).output()?;
@@ -172,42 +187,30 @@ impl App {
     fn install_from_lock(&self) -> Result<(), Error> {
         let as_str = &self.requirements_lock_path.to_string_lossy();
         let args = vec![
-            "-m".to_string(),
-            "pip".to_string(),
-            "install".to_string(),
-            "--requirement".to_string(),
-            as_str.to_string(),
-            "-e".to_string(),
-            ".[dev]".to_string(),
+            "-m",
+            "pip",
+            "install",
+            "--requirement",
+            as_str,
+            "--editable",
+            ".[dev]",
         ];
-        self.run_venv_bin("python", args)
+        self.run_venv_cmd("python", Self::to_string_args(args))
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
-        let args = vec![
-            "-m".to_string(),
-            "pip".to_string(),
-            "install".to_string(),
-            "pip".to_string(),
-            "--upgrade".to_string(),
-        ];
-        self.run_venv_bin("python", args)
+        let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
+        self.run_venv_cmd("python", Self::to_string_args(args))
     }
 
     fn install_editable(&self) -> Result<(), Error> {
         // tells pip to run `setup.py develop` (that's -e), and
         // install the dev requirements too
-        let args = vec![
-            "-m".to_string(),
-            "pip".to_string(),
-            "install".to_string(),
-            "-e".to_string(),
-            ".[dev]".to_string(),
-        ];
-        self.run_venv_bin("python", args)
+        let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
+        self.run_venv_cmd("python", Self::to_string_args(args))
     }
 
-    fn run_venv_bin(&self, name: &str, args: Vec<String>) -> Result<(), Error> {
+    fn run_venv_cmd(&self, name: &str, args: Vec<String>) -> Result<(), Error> {
         let bin_path = &self.get_path_in_venv(name)?;
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path).args(args).status()?;
@@ -256,6 +259,10 @@ impl App {
             args.join(" ")
         );
     }
+
+    fn to_string_args(args: Vec<&str>) -> Vec<String> {
+        args.iter().map(|x| x.to_string()).collect()
+    }
 }
 
 #[derive(Deserialize)]
@@ -287,7 +294,6 @@ mod tests {
         let config = r#"
         [env."3.8"]
         python = "/path/to/python3.8"
-
         "#;
 
         let actual = super::get_python_for_env(&config, "3.8").unwrap();

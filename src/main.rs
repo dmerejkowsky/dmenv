@@ -21,10 +21,22 @@ struct DmEnv {
 
 #[derive(StructOpt)]
 enum Command {
+    #[structopt(name = "clean", about = "clean existing virtualenv",)]
+    Clean {},
+
     #[structopt(name = "install", about = "Install all dependencies")]
-    Install {
-        #[structopt(long = "clean", help = "clean existing virtualenv",)]
-        clean: bool,
+    Install {},
+
+    #[structopt(name = "init", about = "Initialize a new project")]
+    Init {
+        #[structopt(long = "name", help = "Project name")]
+        name: String,
+        #[structopt(
+            long = "version",
+            help = "Project version",
+            default_value = "0.1.0"
+        )]
+        version: String,
     },
 
     #[structopt(name = "freeze", about = "(Re)-generate requirements.txt")]
@@ -53,12 +65,9 @@ fn run_app() -> Result<(), dmenv::Error> {
     let opt = DmEnv::from_args();
     let app = App::new(&opt.env_name)?;
     match opt.cmd {
-        Command::Install { clean } => {
-            if clean {
-                app.clean()?
-            }
-            Ok(app.install()?)
-        }
+        Command::Install {} => app.install(),
+        Command::Clean {} => app.clean(),
+        Command::Init { name, version } => app.init(&name, &version),
         Command::Freeze {} => app.freeze(),
         Command::Run { cmd } => app.run(cmd),
         Command::Show {} => app.show(),
