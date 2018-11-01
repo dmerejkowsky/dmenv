@@ -1,3 +1,7 @@
+# 0.2.3
+
+* Add command `dmenv init` to generate a working `setup.py` file.
+
 # 0.2.2
 
 * Fix running dmenv on Windows
