@@ -1,3 +1,7 @@
+# 0.3.0
+
+* Replace command `freeze` by `lock`.
+
 # 0.2.3
 
 * Add command `dmenv init` to generate a working `setup.py` file.
