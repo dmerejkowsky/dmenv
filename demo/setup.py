@@ -9,7 +9,6 @@ setup(
     name="dmenv-demo",
     version="0.6.1",
     description="dmenv demo",
-    author="Kontrol SAS",
     py_modules=["dmenv"],
     include_package_data=True,
     install_requires=[
