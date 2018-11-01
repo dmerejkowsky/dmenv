@@ -1,8 +1,8 @@
+import argparse
 import ssl
 import urllib.request
 import sys
 import os
-import shutil
 
 
 def show_progress(xfered, size):
@@ -35,7 +35,7 @@ def download(url, output_file):
         dest_file.close()
 
 
-def move_in_path(dmenv_bin):
+def select_path_entry():
     entries = os.environ.get("PATH").split(os.path.pathsep)
     print("Heres are the possible locations to install dmenv")
     print("Select one element in the list")
@@ -47,23 +47,27 @@ def move_in_path(dmenv_bin):
         try:
             num = int(answer)
             entry = entries[num - 1]
-            break
+            return entry
         except ValueError:
             print("Please enter a number")
         except IndexError:
             print("Please choose between 0 and", len(entries))
-    print(dmenv_bin, "->", entry)
-    dest = os.path.join(entry, dmenv_bin)
-    if os.path.exists(dest):
-        if "--upgrade" in sys.argv:
-            os.remove(dest)
-        else:
-            sys.exit("Error: %s already exists. Use --upgrade to upgrade" % dest)
-    shutil.move(dmenv_bin, entry)
-    os.chmod(dest, 0o755)
+        answer = input("> ")
+
+
+def on_existing_dest(dest, *, upgrade=False):
+    if upgrade:
+        os.remove(dest)
+    else:
+        sys.exit("Error: %s already exists. Use --upgrade to upgrade" % dest)
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dest")
+    parser.add_argument("--upgrade", action="store_true")
+    args = parser.parse_args()
+
     url = "https://dmerej.info/pub/dmenv-%s" % sys.platform
     if sys.platform == "windows":
         url += ".exe"
@@ -71,12 +75,18 @@ def main():
     else:
         out = "dmenv"
 
-    if os.path.exists(out):
-        print(out, "already exists, skipping download")
+    if args.dest:
+        dest = args.dest
     else:
-        print("Downloading", url, "to", out)
-        download(url, out)
-    move_in_path(out)
+        path_entry = select_path_entry()
+        dest = os.path.join(path_entry, out)
+
+    if os.path.exists(dest):
+        on_existing_dest(dest, upgrade=args.upgrade)
+
+    print("Downloading", url, "to", dest)
+    download(url, dest)
+    os.chmod(dest, 0o755)
 
 
 if __name__ == "__main__":
