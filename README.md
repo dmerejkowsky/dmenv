@@ -5,7 +5,7 @@
 ## Setup
 
 
-`dmenv` only needs one config file named `dmenv.toml`, located in `~/.config`
+First, `dmenv` needs one config file named `dmenv.toml`, located in `~/.config`
 on Linux and macOS, and `~/AppData/Local` on Windows.
 
 The config **must** contain a `default` environment, like this:
@@ -15,30 +15,8 @@ The config **must** contain a `default` environment, like this:
 python = /path/to/python
 ```
 
-Then, make sure to have `setup.py` file looking like this:
-
-```python
-setup(
-  name="foo",
-  version="0.1",
-  install_requires=[
-    # Your deps here
-    "bar",
-    "baz >= 2.0",
-  ],
-  extras_require = {
-    # Your dev deps here
-    "dev": [
-      "pytest",
-    ]
-  },
-  entry_points={
-     "console_scripts": [
-        "foo = foo:main"
-      ]
-  },
-)
-```
+Then `dmenv` needs a `setup.py` file. If you don't have one yet, run
+`dmenv init --name <project name>` to generate one. Make sure to read the comments inside and edit it to feat your needs.
 
 Now you are ready to use `dmenv`!
 
