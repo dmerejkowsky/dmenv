@@ -21,7 +21,7 @@ pub fn run_app(options: Options) -> Result<(), Error> {
         Command::Install {} => app.install(),
         Command::Clean {} => app.clean(),
         Command::Init { name, version } => app.init(&name, &version),
-        Command::Freeze {} => app.freeze(),
+        Command::Lock {} => app.lock(),
         Command::Run { cmd } => app.run(cmd),
         Command::Show {} => app.show(),
         Command::UpgradePip {} => app.upgrade_pip(),

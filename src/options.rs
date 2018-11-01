@@ -45,8 +45,8 @@ pub enum Command {
         version: String,
     },
 
-    #[structopt(name = "freeze", about = "(Re)-generate requirements.txt")]
-    Freeze {},
+    #[structopt(name = "lock", about = "(Re)-generate requirements.lock")]
+    Lock {},
 
     #[structopt(
         name = "run",

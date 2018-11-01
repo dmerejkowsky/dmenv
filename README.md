@@ -20,9 +20,9 @@ Then `dmenv` needs a `setup.py` file. If you don't have one yet, run
 
 Now you are ready to use `dmenv`!
 
-## freeze
+## lock
 
-Here's what `dmenv freeze` does:
+Here's what `dmenv lock` does:
 
 * Create a virtualenv for you with `python -m venv` in `.venv/default`. (Make sure to add `.venv` to your `.gitignore`).
 * Run `pip intall --editable .[dev]` so that your dev deps are installed, and the scripts listed in `entry_points` are
@@ -31,7 +31,7 @@ Here's what `dmenv freeze` does:
 
 ## install
 
-Now you can add `requirements.lock` to your git repo, and then anyone can run `dmenv install` to install all the deps and get exactly the same versions you got when you ran `dmenv freeze`. Hooray reproducible builds!
+Now you can add `requirements.lock` to your git repo, and then anyone can run `dmenv install` to install all the deps and get exactly the same versions you got when you ran `dmenv lock`. Hooray reproducible builds!
 
 ## run
 
@@ -96,7 +96,7 @@ Q: What if I don't want to install the dev dependencies?<br/>
 A: Don't use dmenv. Run `pip install` without `[dev]` extras. If you insist, maybe a `--no-dev` option will be added.
 
 Q: How do I upgrade a dependency?<br/>
-A: Just run `dmenv freeze` again. If something breaks, either fix your code or use more precise version specifiers
+A: Just run `dmenv lock` again. If something breaks, either fix your code or use more precise version specifiers
 
 Q: How do I depend on a git specific repo/branch?<br/>
 A: Edit the `requirements.lock` by hand like this:
@@ -106,7 +106,7 @@ foo==0.1
 https://gitlab.com/foo/bar@my-branch
 ```
 
-Q: But that sucks and it will disappear when I re-run `dmenv freeze`! <br />
+Q: But that sucks and it will disappear when I re-run `dmenv lock`! <br />
 A: Yes that sucks. Feel free to:
   * Open a pull request if you've forked an upstream project
   * Use a local pipy mirror and a little bit of CI to publish your sources there

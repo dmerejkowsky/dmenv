@@ -57,7 +57,7 @@ impl App {
 
         if !self.lock_path.exists() {
             return Err(Error::new(&format!(
-                "{} does not exist. Please run dmenv freeze",
+                "{} does not exist. Please run dmenv lock",
                 &self.lock_path.to_string_lossy(),
             )));
         }
@@ -71,7 +71,7 @@ impl App {
         self.run_venv_cmd(&cmd, args)
     }
 
-    pub fn freeze(&self) -> Result<(), Error> {
+    pub fn lock(&self) -> Result<(), Error> {
         self.ensure_venv()?;
         self.upgrade_pip()?;
 

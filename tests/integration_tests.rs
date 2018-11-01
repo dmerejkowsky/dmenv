@@ -39,20 +39,19 @@ fn init_does_not_overwrite_existing_setup_py() {
 }
 
 #[test]
-fn freeze_complains_if_setup_py_does_not_exist() {
+fn lock_complains_if_setup_py_does_not_exist() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
     test_app.remove_setup_py();
-    test_app.assert_run_error(vec!["freeze"]);
+    test_app.assert_run_error(vec!["lock"]);
 }
 
 #[test]
-fn freeze_workflow() {
+fn lock_workflow() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
-    test_app.assert_run_ok(vec!["freeze"]);
+    test_app.assert_run_ok(vec!["lock"]);
     test_app.assert_lock();
-    test_app.assert_run_ok(vec!["upgrade-pip"]);
     test_app.assert_run_ok(vec!["run", "demo"]);
     test_app.assert_run_ok(vec!["run", "pytest"]);
 }
