@@ -4,9 +4,12 @@ use colored::*;
 use config;
 use error::Error;
 
+pub const LOCK_FILE_NAME: &str = "requirements.lock";
+
 pub struct App {
+    working_dir: std::path::PathBuf,
     venv_path: std::path::PathBuf,
-    requirements_lock_path: std::path::PathBuf,
+    lock_path: std::path::PathBuf,
     setup_py_path: std::path::PathBuf,
     python_binary: String,
 }
@@ -25,13 +28,14 @@ impl App {
         let config = config::parse_config(cfg_path)?;
         let python_binary = config::get_python_for_env(config, env_name)?;
         let venv_path = current_dir.join(".venv").join(env_name);
-        let requirements_lock_path = current_dir.join("requirements.lock");
+        let lock_path = current_dir.join(LOCK_FILE_NAME);
         let setup_py_path = current_dir.join("setup.py");
         let app = App {
             venv_path,
-            requirements_lock_path,
+            lock_path,
             setup_py_path,
             python_binary,
+            working_dir: current_dir,
         };
         Ok(app)
     }
@@ -51,10 +55,10 @@ impl App {
     pub fn install(&self) -> Result<(), Error> {
         self.ensure_venv()?;
 
-        if !self.requirements_lock_path.exists() {
+        if !self.lock_path.exists() {
             return Err(Error::new(&format!(
                 "{} does not exist. Please run dmenv freeze",
-                &self.requirements_lock_path.to_string_lossy(),
+                &self.lock_path.to_string_lossy(),
             )));
         }
 
@@ -129,6 +133,7 @@ impl App {
         let args = Self::to_string_args(args);
         Self::print_cmd(&self.python_binary, &args);
         let status = std::process::Command::new(&self.python_binary)
+            .current_dir(&self.working_dir)
             .args(&args)
             .status()?;
         if !status.success() {
@@ -143,20 +148,27 @@ impl App {
         let args = Self::to_string_args(args);
         let python_str = python.to_string_lossy().to_string();
         Self::print_cmd(&python_str, &args);
-        let command = std::process::Command::new(python).args(args).output()?;
+        let command = std::process::Command::new(python)
+            .current_dir(&self.working_dir)
+            .args(args)
+            .output()?;
         if !command.status.success() {
             return Err(Error::new(&format!(
                 "pip freeze failed: {}",
                 String::from_utf8_lossy(&command.stderr)
             )));
         }
-        std::fs::write("requirements.lock", &command.stdout)?;
-        println!("{} Requirements written to requirements.lock", "::".blue());
+        std::fs::write(&self.lock_path, &command.stdout)?;
+        println!(
+            "{} Requirements written to {}.lock",
+            "::".blue(),
+            self.lock_path.to_string_lossy()
+        );
         Ok(())
     }
 
     fn install_from_lock(&self) -> Result<(), Error> {
-        let as_str = &self.requirements_lock_path.to_string_lossy();
+        let as_str = &self.lock_path.to_string_lossy();
         let args = vec![
             "-m",
             "pip",
@@ -184,7 +196,10 @@ impl App {
     fn run_venv_cmd(&self, name: &str, args: Vec<String>) -> Result<(), Error> {
         let bin_path = &self.get_path_in_venv(name)?;
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
-        let command = std::process::Command::new(bin_path).args(args).status()?;
+        let command = std::process::Command::new(bin_path)
+            .args(args)
+            .current_dir(&self.working_dir)
+            .status()?;
         if !command.success() {
             return Err(Error::new("command failed"));
         }

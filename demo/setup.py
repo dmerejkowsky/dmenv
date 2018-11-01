@@ -6,10 +6,10 @@ if sys.version_info.major < 3:
 
 
 setup(
-    name="dmenv-demo",
+    name="demo",
     version="0.6.1",
     description="dmenv demo",
-    py_modules=["dmenv"],
+    py_modules=["dmeo"],
     include_package_data=True,
     install_requires=[
         "path.py",
@@ -25,5 +25,5 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
     ],
-    entry_points={"console_scripts": ["dmenv-demo = dmenv:main"]},
+    entry_points={"console_scripts": ["demo = demo:main"]},
 )

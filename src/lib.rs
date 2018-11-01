@@ -10,6 +10,7 @@ mod error;
 mod options;
 
 use app::App;
+pub use app::LOCK_FILE_NAME;
 pub use error::Error;
 use options::Command;
 pub use options::Options;
