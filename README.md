@@ -16,7 +16,7 @@ python = /path/to/python
 ```
 
 Then `dmenv` needs a `setup.py` file. If you don't have one yet, run
-`dmenv init --name <project name>` to generate one. Make sure to read the comments inside and edit it to feat your needs.
+`dmenv init --name <project name>` to generate one. Make sure to read the comments inside and edit it to fit your needs.
 
 Now you are ready to use `dmenv`!
 
