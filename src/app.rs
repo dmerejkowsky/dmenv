@@ -192,7 +192,6 @@ impl App {
             )));
         }
 
-        // TODO: on Windows this is `Scripts`, not `bin`
         #[cfg(not(windows))]
         let binaries_subdirs = "bin";
         #[cfg(not(windows))]
