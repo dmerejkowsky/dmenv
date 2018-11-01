@@ -39,6 +39,7 @@ impl std::fmt::Display for Error {
 pub struct App {
     venv_path: std::path::PathBuf,
     requirements_lock_path: std::path::PathBuf,
+    setup_py_path: std::path::PathBuf,
     python_binary: String,
 }
 
@@ -66,9 +67,11 @@ impl App {
         let python_binary = get_python_for_env(&config, env_name)?;
         let venv_path = current_dir.join(".venv").join(env_name);
         let requirements_lock_path = current_dir.join("requirements.lock");
+        let setup_py_path = current_dir.join("setup.py");
         let app = App {
             venv_path,
             requirements_lock_path,
+            setup_py_path,
             python_binary,
         };
         Ok(app)
@@ -108,6 +111,12 @@ impl App {
     pub fn freeze(&self) -> Result<(), Error> {
         self.ensure_venv()?;
 
+        if !self.setup_py_path.exists() {
+            return Err(Error::new(
+                "setup.py not found. You may want to run `dmenv init` now",
+            ));
+        }
+
         println!("{} Generating requirements.txt from setup.py", "::".blue());
         self.install_editable()?;
         self.run_pip_freeze()?;
@@ -120,10 +129,13 @@ impl App {
     }
 
     pub fn init(&self, name: &str, version: &str) -> Result<(), Error> {
+        if self.setup_py_path.exists() {
+            return Err(Error::new("setup.py already exists. Aborting"));
+        }
         let template = include_str!("setup.in.py");
         let template = template.replace("<NAME>", name);
         let template = template.replace("<VERSION>", version);
-        std::fs::write("setup.py", template)?;
+        std::fs::write(&self.setup_py_path, template)?;
         println!("{} Generated a new setup.py", "::".blue());
         Ok(())
     }
