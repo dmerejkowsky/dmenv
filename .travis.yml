@@ -8,14 +8,24 @@ os:
   - osx
   - windows
 
+addons:
+
+  homebrew:
+    packages:
+      - python
+
+  apt:
+    packages:
+      - python3-venv
+
+
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install python ; fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then choco install python; fi
 
 script:
   - cargo build --release
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PYTHON_BINARY=/usr/local/bin/python3 ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then export PYTHON_BINARY=/c/Python37/python ; cargo test --platform windows;fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then export PYTHON_BINARY=/c/Python37/python ;fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PYTHON_BINARY=python3; fi
   - cargo test --release
 
