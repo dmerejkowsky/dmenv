@@ -73,6 +73,7 @@ impl App {
 
     pub fn freeze(&self) -> Result<(), Error> {
         self.ensure_venv()?;
+        self.upgrade_pip()?;
 
         if !self.setup_py_path.exists() {
             return Err(Error::new(
