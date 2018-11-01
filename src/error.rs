@@ -1,0 +1,30 @@
+#[derive(Debug)]
+pub struct Error {
+    description: String,
+}
+
+impl Error {
+    pub fn new(description: &str) -> Error {
+        Error {
+            description: String::from(description),
+        }
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(error: std::io::Error) -> Error {
+        Error::new(&format!("I/O error: {}", error))
+    }
+}
+
+impl From<toml::de::Error> for Error {
+    fn from(error: toml::de::Error) -> Error {
+        Error::new(&format!("Could not parse config: {}", error))
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", &self.description)
+    }
+}
