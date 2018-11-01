@@ -78,7 +78,7 @@ fn run_app() -> Result<(), dmenv::Error> {
 fn main() {
     let result = run_app();
     if let Err(error) = result {
-        eprintln!("{} {}", "Error".bold().red(), error);
+        eprintln!("{}: {}", "Error".bold().red(), error);
         std::process::exit(1)
     };
 }
