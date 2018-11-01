@@ -12,9 +12,17 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(env_name: &str) -> Result<Self, Error> {
-        let current_dir = std::env::current_dir()?;
-        let config = config::parse_config()?;
+    pub fn new(
+        env_name: &str,
+        cfg_path: Option<String>,
+        working_dir: Option<String>,
+    ) -> Result<Self, Error> {
+        let current_dir = if let Some(cwd) = working_dir {
+            std::path::PathBuf::from(cwd)
+        } else {
+            std::env::current_dir()?
+        };
+        let config = config::parse_config(cfg_path)?;
         let python_binary = config::get_python_for_env(config, env_name)?;
         let venv_path = current_dir.join(".venv").join(env_name);
         let requirements_lock_path = current_dir.join("requirements.lock");

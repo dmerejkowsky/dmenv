@@ -11,6 +11,16 @@ pub struct Options {
     )]
     pub env_name: String,
 
+    // Those are mainly useful for tests, but you never know:
+    #[structopt(long = "cfg-path", help = "path to the config file")]
+    pub cfg_path: Option<String>,
+
+    #[structopt(
+        long = "cwd",
+        help = "path to use as the workining directory"
+    )]
+    pub working_dir: Option<String>,
+
     #[structopt(subcommand)]
     pub cmd: Command,
 }
