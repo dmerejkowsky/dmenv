@@ -85,6 +85,29 @@ An other virtualenv will be used in `.venv/3.8` so that you can keep your defaul
 
 Cool, no?
 
+# Troubleshooting
+
+You may get this error message when using `dmenv` with old Python:
+```
+-> running /mnt/data/dmerej/src/dmenv/demo/.venv/3.6/bin/python -m pip freeze --exclude-editable
+Error pip freeze failed:
+Usage:
+  /mnt/data/dmerej/src/dmenv/demo/.venv/3.6/bin/python -m pip freeze [options]
+
+no such option: --exclude-editable
+```
+
+The clue to the error is located right above:
+
+```
+You are using pip version 9.0.3, however version 18.1 is available.
+```
+
+Run `dmenv upgrade-pip` and the problem should go away.
+
+(And learn to read **the whole output** of the commands you run :)
+
+
 
 # FAQ
 
