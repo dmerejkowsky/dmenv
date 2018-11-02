@@ -6,7 +6,7 @@ use error::Error;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
-pub struct App {
+pub struct VenvManager {
     working_dir: std::path::PathBuf,
     venv_path: std::path::PathBuf,
     lock_path: std::path::PathBuf,
@@ -14,7 +14,7 @@ pub struct App {
     python_binary: String,
 }
 
-impl App {
+impl VenvManager {
     pub fn new(
         python_version: &str,
         cfg_path: Option<String>,
@@ -30,7 +30,7 @@ impl App {
         let venv_path = current_dir.join(".venv").join(python_version);
         let lock_path = current_dir.join(LOCK_FILE_NAME);
         let setup_py_path = current_dir.join("setup.py");
-        let app = App {
+        let app = VenvManager {
             venv_path,
             lock_path,
             setup_py_path,
@@ -65,9 +65,9 @@ impl App {
         self.install_from_lock()
     }
 
-    pub fn run(&self, args: Vec<String>) -> Result<(), Error> {
+    pub fn run(&self, args: &Vec<String>) -> Result<(), Error> {
         let cmd = args[0].clone();
-        let args: Vec<String> = args.into_iter().skip(1).collect();
+        let args: Vec<&str> = args.iter().skip(1).map(|x| x.as_str()).collect();
         self.run_venv_cmd(&cmd, args)
     }
 
@@ -131,7 +131,6 @@ impl App {
         std::fs::create_dir_all(&parent_venv_path)?;
         let venv_path = &self.venv_path.to_string_lossy();
         let args = vec!["-m", "venv", venv_path];
-        let args = Self::to_string_args(args);
         Self::print_cmd(&self.python_binary, &args);
         let status = std::process::Command::new(&self.python_binary)
             .current_dir(&self.working_dir)
@@ -146,7 +145,6 @@ impl App {
     fn run_pip_freeze(&self) -> Result<(), Error> {
         let python = self.get_path_in_venv("python")?;
         let args = vec!["-m", "pip", "freeze", "--exclude-editable"];
-        let args = Self::to_string_args(args);
         let python_str = python.to_string_lossy().to_string();
         Self::print_cmd(&python_str, &args);
         let command = std::process::Command::new(python)
@@ -179,22 +177,22 @@ impl App {
             "--editable",
             ".[dev]",
         ];
-        self.run_venv_cmd("python", Self::to_string_args(args))
+        self.run_venv_cmd("python", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
         let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
-        self.run_venv_cmd("python", Self::to_string_args(args))
+        self.run_venv_cmd("python", args)
     }
 
     fn install_editable(&self) -> Result<(), Error> {
         // tells pip to run `setup.py develop` (that's -e), and
         // install the dev requirements too
         let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
-        self.run_venv_cmd("python", Self::to_string_args(args))
+        self.run_venv_cmd("python", args)
     }
 
-    fn run_venv_cmd(&self, name: &str, args: Vec<String>) -> Result<(), Error> {
+    fn run_venv_cmd(&self, name: &str, args: Vec<&str>) -> Result<(), Error> {
         let bin_path = &self.get_path_in_venv(name)?;
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path)
@@ -237,16 +235,12 @@ impl App {
         Ok(path)
     }
 
-    fn print_cmd(bin_path: &str, args: &Vec<String>) {
+    fn print_cmd(bin_path: &str, args: &Vec<&str>) {
         println!(
             "{} running {} {}",
             "->".blue(),
             bin_path.bold(),
             args.join(" ")
         );
-    }
-
-    fn to_string_args(args: Vec<&str>) -> Vec<String> {
-        args.iter().map(|x| x.to_string()).collect()
     }
 }

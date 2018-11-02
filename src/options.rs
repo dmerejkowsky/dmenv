@@ -48,4 +48,29 @@ pub enum Command {
 
     #[structopt(name = "show", about = "Show path of the virtualenv")]
     Show {},
+
+    #[structopt(name = "pythons", about = "Manage Python versions")]
+    Pythons {
+        #[structopt(subcommand)]
+        pythons_cmd: PythonCommand,
+    },
+}
+
+#[derive(StructOpt)]
+pub enum PythonCommand {
+    #[structopt(name = "add", about = "register a new Python verson")]
+    Add {
+        #[structopt(name = "version")]
+        version: String,
+
+        #[structopt(name = "path")]
+        path: String,
+    },
+    #[structopt(name = "remove", about = "unregister the given Python")]
+    Remove {
+        #[structopt(name = "version")]
+        version: String,
+    },
+    #[structopt(name = "list", about = "list available Python versions")]
+    List {},
 }

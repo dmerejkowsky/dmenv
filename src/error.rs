@@ -17,6 +17,12 @@ impl From<std::io::Error> for Error {
     }
 }
 
+impl From<toml::ser::Error> for Error {
+    fn from(error: toml::ser::Error) -> Error {
+        Error::new(&format!("Could not serialize config: {}", error))
+    }
+}
+
 impl From<toml::de::Error> for Error {
     fn from(error: toml::de::Error) -> Error {
         Error::new(&format!("Could not parse config: {}", error))

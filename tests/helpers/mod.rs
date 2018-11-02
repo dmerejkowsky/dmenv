@@ -66,7 +66,7 @@ impl TestApp {
         cmd.extend(vec!["--cfg-path".to_string(), cfg_path]);
         cmd.extend(args);
         let options = dmenv::Options::from_iter_safe(cmd).expect("");
-        dmenv::run_app(options)
+        dmenv::run(options)
     }
 
     pub fn assert_run_ok(&self, args: Vec<&str>) {
@@ -104,6 +104,20 @@ impl TestApp {
     pub fn remove_file(&self, name: &str) {
         let path = self.tmp_path.join(name);
         std::fs::remove_file(path).expect("");
+    }
+
+    pub fn assert_python(&self, version: &str, expected_path: &str) {
+        let cfg_path = self.cfg_path.to_string_lossy();
+        let config_handler = dmenv::ConfigHandler::new(Some(cfg_path.into())).expect("");
+        let actual = config_handler.get_python(version).expect("");
+        assert_eq!(actual, expected_path);
+    }
+
+    pub fn assert_no_python(&self, version: &str) {
+        let cfg_path = self.cfg_path.to_string_lossy();
+        let config_handler = dmenv::ConfigHandler::new(Some(cfg_path.into())).expect("");
+        let err = config_handler.get_python(version).unwrap_err();
+        assert!(err.to_string().contains("No python found"));
     }
 }
 

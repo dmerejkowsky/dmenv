@@ -15,6 +15,26 @@ fn show_complains_if_cfg_is_missing() {
 }
 
 #[test]
+fn add_python_config() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+
+    test_app.assert_run_ok(vec!["pythons", "add", "3.8", "/opt/python3.8/bin/python"]);
+    test_app.assert_python("3.8", "/opt/python3.8/bin/python");
+
+    test_app.assert_run_ok(vec!["pythons", "list"]);
+}
+
+#[test]
+fn remove_python_config() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+
+    test_app.assert_run_ok(vec!["pythons", "remove", "default"]);
+    test_app.assert_no_python("default");
+}
+
+#[test]
 fn show_does_not_crash() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
