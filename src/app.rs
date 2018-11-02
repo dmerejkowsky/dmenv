@@ -16,7 +16,7 @@ pub struct App {
 
 impl App {
     pub fn new(
-        env_name: &str,
+        python_version: &str,
         cfg_path: Option<String>,
         working_dir: Option<String>,
     ) -> Result<Self, Error> {
@@ -25,9 +25,9 @@ impl App {
         } else {
             std::env::current_dir()?
         };
-        let config = config::parse_config(cfg_path)?;
-        let python_binary = config::get_python_for_env(config, env_name)?;
-        let venv_path = current_dir.join(".venv").join(env_name);
+        let config = config::ConfigHandler::new(cfg_path)?;
+        let python_binary = config.get_python(python_version)?;
+        let venv_path = current_dir.join(".venv").join(python_version);
         let lock_path = current_dir.join(LOCK_FILE_NAME);
         let setup_py_path = current_dir.join("setup.py");
         let app = App {

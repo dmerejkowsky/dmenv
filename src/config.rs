@@ -7,17 +7,38 @@ use error::Error;
 
 #[derive(Deserialize)]
 pub struct Config {
-    env: Map<String, Env>,
+    pythons: Map<String, String>,
 }
 
-#[derive(Deserialize)]
-struct Env {
-    python: String,
+pub struct ConfigHandler {
+    config: Config,
 }
 
-// TODO: config struct with a new() that parses!
-pub fn parse_config(cfg_path: Option<String>) -> Result<Config, Error> {
-    let resolved_path = if cfg_path.is_none() {
+impl ConfigHandler {
+    pub fn new(cfg_path: Option<String>) -> Result<Self, Error> {
+        let cfg_path = Self::get_config_path(cfg_path)?;
+        let config = Self::parse_config(cfg_path)?;
+        Ok(ConfigHandler { config })
+    }
+
+    pub fn get_python(&self, version: &str) -> Result<String, Error> {
+        let matching_python = &self.config.pythons.get(version);
+        if matching_python.is_none() {
+            return Err(Error::new(&format!(
+                "No python found matching version: {}",
+                version
+            )));
+        }
+
+        let matching_python = matching_python.unwrap();
+        Ok(matching_python.clone())
+    }
+
+    fn get_config_path(cfg_path: Option<String>) -> Result<std::path::PathBuf, Error> {
+        if cfg_path.is_some() {
+            return Ok(cfg_path.unwrap().into());
+        }
+
         let config_dir = appdirs::user_config_dir(None, None, false);
         // The type is Result<PathBuf, ()> I blame upstream
         if config_dir.is_err() {
@@ -26,59 +47,46 @@ pub fn parse_config(cfg_path: Option<String>) -> Result<Config, Error> {
             ));
         }
         let config_dir = config_dir.unwrap();
-        config_dir.join("dmenv.toml")
-    } else {
-        cfg_path.unwrap().into()
-    };
-    let config_str = std::fs::read_to_string(&resolved_path);
-    if let Err(error) = config_str {
-        return Err(Error::new(&format!(
-            "Could not read from {}: {}",
-            resolved_path.to_string_lossy(),
-            error
-        )));
-    }
-    let config_str = config_str.unwrap();
-    let config = toml::from_str(&config_str)?;
-    Ok(config)
-}
-
-pub fn get_python_for_env(config: Config, env_name: &str) -> Result<String, Error> {
-    let matching_env = config.env.get(env_name);
-    if matching_env.is_none() {
-        return Err(Error::new(&format!("No such env: {}", env_name)));
+        Ok(config_dir.join("dmenv.toml"))
     }
 
-    let env = matching_env.unwrap();
-    Ok(env.python.clone())
+    fn parse_config(cfg_path: std::path::PathBuf) -> Result<Config, Error> {
+        let config_str = std::fs::read_to_string(&cfg_path);
+        if let Err(error) = config_str {
+            return Err(Error::new(&format!(
+                "Could not read from {}: {}",
+                cfg_path.to_string_lossy(),
+                error
+            )));
+        }
+        let config_str = config_str.unwrap();
+        let config = toml::from_str(&config_str)?;
+        Ok(config)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn test_config() -> Config {
+    #[test]
+    fn test_config_handler() {
+        let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
         let config = r#"
-        [env.default]
-        python = "/usr/bin/python3"
-
-        [env."3.8"]
-        python = "/path/to/python3.8"
+        [pythons]
+        default = "/usr/bin/python3"
+        "3.8" = "/path/to/python3.8"
         "#;
-        toml::from_str(&config).unwrap()
-    }
+        let cfg_path = tmp_dir.path().join("dmenv.cfg");
+        std::fs::write(&cfg_path, config).expect("");
 
-    #[test]
-    fn test_read_config_happy() {
-        let config = test_config();
-        let actual = super::get_python_for_env(config, "3.8").unwrap();
+        let cfg_path = cfg_path.to_string_lossy();
+        let config_handler = ConfigHandler::new(Some(cfg_path.to_string())).unwrap();
+
+        let actual = config_handler.get_python("3.8").unwrap();
         assert_eq!(actual, "/path/to/python3.8");
-    }
 
-    #[test]
-    fn test_read_config_no_such_env() {
-        let config = test_config();
-        let actual = super::get_python_for_env(config, "nosuch");
-        assert!(actual.is_err());
+        let actual = config_handler.get_python("nosuch");
+        assert!(actual.is_err())
     }
 }

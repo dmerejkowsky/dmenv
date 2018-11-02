@@ -25,8 +25,8 @@ impl TestApp {
             .expect("PYTHON_BINARY environment variable should be set to a python3 binary");
         let to_write = format!(
             r#"
-            [env.default]
-            python = "{}"
+            [pythons]
+            default = "{}"
             "#,
             python_binary
         );

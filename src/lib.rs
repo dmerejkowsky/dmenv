@@ -16,7 +16,11 @@ use options::Command;
 pub use options::Options;
 
 pub fn run_app(options: Options) -> Result<(), Error> {
-    let app = App::new(&options.env_name, options.cfg_path, options.working_dir)?;
+    let app = App::new(
+        &options.python_version,
+        options.cfg_path,
+        options.working_dir,
+    )?;
     match options.cmd {
         Command::Install {} => app.install(),
         Command::Clean {} => app.clean(),
