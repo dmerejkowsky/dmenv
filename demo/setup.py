@@ -9,7 +9,7 @@ setup(
     name="demo",
     version="0.6.1",
     description="dmenv demo",
-    py_modules=["dmeo"],
+    py_modules=["demo"],
     include_package_data=True,
     install_requires=[
         "path.py",
