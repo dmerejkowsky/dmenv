@@ -37,6 +37,7 @@ def download(url, output_file):
 
 def select_path_entry():
     entries = os.environ.get("PATH").split(os.path.pathsep)
+    entries = [x for x in entries if os.access(x, os.W_OK)]
     print("Heres are the possible locations to install dmenv")
     print("Select one element in the list")
     for i, entry in enumerate(entries, start=1):
