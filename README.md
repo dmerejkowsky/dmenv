@@ -11,17 +11,16 @@ from the sources.
 
 ## Setup
 
-First, `dmenv` needs one config file named `dmenv.toml`, located in `~/.config`
-on Linux and macOS, and `~/AppData/Local` on Windows.
+In order to run, `dmenv` needs to know the path to the Python3 interpreter you will be using.
 
-The config **must** contain a `default` environment, like this:
+To do so, run:
 
-```
-[env.default]
-python = /path/to/python
+```console
+$ dmenv add default /path/to/python3
 ```
 
-Then `dmenv` needs a `setup.py` file. If you don't have one yet, run
+Then, `dmenv` needs a `setup.py` file. If you don't have one yet, run
+
 `dmenv init --name <project name>` to generate one. Make sure to read the comments inside and edit it to fit your needs.
 
 Now you are ready to use `dmenv`!
@@ -35,9 +34,15 @@ Here's what `dmenv lock` does:
   created.
 * Run `pip freeze` to generate a `requirements.lock` file.
 
+Now you can add `requirements.lock`, to your version control system, which leads us to the next command.
+
 ## install
 
-Now you can add `requirements.lock` to your git repo, and then anyone can run `dmenv install` to install all the deps and get exactly the same versions you got when you ran `dmenv lock`. Hooray reproducible builds!
+Now that the complete list of dependencies and their versions is written in the
+`requirements.lock` file, anyone can run `dmenv install` to install all the
+dependencies and get exactly the same versions you got when you ran `dmenv lock`.
+
+Hooray reproducible builds!
 
 ## run
 
@@ -57,12 +62,11 @@ It's exactly the same as typing `dmenv run -- python -m pip install --upgrade pi
 
 ## Using an other python version
 
-To use a different Python version, add a new section in the `dmenv.toml` config file with the name and the path to the binary, like this:
+To use a different Python version, run `dmenv env pythons add <version> <path>`, when `path` is the full
+path to the python binary.
 
-```toml
-[env.3.8]
-python = "/path/to/python3.8"
-```
+(Alternatively, you can also edit the `dmenv.toml` config file, which should be located in `~/.config` and Linux and
+macOS, or  `%HOME%/AppData/Local` on Windows.
 Then you can use Python 3.8 with all the `dmenv` commands by prefixing them with `dmenv --env 3.8`.
 
 An other virtualenv will be used in `.venv/3.8` so that you can keep your default virtualenv in `.venv/default`.
