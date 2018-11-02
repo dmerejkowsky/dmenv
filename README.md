@@ -6,7 +6,7 @@ Download the [dmenv installer](https://raw.githubusercontent.com/dmerejkowsky/dm
 `python installer.py`, or `python3 installer.py`, depending on how your Python interpreter is called. Just make
 sure it's Python3, not 2.
 
-The script will fetch pre-compiled binaries from GitHub. If you don't like that, use `cargo install dm-env` to build
+The script will fetch pre-compiled binaries from GitHub. If you don't like that, use `cargo install dmenv` to build
 from the sources.
 
 ## Setup
