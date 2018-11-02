@@ -1,5 +1,8 @@
 # dmenv: the stupid virtualenv manager
 
+<a href="https://crates.io/crates/dmenv"><img src="https://img.shields.io/crates/v/dmenv.svg"/></a>
+[![Build](https://img.shields.io/travis/dmerejkowsky/dmenv.svg?branch=master)](https://travis-ci.org/dmerejkowsky/dmenv)
+
 ## Installation
 
 Download the [dmenv installer](https://raw.githubusercontent.com/dmerejkowsky/dmenv/master/installer.py), then run
