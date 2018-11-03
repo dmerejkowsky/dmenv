@@ -9,8 +9,7 @@ Download the [dmenv installer](https://raw.githubusercontent.com/dmerejkowsky/dm
 `python installer.py`, or `python3 installer.py`, depending on how your Python interpreter is called. Just make
 sure it's Python3, not 2.
 
-The script will fetch pre-compiled binaries from GitHub. If you don't like that, use `cargo install dmenv` to build
-from the sources.
+The script will fetch pre-compiled binaries from GitHub. If you prefer, you can also [install rust](https://www.rust-lang.org/en-US/install.html) and install dmenv with `cargo install dmenv`.
 
 ## Setup
 
@@ -19,7 +18,7 @@ In order to run, `dmenv` needs to know the path to the Python3 interpreter you w
 To do so, run:
 
 ```console
-$ dmenv add default /path/to/python3
+$ dmenv pythons add default /path/to/python3
 ```
 
 Then, `dmenv` needs a `setup.py` file. If you don't have one yet, run
@@ -28,7 +27,9 @@ Then, `dmenv` needs a `setup.py` file. If you don't have one yet, run
 
 Now you are ready to use `dmenv`!
 
-## lock
+Here's a description of the main commands:
+
+## dmenv lock
 
 Here's what `dmenv lock` does:
 
@@ -37,9 +38,11 @@ Here's what `dmenv lock` does:
   created.
 * Run `pip freeze` to generate a `requirements.lock` file.
 
-Now you can add `requirements.lock`, to your version control system, which leads us to the next command.
+Now you can add the `requirements.lock` file to your version control system.
 
-## install
+This leads us to the next command.
+
+## dmenv install
 
 Now that the complete list of dependencies and their versions is written in the
 `requirements.lock` file, anyone can run `dmenv install` to install all the
@@ -47,17 +50,16 @@ dependencies and get exactly the same versions you got when you ran `dmenv lock`
 
 Hooray reproducible builds!
 
-## run
+## dmenv run
 
-As a convenience, you can use:`dmenv run` to run any binary from the virtualenv
+As a convenience, you can use:`dmenv run` to run any binary from the virtualenv. If the program you want to run
+needs command-line options, use a `--` to separated them from `dmenv` options, like so:
 
-## show
+```console
+dmenv run -- pytest --collect-only
+```
 
-`dmenv show` will show you the path of the virtualenv. No more, no less.
-
-On Linux, you might use something like `source $(dmenv show)/bin/activate` to activate the virtualenv in your shell.
-
-## upgrade-pip
+## dmenv upgrade-pip
 
 Tired of `pip` telling you to upgrade itself? Run `dmenv upgrade-pip` :)
 
@@ -65,14 +67,8 @@ It's exactly the same as typing `dmenv run -- python -m pip install --upgrade pi
 
 ## Using an other python version
 
-To use a different Python version, run `dmenv env pythons add <version> <path>`, when `path` is the full
-path to the python binary.
-
-Alternatively, you can also edit the `dmenv.toml` config file, which should be located in
-
-* `~/.config/dmenv/dmenv.toml` on Linux
-* `~/Library/Application Support/dmenv/dmenv.toml` on macOS
-* `%HOME%/AppData/Local/dmenv/dmenv.toml` on Windows
+To use a different Python version, run `dmenv pythons add <version> <path>`, when `path` is the full
+path to the python binary. For instance: `dmenv pythons add 3.8 /path/to/python3.8`.
 
 Then you can use Python 3.8 with all the `dmenv` commands by prefixing them with `dmenv --env 3.8`.
 
@@ -80,40 +76,10 @@ An other virtualenv will be used in `.venv/3.8` so that you can keep your defaul
 
 Cool, no?
 
-# Troubleshooting
-
-You may get this error message when using `dmenv` with old Python:
-```
--> running /mnt/data/dmerej/src/dmenv/demo/.venv/3.6/bin/python -m pip freeze --exclude-editable
-Error pip freeze failed:
-Usage:
-  /mnt/data/dmerej/src/dmenv/demo/.venv/3.6/bin/python -m pip freeze [options]
-
-no such option: --exclude-editable
-```
-
-The clue to the error is located right above:
-
-```
-You are using pip version 9.0.3, however version 18.1 is available.
-```
-
-Run `dmenv upgrade-pip` and the problem should go away.
-
-(And learn to read **the whole output** of the commands you run :)
-
-
-
 # FAQ
 
-Q: How do I add dependencies to build the documentation?<br/>
-A: Stick them in the `dev` section.
-
-Q: What if I don't want to install the dev dependencies?<br/>
-A: Don't use dmenv. Run `pip install` without `[dev]` extras. If you insist, maybe a `--no-dev` option will be added.
-
 Q: How do I upgrade a dependency?<br/>
-A: Just run `dmenv lock` again. If something breaks, either fix your code or use more precise version specifiers
+A: Just run `dmenv lock` again. If something breaks, either fix your code or use more precise version specifiers in `setup.py`, like `foobar < 2.0`.
 
 Q: How do I depend on a git specific repo/branch?<br/>
 A: Edit the `requirements.lock` by hand like this:
@@ -124,22 +90,14 @@ https://gitlab.com/foo/bar@my-branch
 ```
 
 Q: But that sucks and it will disappear when I re-run `dmenv lock`! <br />
-A: Yes that sucks. Feel free to:
+A: See #7. We are looking for a proper solution. In the mean time, feel free to:
+
   * Open a pull request if you've forked an upstream project
   * Use a local pipy mirror and a little bit of CI to publish your sources there
 
 
-## Why?
-
-* Because pipenv, poetry and tox are too big and too complex
-* Because virtualenv + requirements.txt has worked for 10 years and will continue to work for 10 years
-* Because it will continue to work if / when pip supports pipfile
-* Because dependency management is very hard, and pip already does a good enough job
-
-## Why Python3 only?
-
-* Because it's 2018
-
+Q: Why Rust? <br />
+A:
 
 * Because it has excellent support for what we need: manipulate paths and run commands in a cross-platform way
 * Because it's my second favorite language
