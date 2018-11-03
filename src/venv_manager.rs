@@ -1,7 +1,6 @@
 extern crate colored;
 use colored::*;
 
-use config;
 use error::Error;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
@@ -11,37 +10,30 @@ pub struct VenvManager {
     venv_path: std::path::PathBuf,
     lock_path: std::path::PathBuf,
     setup_py_path: std::path::PathBuf,
-    python_binary: String,
+    python_binary: std::path::PathBuf,
 }
 
 impl VenvManager {
     pub fn new(
-        python_version: &str,
-        cfg_path: Option<String>,
-        working_dir: Option<String>,
+        python_binary: std::path::PathBuf,
+        python_version: String,
+        working_dir: std::path::PathBuf,
     ) -> Result<Self, Error> {
-        let current_dir = if let Some(cwd) = working_dir {
-            std::path::PathBuf::from(cwd)
-        } else {
-            std::env::current_dir()?
-        };
-        let config = config::ConfigHandler::new(cfg_path)?;
-        let python_binary = config.get_python(python_version)?;
-        let lock_path = current_dir.join(LOCK_FILE_NAME);
-        let setup_py_path = current_dir.join("setup.py");
+        let lock_path = working_dir.join(LOCK_FILE_NAME);
+        let setup_py_path = working_dir.join("setup.py");
         let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
             std::path::PathBuf::from(env_var)
         } else {
-            current_dir.join(".venv").join(&python_version)
+            working_dir.join(".venv").join(&python_version)
         };
-        let app = VenvManager {
+        let venv_manager = VenvManager {
+            working_dir,
+            python_binary,
             venv_path,
             lock_path,
             setup_py_path,
-            python_binary,
-            working_dir: current_dir,
         };
-        Ok(app)
+        Ok(venv_manager)
     }
 
     pub fn clean(&self) -> Result<(), Error> {
@@ -136,7 +128,7 @@ impl VenvManager {
         std::fs::create_dir_all(&parent_venv_path)?;
         let venv_path = &self.venv_path.to_string_lossy();
         let args = vec!["-m", "venv", venv_path];
-        Self::print_cmd(&self.python_binary, &args);
+        Self::print_cmd(&self.python_binary.to_string_lossy(), &args);
         let status = std::process::Command::new(&self.python_binary)
             .current_dir(&self.working_dir)
             .args(&args)

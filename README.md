@@ -13,19 +13,19 @@ The script will fetch pre-compiled binaries from GitHub. If you prefer, you can 
 
 ## Setup
 
-In order to run, `dmenv` needs to know the path to the Python3 interpreter you will be using.
+First, `dmenv` needs a Python3 interpreter in PATH, which should be called `python` or `python3`. This should already be the case if you've just installed Python3, regardless of your operating system.
 
-To do so, run:
+Second, `dmenv` needs a `setup.py` file to work.
 
-```console
-$ dmenv pythons add default /path/to/python3
-```
+* If you don't have a `setup.py` yet, you can run `dmenv init --name <project
+  name>` to generate one. In this case, make sure to read the comments inside
+  and edit it to fit your needs.
 
-Then, `dmenv` needs a `setup.py` file. If you don't have one yet, run
+* If you already have one, please note that `dmenv` uses the `extra_requires` keyword with a `dev` key
+  to specify development dependencies, which you can use to replace your `dev-requirements.txt`
+  file for instance.
 
-`dmenv init --name <project name>` to generate one. Make sure to read the comments inside and edit it to fit your needs.
-
-Now you are ready to use `dmenv`!
+And that's it. Now you are ready to use `dmenv`!
 
 Here's a description of the main commands:
 
@@ -33,10 +33,15 @@ Here's a description of the main commands:
 
 Here's what `dmenv lock` does:
 
-* Create a virtualenv for you with `python -m venv` in `.venv/default`. (Make sure to add `.venv` to your `.gitignore`).
-* Run `pip intall --editable .[dev]` so that your dev deps are installed, and the scripts listed in `entry_points` are
+* First, it creates a virtualenv for you with `python -m venv` in
+  `.venv/<version>`, where `<version>` is read from `python --version`. Make
+  sure to add `.venv` to your `.gitignore`! Note that this step is skipped
+  if `dmenv` detects it is run from an existing virtualenv.
+
+* Then it runs `pip intall --editable .[dev]` so that your dev deps are installed, and the scripts listed in `entry_points` are
   created.
-* Run `pip freeze` to generate a `requirements.lock` file.
+
+* Finally, it runs `pip freeze` to generate a `requirements.lock` file.
 
 Now you can add the `requirements.lock` file to your version control system.
 
@@ -65,21 +70,18 @@ Tired of `pip` telling you to upgrade itself? Run `dmenv upgrade-pip` :)
 
 It's exactly the same as typing `dmenv run -- python -m pip install --upgrade pip`, but with less keystrokes :P
 
-## Using an other python version
+## Using an other python interpreter
 
-To use a different Python version, run `dmenv pythons add <version> <path>`, when `path` is the full
-path to the python binary. For instance: `dmenv pythons add 3.8 /path/to/python3.8`.
+To use an other Python interpreter than the one in PATH, you can either:
 
-Then you can use Python 3.8 with all the `dmenv` commands by prefixing them with `dmenv --env 3.8`.
-
-An other virtualenv will be used in `.venv/3.8` so that you can keep your default virtualenv in `.venv/default`.
-
-Cool, no?
+* Modify your PATH environment variable so that it appears there. (For instance, with [pyenv](https://github.com/pyenv/pyenv)).
+* Prefix all the `dmenv` commands with a `--python /path/to/other/python` flag.
 
 # FAQ
 
 Q: How do I upgrade a dependency?<br/>
-A: Just run `dmenv lock` again. If something breaks, either fix your code or use more precise version specifiers in `setup.py`, like `foobar < 2.0`.
+A: Just run `dmenv lock` again. If something breaks, either fix your code or
+   use more precise version specifiers in `setup.py`, like `foobar < 2.0`.
 
 Q: How do I depend on a git specific repo/branch?<br/>
 A: Edit the `requirements.lock` by hand like this:
@@ -90,7 +92,7 @@ https://gitlab.com/foo/bar@my-branch
 ```
 
 Q: But that sucks and it will disappear when I re-run `dmenv lock`! <br />
-A: See #7. We are looking for a proper solution. In the mean time, feel free to:
+A: See [#7](https://github.com/dmerejkowsky/dmenv/issues/7). We are looking for a proper solution. In the mean time, feel free to:
 
   * Open a pull request if you've forked an upstream project
   * Use a local pipy mirror and a little bit of CI to publish your sources there
@@ -102,4 +104,4 @@ A:
 * Because it has excellent support for what we need: manipulate paths and run commands in a cross-platform way
 * Because it's my second favorite language
 * Because distribution is really easy
-* Because by *not* using Python I'm less likely to depend on pip or virtualenv's internals
+* Because by *not* using Python at all `dmenv` is less likely to break if something on your system changes.

@@ -22,8 +22,8 @@ name = "Check changelog"
 cmd = "grep {new_version} CHANGELOG.md"
 
 [[before_push]]
-name = "Check compilation"
-cmd = "PYTHON3_BINARY=$(which python3) cargo test"
+name = "Run tests"
+cmd = "cargo test"
 
 [[after_push]]
 name = "publish"

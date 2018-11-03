@@ -3,7 +3,6 @@ use self::structopt::StructOpt;
 
 pub struct TestApp {
     tmp_path: std::path::PathBuf,
-    cfg_path: std::path::PathBuf,
 }
 
 ///
@@ -13,24 +12,9 @@ pub struct TestApp {
 /// demo/
 impl TestApp {
     pub fn new(tmp_path: std::path::PathBuf) -> Self {
-        let cfg_path = tmp_path.join("dmenv.toml");
-        let test_app = TestApp { tmp_path, cfg_path };
-        test_app.ensure_cfg();
+        let test_app = TestApp { tmp_path };
         test_app.copy_demo_files();
         test_app
-    }
-
-    fn ensure_cfg(&self) {
-        let python_binary = std::env::var("PYTHON3_BINARY")
-            .expect("PYTHON3_BINARY environment variable should be set to a python3 binary");
-        let to_write = format!(
-            r#"
-            [pythons]
-            default = "{}"
-            "#,
-            python_binary
-        );
-        std::fs::write(&self.cfg_path, to_write).expect("");
     }
 
     fn copy_demo_files(&self) {
@@ -46,10 +30,6 @@ impl TestApp {
             self.tmp_path.join("setup.py"),
             include_str!("../../demo/setup.py"),
         ).expect("");
-    }
-
-    pub fn remove_cfg(&self) {
-        self.remove_file(&self.cfg_path.to_string_lossy());
     }
 
     pub fn remove_setup_py(&self) {
@@ -104,20 +84,6 @@ impl TestApp {
     pub fn remove_file(&self, name: &str) {
         let path = self.tmp_path.join(name);
         std::fs::remove_file(path).expect("");
-    }
-
-    pub fn assert_python(&self, version: &str, expected_path: &str) {
-        let cfg_path = self.cfg_path.to_string_lossy();
-        let config_handler = dmenv::ConfigHandler::new(Some(cfg_path.into())).expect("");
-        let actual = config_handler.get_python(version).expect("");
-        assert_eq!(actual, expected_path);
-    }
-
-    pub fn assert_no_python(&self, version: &str) {
-        let cfg_path = self.cfg_path.to_string_lossy();
-        let config_handler = dmenv::ConfigHandler::new(Some(cfg_path.into())).expect("");
-        let err = config_handler.get_python(version).unwrap_err();
-        assert!(err.to_string().contains("No python found"));
     }
 }
 

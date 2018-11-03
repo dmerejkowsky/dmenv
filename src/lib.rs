@@ -1,30 +1,57 @@
 extern crate colored;
-#[macro_use]
-extern crate serde_derive;
 extern crate serde;
+extern crate serde_derive;
 extern crate structopt;
 
 mod cmd;
-mod config;
 mod error;
-mod pythons_manager;
 mod venv_manager;
 
-pub use config::ConfigHandler;
-pub use error::Error;
-use cmd::SubCommand;
-use cmd::PythonsCommand;
 pub use cmd::Command;
-use pythons_manager::PythonsManager;
+use cmd::SubCommand;
+pub use error::Error;
 use venv_manager::VenvManager;
 pub use venv_manager::LOCK_FILE_NAME;
 
-fn run_venv_manager(cmd: Command) -> Result<(), Error> {
-    let venv_manager = VenvManager::new(
-        &cmd.python_version,
-        cmd.cfg_path.clone(),
-        cmd.working_dir.clone(),
-    )?;
+fn get_python_binary(requested_python: &Option<String>) -> Result<std::path::PathBuf, Error> {
+    if let Some(python) = requested_python {
+        return Ok(std::path::PathBuf::from(python));
+    }
+
+    let python3 = which::which("python3");
+    if python3.is_ok() {
+        return Ok(python3.unwrap());
+    }
+
+    // Python3 may be called 'python', for instance on Windows
+    Ok(which::which("python")?)
+}
+
+fn get_python_version(python_binary: &std::path::PathBuf) -> Result<String, Error> {
+    let command = std::process::Command::new(python_binary)
+        .args(&["--version"])
+        .output()?;
+    if !command.status.success() {
+        return Err(Error::new(&format!(
+            "python --version failed: {}",
+            String::from_utf8_lossy(&command.stderr)
+        )));
+    }
+    let out = String::from_utf8_lossy(&command.stdout);
+    let out = out.trim();
+    let version = out.replace("Python ", "");
+    Ok(version)
+}
+
+pub fn run(cmd: Command) -> Result<(), Error> {
+    let working_dir = if let Some(cwd) = cmd.working_dir {
+        std::path::PathBuf::from(cwd)
+    } else {
+        std::env::current_dir()?
+    };
+    let python_binary = get_python_binary(&cmd.python_binary)?;
+    let python_version = get_python_version(&python_binary)?;
+    let venv_manager = VenvManager::new(python_binary, python_version, working_dir)?;
     match &cmd.sub_cmd {
         SubCommand::Install {} => venv_manager.install(),
         SubCommand::Clean {} => venv_manager.clean(),
@@ -33,28 +60,5 @@ fn run_venv_manager(cmd: Command) -> Result<(), Error> {
         SubCommand::Run { ref cmd } => venv_manager.run(cmd),
         SubCommand::Show {} => venv_manager.show(),
         SubCommand::UpgradePip {} => venv_manager.upgrade_pip(),
-        _ => Ok(()),
-    }
-}
-
-fn run_pythons_manager(
-    cfg_path: Option<String>,
-    python_cmd: PythonsCommand,
-) -> Result<(), Error> {
-    let config_handler = ConfigHandler::new(cfg_path)?;
-    let pythons_manager = PythonsManager::new(config_handler);
-    match python_cmd {
-        PythonsCommand::Add { version, path } => pythons_manager.add(&version, &path)?,
-        PythonsCommand::Remove { version } => pythons_manager.remove(&version)?,
-        PythonsCommand::List {} => pythons_manager.list()?,
-    }
-    Ok(())
-}
-
-pub fn run(cmd: Command) -> Result<(), Error> {
-    if let SubCommand::Pythons { pythons_cmd } = cmd.sub_cmd {
-        run_pythons_manager(cmd.cfg_path, pythons_cmd)
-    } else {
-        run_venv_manager(cmd)
     }
 }

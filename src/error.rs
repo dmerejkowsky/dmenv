@@ -29,6 +29,12 @@ impl From<toml::de::Error> for Error {
     }
 }
 
+impl From<which::Error> for Error {
+    fn from(error: which::Error) -> Error {
+        Error::new(&error.to_string())
+    }
+}
+
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", &self.description)
