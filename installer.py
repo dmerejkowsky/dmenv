@@ -5,6 +5,18 @@ import sys
 import os
 
 
+VERSION = "ci-5"
+
+
+def get_artifact_name(platform_name):
+    if platform_name == "windows":
+        return "dmenv-windows.exe"
+    elif platform_name == "darwin":
+        return "dmenv-osx"
+    elif platform_name == "linux":
+        return "dmenv-linux"
+
+
 def show_progress(xfered, size):
     percent = float(xfered) / size * 100
     print("Downloading: %.0f%%" % percent, flush=True, end="\r")
@@ -69,16 +81,15 @@ def main():
     parser.add_argument("--upgrade", action="store_true")
     args = parser.parse_args()
 
-    url = "https://dmerej.info/pub/dmenv-%s" % sys.platform
-    if sys.platform == "windows":
-        url += ".exe"
-        out = "dmenv.exe"
-    else:
-        out = "dmenv"
-
+    artifact_name = get_artifact_name(sys.platform)
+    url = "https://github.com/dmerejkowsky/dmenv/releases/download/%s/%s" % (VERSION, artifact_name)
     if args.dest:
         dest = args.dest
     else:
+        if sys.platform == "windows":
+            out = "dmenv.exe"
+        else:
+            out = "dmenv"
         path_entry = select_path_entry()
         dest = os.path.join(path_entry, out)
 
