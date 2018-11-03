@@ -27,9 +27,13 @@ impl VenvManager {
         };
         let config = config::ConfigHandler::new(cfg_path)?;
         let python_binary = config.get_python(python_version)?;
-        let venv_path = current_dir.join(".venv").join(python_version);
         let lock_path = current_dir.join(LOCK_FILE_NAME);
         let setup_py_path = current_dir.join("setup.py");
+        let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
+            std::path::PathBuf::from(env_var)
+        } else {
+            current_dir.join(".venv").join(&python_version)
+        };
         let app = VenvManager {
             venv_path,
             lock_path,
