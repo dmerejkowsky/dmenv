@@ -1,3 +1,7 @@
+# 0.3.4
+
+* If `dmenv` is run *inside an existing virtualenv*, just use it. Fix #9
+
 # 0.3.3
 
 * Also upgrade pip when running `dmenv install`
