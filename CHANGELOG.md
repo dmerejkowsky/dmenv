@@ -1,3 +1,7 @@
+# 0.3.1
+
+* Add a `dmenv` subdirectory to the configuration file path.
+
 # 0.3.0
 
 * Replace command `freeze` by `lock`.
