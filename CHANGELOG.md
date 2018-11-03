@@ -1,3 +1,8 @@
+# 0.4.0
+
+* `dmenv` no longer needs a configuration file
+* Find the Python interpreter to use by looking in the PATH environment variable
+
 # 0.3.4
 
 * If `dmenv` is run *inside an existing virtualenv*, just use it. Fix #9
