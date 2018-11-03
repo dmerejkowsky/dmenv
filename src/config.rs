@@ -86,7 +86,9 @@ impl ConfigHandler {
             ));
         }
         let config_dir = config_dir.unwrap();
-        Ok(config_dir.join("dmenv.toml"))
+        let res = config_dir.join("dmenv.toml");
+        println!("Using config from {}", res.to_string_lossy());
+        Ok(res)
     }
 
     fn write_config(&self, config: Config) -> Result<(), Error> {
