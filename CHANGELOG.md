@@ -1,3 +1,8 @@
+# 0.3.3
+
+* Also upgrade pip when running `dmenv install`
+* Fix incorrect message when running `dmenv lock`
+
 # 0.3.2
 
 * Fix regression introduced in 0.3.1: create config path parent subdirectory
