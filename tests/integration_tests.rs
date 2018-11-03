@@ -15,7 +15,17 @@ fn show_complains_if_cfg_is_missing() {
 }
 
 #[test]
-fn add_python_config() {
+fn add_first_python_version() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    test_app.remove_cfg();
+
+    let python_binary = std::env::var("PYTHON3_BINARY").unwrap();
+    test_app.assert_run_ok(vec!["pythons", "add", "default", &python_binary]);
+}
+
+#[test]
+fn add_new_python_version() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
 
