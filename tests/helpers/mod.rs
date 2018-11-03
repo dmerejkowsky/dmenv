@@ -21,8 +21,8 @@ impl TestApp {
     }
 
     fn ensure_cfg(&self) {
-        let python_binary = std::env::var("PYTHON_BINARY")
-            .expect("PYTHON_BINARY environment variable should be set to a python3 binary");
+        let python_binary = std::env::var("PYTHON3_BINARY")
+            .expect("PYTHON3_BINARY environment variable should be set to a python3 binary");
         let to_write = format!(
             r#"
             [pythons]
@@ -65,8 +65,8 @@ impl TestApp {
         let cfg_path: String = self.tmp_path.join("dmenv.toml").to_string_lossy().into();
         cmd.extend(vec!["--cfg-path".to_string(), cfg_path]);
         cmd.extend(args);
-        let options = dmenv::Options::from_iter_safe(cmd).expect("");
-        dmenv::run(options)
+        let cmd = dmenv::Command::from_iter_safe(cmd).expect("");
+        dmenv::run(cmd)
     }
 
     pub fn assert_run_ok(&self, args: Vec<&str>) {
