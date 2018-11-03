@@ -65,9 +65,10 @@ impl ConfigHandler {
     fn check_cfg_path(&self) -> Result<(), Error> {
         if !&self.cfg_path.exists() {
             let message = format!(
-                "{}\n{}", "No pythons configured yet",
+                "{}\n{}",
+                "No pythons configured yet",
                 "Please run `dmenv pythons add default <path/to/python3/interpreter>`"
-                );
+            );
             return Err(Error::new(&message));
         }
         Ok(())
@@ -93,6 +94,8 @@ impl ConfigHandler {
 
     fn write_config(&self, config: Config) -> Result<(), Error> {
         let contents = toml::to_string(&config)?;
+        let parent = self.cfg_path.parent().expect("cfg_path has no parent");
+        std::fs::create_dir_all(&parent)?;
         std::fs::write(&self.cfg_path, &contents)?;
         Ok(())
     }
