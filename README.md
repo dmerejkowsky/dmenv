@@ -68,8 +68,12 @@ It's exactly the same as typing `dmenv run -- python -m pip install --upgrade pi
 To use a different Python version, run `dmenv env pythons add <version> <path>`, when `path` is the full
 path to the python binary.
 
-(Alternatively, you can also edit the `dmenv.toml` config file, which should be located in `~/.config` and Linux and
-macOS, or  `%HOME%/AppData/Local` on Windows.
+Alternatively, you can also edit the `dmenv.toml` config file, which should be located in
+
+* `~/.config/dmenv/dmenv.toml` on Linux
+* `~/Library/Application Support/dmenv/dmenv.toml` on macOS
+* `%HOME%/AppData/Local/dmenv/dmenv.toml` on Windows
+
 Then you can use Python 3.8 with all the `dmenv` commands by prefixing them with `dmenv --env 3.8`.
 
 An other virtualenv will be used in `.venv/3.8` so that you can keep your default virtualenv in `.venv/default`.
