@@ -159,7 +159,7 @@ impl VenvManager {
         }
         std::fs::write(&self.lock_path, &command.stdout)?;
         println!(
-            "{} Requirements written to {}.lock",
+            "{} Requirements written to {}",
             "::".blue(),
             self.lock_path.to_string_lossy()
         );
