@@ -1,3 +1,7 @@
+# 0.4.1
+
+* Fix CI on Windows.
+
 # 0.4.0
 
 * `dmenv` no longer needs a configuration file
