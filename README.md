@@ -21,7 +21,7 @@ Second, `dmenv` needs a `setup.py` file to work.
   name>` to generate one. In this case, make sure to read the comments inside
   and edit it to fit your needs.
 
-* If you already have one, please note that `dmenv` uses the `extra_requires` keyword with a `dev` key
+* If you already have one, please note that `dmenv` uses the `extras_require` keyword with a `dev` key
   to specify development dependencies, which you can use to replace your `dev-requirements.txt`
   file for instance.
 
