@@ -1,3 +1,8 @@
+# 0.3.2
+
+* Fix regression introduced in 0.3.1: create config path parent subdirectory
+  before trying to write inside it.
+
 # 0.3.1
 
 * Add a `dmenv` subdirectory to the configuration file path.
