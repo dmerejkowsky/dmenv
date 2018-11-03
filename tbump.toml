@@ -16,10 +16,14 @@ tag_template = "v{new_version}"
 
 [[file]]
 src = "Cargo.toml"
-[[before_push]]
 
+[[before_push]]
 name = "Check changelog"
 cmd = "grep {new_version} CHANGELOG.md"
+
+[[before_push]]
+name = "Check compilation"
+cmd = "PYTHON3_BINARY=$(which python3) cargo test"
 
 [[after_push]]
 name = "publish"
