@@ -78,7 +78,7 @@ impl ConfigHandler {
             return Ok(cfg_path.unwrap().into());
         }
 
-        let config_dir = appdirs::user_config_dir(None, None, false);
+        let config_dir = appdirs::user_config_dir(Some("dmenv"), Some("dmenv"), false);
         // The type is Result<PathBuf, ()> I blame upstream
         if config_dir.is_err() {
             return Err(Error::new(
