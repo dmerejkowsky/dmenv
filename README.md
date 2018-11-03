@@ -129,7 +129,6 @@ A: Yes that sucks. Feel free to:
   * Use a local pipy mirror and a little bit of CI to publish your sources there
 
 
-
 ## Why?
 
 * Because pipenv, poetry and tox are too big and too complex
@@ -141,15 +140,6 @@ A: Yes that sucks. Feel free to:
 
 * Because it's 2018
 
-## Why not use virtualenv?
-
-* Because python3 -m venv works since Python3.3, except on debian where you have to run `apt install python3-venv`. But that's Debian's problem, not mine
-
-## But I don't want to maintain a `setup.py`!
-
-Too bad. Don't use dmenv, then. poetry is cool.
-
-## Why Rust?
 
 * Because it has excellent support for what we need: manipulate paths and run commands in a cross-platform way
 * Because it's my second favorite language
