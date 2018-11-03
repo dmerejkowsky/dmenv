@@ -21,10 +21,6 @@ src = "Cargo.toml"
 name = "Check changelog"
 cmd = "grep {new_version} CHANGELOG.md"
 
-[[before_push]]
-name = "run tests"
-cmd = "cargo test"
-
 [[after_push]]
 name = "publish"
 cmd = "cargo publish"
