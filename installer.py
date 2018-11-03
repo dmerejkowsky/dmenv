@@ -5,7 +5,7 @@ import sys
 import os
 
 
-VERSION = "v0.3.1"
+VERSION = "v0.3.3"
 
 
 def get_artifact_name(platform_name):
