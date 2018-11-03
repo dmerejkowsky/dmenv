@@ -5,8 +5,8 @@ extern crate structopt;
 use structopt::StructOpt;
 
 fn main() {
-    let options = dmenv::Options::from_args();
-    let result = dmenv::run(options);
+    let cmd = dmenv::Command::from_args();
+    let result = dmenv::run(cmd);
     if let Err(error) = result {
         eprintln!("{}: {}", "Error".bold().red(), error);
         std::process::exit(1)

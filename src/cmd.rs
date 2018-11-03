@@ -3,7 +3,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(name = "dmenv", about = "The stupid virtualenv manager")]
-pub struct Options {
+pub struct Command {
     #[structopt(long = "python", help = "python version", default_value = "default")]
     pub python_version: String,
 
@@ -15,11 +15,11 @@ pub struct Options {
     pub working_dir: Option<String>,
 
     #[structopt(subcommand)]
-    pub cmd: Command,
+    pub sub_cmd: SubCommand,
 }
 
 #[derive(StructOpt)]
-pub enum Command {
+pub enum SubCommand {
     #[structopt(name = "clean", about = "clean existing virtualenv")]
     Clean {},
 
@@ -52,12 +52,12 @@ pub enum Command {
     #[structopt(name = "pythons", about = "Manage Python versions")]
     Pythons {
         #[structopt(subcommand)]
-        pythons_cmd: PythonCommand,
+        pythons_cmd: PythonsCommand,
     },
 }
 
 #[derive(StructOpt)]
-pub enum PythonCommand {
+pub enum PythonsCommand {
     #[structopt(name = "add", about = "register a new Python verson")]
     Add {
         #[structopt(name = "version")]
