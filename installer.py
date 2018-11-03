@@ -17,6 +17,15 @@ def get_artifact_name(platform_name):
         return "dmenv-linux"
 
 
+def get_url(platform_name, version):
+    artifact_name = get_artifact_name(platform_name)
+    url = "https://github.com/dmerejkowsky/dmenv/releases/download/%s/%s" % (
+        version,
+        artifact_name,
+    )
+    return url
+
+
 def show_progress(xfered, size):
     percent = float(xfered) / size * 100
     print("Downloading: %.0f%%" % percent, flush=True, end="\r")
@@ -81,8 +90,7 @@ def main():
     parser.add_argument("--upgrade", action="store_true")
     args = parser.parse_args()
 
-    artifact_name = get_artifact_name(sys.platform)
-    url = "https://github.com/dmerejkowsky/dmenv/releases/download/%s/%s" % (VERSION, artifact_name)
+    url = get_url(sys.platform, VERSION)
     if args.dest:
         dest = args.dest
     else:
