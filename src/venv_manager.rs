@@ -54,6 +54,7 @@ impl VenvManager {
 
     pub fn install(&self) -> Result<(), Error> {
         self.ensure_venv()?;
+        self.upgrade_pip()?;
 
         if !self.lock_path.exists() {
             return Err(Error::new(&format!(
