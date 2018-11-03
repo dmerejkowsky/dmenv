@@ -22,9 +22,7 @@ impl ConfigHandler {
     }
 
     pub fn get_python(&self, version: &str) -> Result<String, Error> {
-        if !&self.cfg_path.exists() {
-            return Err(Error::new("No pythons configured yet"));
-        }
+        self.check_cfg_path()?;
         let config = Self::parse_config(&self.cfg_path)?;
         let matching_python = &config.pythons.get(version);
         if matching_python.is_none() {
@@ -49,15 +47,28 @@ impl ConfigHandler {
     }
 
     pub fn remove_python(&self, version: &str) -> Result<(), Error> {
+        self.check_cfg_path()?;
         let mut config = Self::parse_config(&self.cfg_path)?;
         config.pythons.remove(version);
         self.write_config(config)
     }
 
     pub fn list_pythons(&self) -> Result<(), Error> {
+        self.check_cfg_path()?;
         let config = Self::parse_config(&self.cfg_path)?;
         for (version, path) in &config.pythons {
             println!("{}: {}", version.bold(), path);
+        }
+        Ok(())
+    }
+
+    fn check_cfg_path(&self) -> Result<(), Error> {
+        if !&self.cfg_path.exists() {
+            let message = format!(
+                "{}\n{}", "No pythons configured yet",
+                "Please run `dmenv pythons add default <path/to/python3/interpreter>`"
+                );
+            return Err(Error::new(&message));
         }
         Ok(())
     }
