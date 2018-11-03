@@ -24,9 +24,6 @@ install:
 
 script:
   - cargo build --release
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PYTHON3_BINARY=/usr/local/bin/python3 ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then export PYTHON3_BINARY=/c/Python37/python ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PYTHON3_BINARY=python3; fi
   - cargo test --release
 
 before_deploy:
