@@ -13,11 +13,11 @@ setup(
     packages=find_packages(),
     # If you have just one file, remove the line above
     # and add it in the list below, *without* the .py
-    # extension;
+    # extension:
     # py_modules=["<module>"],
     install_requires=[
         # Put your dependencies here
-        # "path.py"
+        # "colorama"
     ],
     extras_require={
         "dev": [
@@ -33,8 +33,8 @@ setup(
     ],
     entry_points={
         "console_scripts":
-        # If you are writing an application (and not a library), add its name
-        # and the path to the main() function here:
+        # If you are writing a command line application,
+        # add its name and the path to the main() function here:
         [
             # "<name> = <package.module:main>",
         ]
