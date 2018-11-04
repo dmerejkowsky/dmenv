@@ -78,14 +78,14 @@ impl VenvManager {
     }
 
     pub fn lock(&self) -> Result<(), Error> {
-        self.ensure_venv()?;
-        self.upgrade_pip()?;
-
         if !self.setup_py_path.exists() {
             return Err(Error::new(
                 "setup.py not found. You may want to run `dmenv init` now",
             ));
         }
+
+        self.ensure_venv()?;
+        self.upgrade_pip()?;
 
         println!("{} Generating requirements.txt from setup.py", "::".blue());
         self.install_editable()?;
