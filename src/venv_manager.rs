@@ -2,6 +2,7 @@ extern crate colored;
 use colored::*;
 
 use error::Error;
+use std::io::Write;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
@@ -11,12 +12,15 @@ pub struct VenvManager {
     lock_path: std::path::PathBuf,
     setup_py_path: std::path::PathBuf,
     python_binary: std::path::PathBuf,
+    python_version: String,
+    python_platform: String,
 }
 
 impl VenvManager {
     pub fn new(
         python_binary: std::path::PathBuf,
         python_version: String,
+        python_platform: String,
         working_dir: std::path::PathBuf,
     ) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
@@ -29,6 +33,8 @@ impl VenvManager {
         let venv_manager = VenvManager {
             working_dir,
             python_binary,
+            python_version,
+            python_platform,
             venv_path,
             lock_path,
             setup_py_path,
@@ -89,6 +95,7 @@ impl VenvManager {
 
         println!("{} Generating requirements.txt from setup.py", "::".blue());
         self.install_editable()?;
+        self.write_metadata()?;
         self.run_pip_freeze()?;
         Ok(())
     }
@@ -163,12 +170,25 @@ impl VenvManager {
                 String::from_utf8_lossy(&command.stderr)
             )));
         }
-        std::fs::write(&self.lock_path, &command.stdout)?;
+        let mut file = std::fs::OpenOptions::new()
+            .append(true)
+            .open(&self.lock_path)?;
+        file.write(&command.stdout)?;
         println!(
             "{} Requirements written to {}",
             "::".blue(),
             self.lock_path.to_string_lossy()
         );
+        Ok(())
+    }
+
+    fn write_metadata(&self) -> Result<(), Error> {
+        let dmenv_version = env!("CARGO_PKG_VERSION");
+        let comment = format!(
+            "# Generated with dmenv {}, python {}, on {}\n",
+            dmenv_version, self.python_version, &self.python_platform
+        );
+        std::fs::write(&self.lock_path, &comment)?;
         Ok(())
     }
 

@@ -44,6 +44,21 @@ fn get_python_version(python_binary: &std::path::PathBuf) -> Result<String, Erro
     Ok(version)
 }
 
+fn get_python_platform(python_binary: &std::path::PathBuf) -> Result<String, Error> {
+    let command = std::process::Command::new(python_binary)
+        .args(&["-c", "import sys; print(sys.platform)"])
+        .output()?;
+    if !command.status.success() {
+        return Err(Error::new(&format!(
+            "Failed to get Python platform: {}",
+            String::from_utf8_lossy(&command.stderr)
+        )));
+    }
+    let out = String::from_utf8_lossy(&command.stdout);
+    let out = out.trim();
+    Ok(out.into())
+}
+
 pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {
         std::path::PathBuf::from(cwd)
@@ -52,12 +67,17 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     };
     if let SubCommand::Run { ref cmd } = cmd.sub_cmd {
         if cmd.len() == 0 {
-            return Err(Error::new(&format!("Missing argument after '{}'", "run".green())));
+            return Err(Error::new(&format!(
+                "Missing argument after '{}'",
+                "run".green()
+            )));
         }
     }
     let python_binary = get_python_binary(&cmd.python_binary)?;
     let python_version = get_python_version(&python_binary)?;
-    let venv_manager = VenvManager::new(python_binary, python_version, working_dir)?;
+    let python_platform = get_python_platform(&python_binary)?;
+    let venv_manager =
+        VenvManager::new(python_binary, python_version, python_platform, working_dir)?;
     match &cmd.sub_cmd {
         SubCommand::Install {} => venv_manager.install(),
         SubCommand::Clean {} => venv_manager.clean(),
