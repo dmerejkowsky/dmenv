@@ -2,6 +2,7 @@ extern crate colored;
 extern crate serde;
 extern crate serde_derive;
 extern crate structopt;
+use colored::*;
 
 mod cmd;
 mod error;
@@ -49,6 +50,11 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     } else {
         std::env::current_dir()?
     };
+    if let SubCommand::Run { ref cmd } = cmd.sub_cmd {
+        if cmd.len() == 0 {
+            return Err(Error::new(&format!("Missing argument after '{}'", "run".green())));
+        }
+    }
     let python_binary = get_python_binary(&cmd.python_binary)?;
     let python_version = get_python_version(&python_binary)?;
     let venv_manager = VenvManager::new(python_binary, python_version, working_dir)?;

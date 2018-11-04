@@ -63,6 +63,15 @@ impl VenvManager {
     }
 
     pub fn run(&self, args: &Vec<String>) -> Result<(), Error> {
+        if !self.venv_path.exists() {
+            let mut message = format!(
+                "The virtualenv in {} does not exist",
+                self.venv_path.to_string_lossy().bold()
+            );
+            message.push_str("\n");
+            message.push_str("Please run `dmenv lock` or `dmenv install` to create it");
+            return Err(Error::new(&message));
+        }
         let cmd = args[0].clone();
         let args: Vec<&str> = args.iter().skip(1).map(|x| x.as_str()).collect();
         self.run_venv_cmd(&cmd, args)

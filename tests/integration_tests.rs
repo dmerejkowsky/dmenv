@@ -56,3 +56,18 @@ fn install_workflow() {
     test_app.write_lock(&lock_contents);
     test_app.assert_run_ok(vec!["install"]);
 }
+
+
+#[test]
+fn run_without_args() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    test_app.assert_run_error(vec!["run"]);
+}
+
+#[test]
+fn run_without_virtualenv() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    test_app.assert_run_error(vec!["run", "python"]);
+}

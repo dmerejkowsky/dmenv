@@ -8,7 +8,7 @@ fn main() {
     let cmd = dmenv::Command::from_args();
     let result = dmenv::run(cmd);
     if let Err(error) = result {
-        eprintln!("{}: {}", "Error".bold().red(), error);
+        eprintln!("{}: {}", "error".bold().red(), error);
         std::process::exit(1)
     };
 }
