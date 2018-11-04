@@ -8,30 +8,22 @@ use std::io::Write;
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
 pub struct VenvManager {
-    working_dir: std::path::PathBuf,
-    venv_path: std::path::PathBuf,
-    lock_path: std::path::PathBuf,
-    setup_py_path: std::path::PathBuf,
+    paths: Paths,
     python_info: PythonInfo,
 }
 
 impl VenvManager {
-    pub fn new(
-        working_dir: std::path::PathBuf,
-        python_info: PythonInfo,
-    ) -> Result<Self, Error> {
+    pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo,) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
         let setup_py_path = working_dir.join("setup.py");
         let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
             std::path::PathBuf::from(env_var)
         } else {
-            working_dir.join(".venv").join(&python_version)
+            working_dir.join(".venv").join(&python_info.version)
         };
+        let paths = Paths { working_dir, venv: venv_path, lock: lock_path, setup_py: setup_py_path };
         let venv_manager = VenvManager {
-            working_dir,
-            venv_path,
-            lock_path,
-            setup_py_path,
+            paths,
             python_info,
         };
         Ok(venv_manager)
@@ -41,22 +33,22 @@ impl VenvManager {
         println!(
             "{} Cleaning {}",
             "::".blue(),
-            &self.venv_path.to_string_lossy()
+            &self.paths.venv.to_string_lossy()
         );
-        if !self.venv_path.exists() {
+        if !self.paths.venv.exists() {
             return Ok(());
         }
-        std::fs::remove_dir_all(&self.venv_path).map_err(|x| x.into())
+        std::fs::remove_dir_all(&self.paths.venv).map_err(|x| x.into())
     }
 
     pub fn install(&self) -> Result<(), Error> {
         self.ensure_venv()?;
         self.upgrade_pip()?;
 
-        if !self.lock_path.exists() {
+        if !self.paths.lock.exists() {
             return Err(Error::new(&format!(
                 "{} does not exist. Please run dmenv lock",
-                &self.lock_path.to_string_lossy(),
+                &self.paths.lock.to_string_lossy(),
             )));
         }
 
@@ -64,10 +56,10 @@ impl VenvManager {
     }
 
     pub fn run(&self, args: &Vec<String>) -> Result<(), Error> {
-        if !self.venv_path.exists() {
+        if !self.paths.venv.exists() {
             let mut message = format!(
                 "The virtualenv in {} does not exist",
-                self.venv_path.to_string_lossy().bold()
+                self.paths.venv.to_string_lossy().bold()
             );
             message.push_str("\n");
             message.push_str("Please run `dmenv lock` or `dmenv install` to create it");
@@ -79,45 +71,45 @@ impl VenvManager {
     }
 
     pub fn lock(&self) -> Result<(), Error> {
-        if !self.setup_py_path.exists() {
+        if !self.paths.setup_py.exists() {
             return Err(Error::new(
                 "setup.py not found. You may want to run `dmenv init` now",
             ));
         }
 
+        self.write_metadata()?;
         self.ensure_venv()?;
         self.upgrade_pip()?;
 
         println!("{} Generating requirements.txt from setup.py", "::".blue());
         self.install_editable()?;
-        self.write_metadata()?;
         self.run_pip_freeze()?;
         Ok(())
     }
 
     pub fn show(&self) -> Result<(), Error> {
-        println!("{}", self.venv_path.to_string_lossy());
+        println!("{}", self.paths.venv.to_string_lossy());
         Ok(())
     }
 
     pub fn init(&self, name: &str, version: &str) -> Result<(), Error> {
-        if self.setup_py_path.exists() {
+        if self.paths.setup_py.exists() {
             return Err(Error::new("setup.py already exists. Aborting"));
         }
         let template = include_str!("setup.in.py");
         let template = template.replace("<NAME>", name);
         let template = template.replace("<VERSION>", version);
-        std::fs::write(&self.setup_py_path, template)?;
+        std::fs::write(&self.paths.setup_py, template)?;
         println!("{} Generated a new setup.py", "::".blue());
         Ok(())
     }
 
     fn ensure_venv(&self) -> Result<(), Error> {
-        if self.venv_path.exists() {
+        if self.paths.venv.exists() {
             println!(
                 "{} Using existing virtualenv: {}",
                 "->".blue(),
-                self.venv_path.to_string_lossy()
+                self.paths.venv.to_string_lossy()
             );
         } else {
             self.create_venv()?;
@@ -126,7 +118,7 @@ impl VenvManager {
     }
 
     fn create_venv(&self) -> Result<(), Error> {
-        let parent_venv_path = &self.venv_path.parent();
+        let parent_venv_path = &self.paths.venv.parent();
         if parent_venv_path.is_none() {
             return Err(Error::new("venv_path has no parent"));
         }
@@ -134,14 +126,15 @@ impl VenvManager {
         println!(
             "{} Creating virtualenv in: {}",
             "::".blue(),
-            self.venv_path.to_string_lossy()
+            self.paths.venv.to_string_lossy()
         );
         std::fs::create_dir_all(&parent_venv_path)?;
-        let venv_path = &self.venv_path.to_string_lossy();
+        let venv_path = &self.paths.venv.to_string_lossy();
         let args = vec!["-m", "venv", venv_path];
-        Self::print_cmd(&self.python_binary.to_string_lossy(), &args);
-        let status = std::process::Command::new(&self.python_binary)
-            .current_dir(&self.working_dir)
+        let python_binary = &self.python_info.binary;
+        Self::print_cmd(&python_binary.to_string_lossy(), &args);
+        let status = std::process::Command::new(&python_binary)
+            .current_dir(&self.paths.working_dir)
             .args(&args)
             .status()?;
         if !status.success() {
@@ -156,7 +149,7 @@ impl VenvManager {
         let python_str = python.to_string_lossy().to_string();
         Self::print_cmd(&python_str, &args);
         let command = std::process::Command::new(python)
-            .current_dir(&self.working_dir)
+            .current_dir(&self.paths.working_dir)
             .args(args)
             .output()?;
         if !command.status.success() {
@@ -167,12 +160,12 @@ impl VenvManager {
         }
         let mut file = std::fs::OpenOptions::new()
             .append(true)
-            .open(&self.lock_path)?;
+            .open(&self.paths.lock)?;
         file.write(&command.stdout)?;
         println!(
             "{} Requirements written to {}",
             "::".blue(),
-            self.lock_path.to_string_lossy()
+            self.paths.lock.to_string_lossy()
         );
         Ok(())
     }
@@ -185,12 +178,12 @@ impl VenvManager {
             "# Generated with dmenv {}, python {}, on {}\n",
             dmenv_version, &python_version, &python_platform
         );
-        std::fs::write(&self.lock_path, &comment)?;
+        std::fs::write(&self.paths.lock, &comment)?;
         Ok(())
     }
 
     fn install_from_lock(&self) -> Result<(), Error> {
-        let as_str = &self.lock_path.to_string_lossy();
+        let as_str = &self.paths.lock.to_string_lossy();
         let args = vec![
             "-m",
             "pip",
@@ -220,7 +213,7 @@ impl VenvManager {
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path)
             .args(args)
-            .current_dir(&self.working_dir)
+            .current_dir(&self.paths.working_dir)
             .status()?;
         if !command.success() {
             return Err(Error::new("command failed"));
@@ -230,10 +223,10 @@ impl VenvManager {
     }
 
     fn get_path_in_venv(&self, name: &str) -> Result<std::path::PathBuf, Error> {
-        if !self.venv_path.exists() {
+        if !self.paths.venv.exists() {
             return Err(Error::new(&format!(
                 "virtualenv in {} does not exist",
-                &self.venv_path.to_string_lossy()
+                &self.paths.venv.to_string_lossy()
             )));
         }
 
@@ -248,7 +241,7 @@ impl VenvManager {
         let suffix = ".exe";
 
         let name = format!("{}{}", name, suffix);
-        let path = self.venv_path.join(binaries_subdirs).join(name);
+        let path = self.paths.venv.join(binaries_subdirs).join(name);
         if !path.exists() {
             return Err(Error::new(&format!(
                 "Cannot run: '{}' does not exist",
@@ -266,4 +259,12 @@ impl VenvManager {
             args.join(" ")
         );
     }
+}
+
+
+struct Paths {
+    working_dir: std::path::PathBuf,
+    venv: std::path::PathBuf,
+    lock: std::path::PathBuf,
+    setup_py: std::path::PathBuf,
 }
