@@ -6,58 +6,16 @@ use colored::*;
 
 mod cmd;
 mod error;
+mod python_info;
 mod venv_manager;
 
+use python_info::PythonInfo;
 pub use cmd::Command;
 use cmd::SubCommand;
 pub use error::Error;
 use venv_manager::VenvManager;
 pub use venv_manager::LOCK_FILE_NAME;
 
-fn get_python_binary(requested_python: &Option<String>) -> Result<std::path::PathBuf, Error> {
-    if let Some(python) = requested_python {
-        return Ok(std::path::PathBuf::from(python));
-    }
-
-    let python3 = which::which("python3");
-    if python3.is_ok() {
-        return Ok(python3.unwrap());
-    }
-
-    // Python3 may be called 'python', for instance on Windows
-    Ok(which::which("python")?)
-}
-
-fn get_python_version(python_binary: &std::path::PathBuf) -> Result<String, Error> {
-    let command = std::process::Command::new(python_binary)
-        .args(&["--version"])
-        .output()?;
-    if !command.status.success() {
-        return Err(Error::new(&format!(
-            "python --version failed: {}",
-            String::from_utf8_lossy(&command.stderr)
-        )));
-    }
-    let out = String::from_utf8_lossy(&command.stdout);
-    let out = out.trim();
-    let version = out.replace("Python ", "");
-    Ok(version)
-}
-
-fn get_python_platform(python_binary: &std::path::PathBuf) -> Result<String, Error> {
-    let command = std::process::Command::new(python_binary)
-        .args(&["-c", "import sys; print(sys.platform)"])
-        .output()?;
-    if !command.status.success() {
-        return Err(Error::new(&format!(
-            "Failed to get Python platform: {}",
-            String::from_utf8_lossy(&command.stderr)
-        )));
-    }
-    let out = String::from_utf8_lossy(&command.stdout);
-    let out = out.trim();
-    Ok(out.into())
-}
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {
@@ -73,11 +31,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             )));
         }
     }
-    let python_binary = get_python_binary(&cmd.python_binary)?;
-    let python_version = get_python_version(&python_binary)?;
-    let python_platform = get_python_platform(&python_binary)?;
+    let python_info = PythonInfo::new(&cmd.python_binary)?;
     let venv_manager =
-        VenvManager::new(python_binary, python_version, python_platform, working_dir)?;
+        VenvManager::new(working_dir, python_info)?;
     match &cmd.sub_cmd {
         SubCommand::Install {} => venv_manager.install(),
         SubCommand::Clean {} => venv_manager.clean(),

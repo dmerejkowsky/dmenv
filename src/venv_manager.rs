@@ -2,6 +2,7 @@ extern crate colored;
 use colored::*;
 
 use error::Error;
+use python_info::PythonInfo;
 use std::io::Write;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
@@ -11,17 +12,13 @@ pub struct VenvManager {
     venv_path: std::path::PathBuf,
     lock_path: std::path::PathBuf,
     setup_py_path: std::path::PathBuf,
-    python_binary: std::path::PathBuf,
-    python_version: String,
-    python_platform: String,
+    python_info: PythonInfo,
 }
 
 impl VenvManager {
     pub fn new(
-        python_binary: std::path::PathBuf,
-        python_version: String,
-        python_platform: String,
         working_dir: std::path::PathBuf,
+        python_info: PythonInfo,
     ) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
         let setup_py_path = working_dir.join("setup.py");
@@ -32,12 +29,10 @@ impl VenvManager {
         };
         let venv_manager = VenvManager {
             working_dir,
-            python_binary,
-            python_version,
-            python_platform,
             venv_path,
             lock_path,
             setup_py_path,
+            python_info,
         };
         Ok(venv_manager)
     }
@@ -184,9 +179,11 @@ impl VenvManager {
 
     fn write_metadata(&self) -> Result<(), Error> {
         let dmenv_version = env!("CARGO_PKG_VERSION");
+        let python_platform = &self.python_info.platform;
+        let python_version = &self.python_info.version;
         let comment = format!(
             "# Generated with dmenv {}, python {}, on {}\n",
-            dmenv_version, self.python_version, &self.python_platform
+            dmenv_version, &python_version, &python_platform
         );
         std::fs::write(&self.lock_path, &comment)?;
         Ok(())
