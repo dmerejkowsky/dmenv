@@ -13,7 +13,7 @@ pub struct VenvManager {
 }
 
 impl VenvManager {
-    pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo,) -> Result<Self, Error> {
+    pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
         let setup_py_path = working_dir.join("setup.py");
         let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
@@ -21,11 +21,13 @@ impl VenvManager {
         } else {
             working_dir.join(".venv").join(&python_info.version)
         };
-        let paths = Paths { working_dir, venv: venv_path, lock: lock_path, setup_py: setup_py_path };
-        let venv_manager = VenvManager {
-            paths,
-            python_info,
+        let paths = Paths {
+            working_dir,
+            venv: venv_path,
+            lock: lock_path,
+            setup_py: setup_py_path,
         };
+        let venv_manager = VenvManager { paths, python_info };
         Ok(venv_manager)
     }
 
@@ -92,14 +94,19 @@ impl VenvManager {
         Ok(())
     }
 
-    pub fn init(&self, name: &str, version: &str) -> Result<(), Error> {
+    pub fn init(&self, name: &str, version: &str, author: &Option<String>) -> Result<(), Error> {
         if self.paths.setup_py.exists() {
             return Err(Error::new("setup.py already exists. Aborting"));
         }
         let template = include_str!("setup.in.py");
-        let template = template.replace("<NAME>", name);
-        let template = template.replace("<VERSION>", version);
-        std::fs::write(&self.paths.setup_py, template)?;
+        let with_name = template.replace("<NAME>", name);
+        let with_version = with_name.replace("<VERSION>", version);
+        let to_write = if let Some(author) = author {
+            with_version.replace("<AUTHOR>", author)
+        } else {
+            with_version
+        };
+        std::fs::write(&self.paths.setup_py, to_write)?;
         println!("{} Generated a new setup.py", "::".blue());
         Ok(())
     }
@@ -260,7 +267,6 @@ impl VenvManager {
         );
     }
 }
-
 
 struct Paths {
     working_dir: std::path::PathBuf,

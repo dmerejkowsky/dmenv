@@ -1,3 +1,7 @@
+# next
+
+`dmenv init` learned a `--author` option, used when generating the `setup.py` file.
+
 # 0.4.2
 
 * Write some metadata inside the `requirements.lock` file

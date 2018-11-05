@@ -9,13 +9,12 @@ mod error;
 mod python_info;
 mod venv_manager;
 
-use python_info::PythonInfo;
 pub use cmd::Command;
 use cmd::SubCommand;
 pub use error::Error;
+use python_info::PythonInfo;
 use venv_manager::VenvManager;
 pub use venv_manager::LOCK_FILE_NAME;
-
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {
@@ -32,12 +31,15 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
-    let venv_manager =
-        VenvManager::new(working_dir, python_info)?;
+    let venv_manager = VenvManager::new(working_dir, python_info)?;
     match &cmd.sub_cmd {
         SubCommand::Install {} => venv_manager.install(),
         SubCommand::Clean {} => venv_manager.clean(),
-        SubCommand::Init { name, version } => venv_manager.init(&name, &version),
+        SubCommand::Init {
+            name,
+            version,
+            author,
+        } => venv_manager.init(&name, &version, author),
         SubCommand::Lock {} => venv_manager.lock(),
         SubCommand::Run { ref cmd } => venv_manager.run(cmd),
         SubCommand::Show {} => venv_manager.show(),

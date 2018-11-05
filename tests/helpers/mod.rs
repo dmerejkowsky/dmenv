@@ -85,6 +85,10 @@ impl TestApp {
         let path = self.tmp_path.join(name);
         std::fs::remove_file(path).expect("");
     }
+
+    pub fn read_setup_py(&self) -> String {
+        std::fs::read_to_string(self.tmp_path.join("setup.py")).expect("")
+    }
 }
 
 pub fn to_string_args(args: Vec<&str>) -> Vec<String> {
