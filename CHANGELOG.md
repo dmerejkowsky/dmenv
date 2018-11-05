@@ -1,3 +1,12 @@
+# 0.4.2
+
+* Write some metadata inside the `requirements.lock` file
+
+* Improve `dmenv run`:
+  * Suggest running `lock` or `install`
+  * Do not crash if used without arguments
+
+
 # 0.4.1
 
 * Fix CI on Windows.
