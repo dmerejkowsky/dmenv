@@ -44,9 +44,6 @@ impl VenvManager {
     }
 
     pub fn install(&self) -> Result<(), Error> {
-        self.ensure_venv()?;
-        self.upgrade_pip()?;
-
         if !self.paths.lock.exists() {
             return Err(Error::new(&format!(
                 "{} does not exist. Please run dmenv lock",
@@ -54,6 +51,8 @@ impl VenvManager {
             )));
         }
 
+        self.ensure_venv()?;
+        self.upgrade_pip()?;
         self.install_from_lock()
     }
 

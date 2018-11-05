@@ -1,6 +1,7 @@
 # next
 
-`dmenv init` learned a `--author` option, used when generating the `setup.py` file.
+* Add a `--author` option to `dmenv init`, used when generating the `setup.py` file.
+* `dmenv lock` now exits immediately if the lock file is missing. (#12)
 
 # 0.4.2
 

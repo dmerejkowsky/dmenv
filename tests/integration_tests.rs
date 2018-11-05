@@ -68,6 +68,13 @@ fn install_workflow() {
 }
 
 #[test]
+fn install_without_lock() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    test_app.assert_run_error(vec!["install"]);
+}
+
+#[test]
 fn run_without_args() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
