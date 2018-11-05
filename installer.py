@@ -5,8 +5,7 @@ import sys
 import os
 
 
-VERSION = "v0.4.1"
-
+VERSION = "v0.4.2"
 def get_artifact_name(platform_name):
     if platform_name == "windows":
         return "dmenv-windows.exe"
