@@ -54,7 +54,7 @@ def patch_installer(version):
     new_lines = []
     for line in old_lines:
         if line.startswith("VERSION ="):
-            new_lines.append('VERSION = "%s"' % version)
+            new_lines.append('VERSION = "%s"\n' % version)
         else:
             new_lines.append(line)
 
