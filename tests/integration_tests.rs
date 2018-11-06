@@ -47,13 +47,14 @@ fn lock_complains_if_setup_py_does_not_exist() {
     test_app.remove_setup_py();
     test_app.assert_run_error(vec!["lock"]);
 }
-
 #[test]
 fn lock_workflow() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
     test_app.assert_run_ok(vec!["lock"]);
-    test_app.assert_lock();
+    let lock_contents = test_app.read_lock();
+    assert!(lock_contents.contains("pytest=="));
+    assert!(!lock_contents.contains("pkg-resources=="));
     test_app.assert_run_ok(vec!["run", "demo"]);
     test_app.assert_run_ok(vec!["run", "pytest"]);
 }
