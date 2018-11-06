@@ -215,11 +215,20 @@ impl VenvManager {
     }
 
     fn run_venv_cmd(&self, name: &str, args: Vec<&str>) -> Result<(), Error> {
+        let path_env = std::env::var_os("PATH");
+        if path_env.is_none() {
+            return Err(Error::new("PATH is not set"));
+        }
+        let path_env = path_env.unwrap();
+        let mut paths: Vec<_> = std::env::split_paths(&path_env).collect();
+        paths.insert(0, self.get_venv_binaries_path());
+        let new_path_env = std::env::join_paths(&paths)?;
         let bin_path = &self.get_path_in_venv(name)?;
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path)
             .args(args)
             .current_dir(&self.paths.working_dir)
+            .env("PATH", new_path_env)
             .status()?;
         if !command.success() {
             return Err(Error::new("command failed"));
@@ -237,17 +246,14 @@ impl VenvManager {
         }
 
         #[cfg(not(windows))]
-        let binaries_subdirs = "bin";
-        #[cfg(not(windows))]
         let suffix = "";
 
-        #[cfg(windows)]
-        let binaries_subdirs = "Scripts";
         #[cfg(windows)]
         let suffix = ".exe";
 
         let name = format!("{}{}", name, suffix);
-        let path = self.paths.venv.join(binaries_subdirs).join(name);
+        let venv_binaries_path = &self.get_venv_binaries_path();
+        let path = self.paths.venv.join(venv_binaries_path).join(name);
         if !path.exists() {
             return Err(Error::new(&format!(
                 "Cannot run: '{}' does not exist",
@@ -255,6 +261,16 @@ impl VenvManager {
             )));
         }
         Ok(path)
+    }
+
+    fn get_venv_binaries_path(&self) -> std::path::PathBuf {
+        #[cfg(not(windows))]
+        let subdir = "bin";
+
+        #[cfg(windows)]
+        let subdir = "Scripts";
+
+        self.paths.venv.join(subdir)
     }
 
     fn print_cmd(bin_path: &str, args: &Vec<&str>) {

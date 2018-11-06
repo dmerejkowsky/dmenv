@@ -35,6 +35,16 @@ impl From<which::Error> for Error {
     }
 }
 
+impl From<std::env::JoinPathsError> for Error {
+    fn from(error: std::env::JoinPathsError) -> Error {
+        let mut message =
+            "The computed new PATH contains invalid characters. Please open a bug report"
+                .to_string();
+        message.push_str(&format!("\nOriginal error: {}", error));
+        Error::new(&message)
+    }
+}
+
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", &self.description)
