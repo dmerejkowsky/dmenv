@@ -1,7 +1,8 @@
-# next
+# 0.4.3
 
 * Add a `--author` option to `dmenv init`, used when generating the `setup.py` file.
 * `dmenv lock` now exits immediately if the lock file is missing. (#12)
+* Workaround Debian bug in pip (#15)
 
 # 0.4.2
 
