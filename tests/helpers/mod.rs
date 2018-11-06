@@ -54,8 +54,9 @@ impl TestApp {
         self.run(args).expect("");
     }
 
-    pub fn assert_lock(&self) {
-        self.assert_file(dmenv::LOCK_FILE_NAME);
+    pub fn read_lock(&self) -> String {
+        let lock_path = &self.tmp_path.join(dmenv::LOCK_FILE_NAME);
+        std::fs::read_to_string(lock_path).expect("")
     }
 
     pub fn assert_setup_py(&self) {

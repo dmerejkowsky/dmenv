@@ -164,10 +164,21 @@ impl VenvManager {
                 String::from_utf8_lossy(&command.stderr)
             )));
         }
+        let out = String::from_utf8_lossy(&command.stdout);
+
+        // Filter out pkg-resources. This works around
+        // a Debian bug in pip: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=871790
+        let mut lines = vec![];
+        for line in out.lines() {
+            if !line.starts_with("pkg-resources==") {
+                lines.push(line.clone());
+            }
+        }
         let mut file = std::fs::OpenOptions::new()
             .append(true)
             .open(&self.paths.lock)?;
-        file.write(&command.stdout)?;
+        file.write(lines.join("\n").as_bytes())?;
+        file.write("\n".as_bytes())?;
         println!(
             "{} Requirements written to {}",
             "::".blue(),
