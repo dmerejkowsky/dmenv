@@ -1,11 +1,11 @@
 # dmenv: the stupid virtualenv manager
 
 <a href="https://crates.io/crates/dmenv"><img src="https://img.shields.io/crates/v/dmenv.svg"/></a>
-[![Build](https://img.shields.io/travis/dmerejkowsky/dmenv.svg?branch=master)](https://travis-ci.org/dmerejkowsky/dmenv)
+[![Build](https://img.shields.io/travis/TankerHQ/dmenv.svg?branch=master)](https://travis-ci.org/TankerHQ/dmenv)
 
 ## Installation
 
-Download the [dmenv installer](https://raw.githubusercontent.com/dmerejkowsky/dmenv/master/installer.py), then run
+Download the [dmenv installer](https://raw.githubusercontent.com/TankerHQ/dmenv/master/installer.py), then run
 `python installer.py`, or `python3 installer.py`, depending on how your Python interpreter is called. Just make
 sure it's Python3, not 2.
 
@@ -92,7 +92,7 @@ https://gitlab.com/foo/bar@my-branch
 ```
 
 Q: But that sucks and it will disappear when I re-run `dmenv lock`! <br />
-A: See [#7](https://github.com/dmerejkowsky/dmenv/issues/7). We are looking for a proper solution. In the mean time, feel free to:
+A: See [#7](https://github.com/TankerHQ/dmenv/issues/7). We are looking for a proper solution. In the mean time, feel free to:
 
   * Open a pull request if you've forked an upstream project
   * Use a local pipy mirror and a little bit of CI to publish your sources there

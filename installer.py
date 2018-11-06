@@ -19,7 +19,7 @@ def get_artifact_name(platform_name):
 
 def get_url(platform_name, version):
     artifact_name = get_artifact_name(platform_name)
-    url = "https://github.com/dmerejkowsky/dmenv/releases/download/%s/%s" % (
+    url = "https://github.com/TankerHQ/dmenv/releases/download/%s/%s" % (
         version,
         artifact_name,
     )

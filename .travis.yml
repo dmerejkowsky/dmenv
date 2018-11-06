@@ -43,7 +43,7 @@ deploy:
   file:
     - dist/*
   on:
-    repo: dmerejkowsky/dmenv
+    repo: TankerHQ/dmenv
     tags: true
     branch: master
     condition: $TRAVIS_RUST_VERSION = stable

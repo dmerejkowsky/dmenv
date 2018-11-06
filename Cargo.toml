@@ -5,7 +5,7 @@ version = "0.4.2"
 description = "The stupid virtualenv manager"
 license = "BSD-3-Clause"
 readme = "README.md"
-repository = "https://github.com/dmerejkowsky/dmenv"
+repository = "https://github.com/TankerHQ/dmenv"
 
 keywords = ["python", "virtualenv"]
 categories = ["command-line-utilities"]
