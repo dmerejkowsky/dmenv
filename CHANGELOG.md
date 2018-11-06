@@ -1,10 +1,7 @@
 # next
 
 * Add a `--author` option to `dmenv init`, used when generating the `setup.py` file.
-* Improve `dmenv lock`:
-  * Exit immediately if the lock file is missing. (#12)
-  * Always clean the previous virtualenv if it exists (#14)
-
+* `dmenv lock` now exits immediately if the lock file is missing. (#12)
 
 # 0.4.2
 

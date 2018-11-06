@@ -78,16 +78,6 @@ impl VenvManager {
             ));
         }
 
-        if self.paths.venv.exists() {
-            println!(
-                "{} Cleaning {} {}",
-                "::".blue(),
-                &self.paths.venv.to_string_lossy(),
-                "before locking dependencies",
-            );
-            std::fs::remove_dir_all(&self.paths.venv)?;
-        }
-
         self.write_metadata()?;
         self.ensure_venv()?;
         self.upgrade_pip()?;
