@@ -13,6 +13,7 @@ pub use cmd::Command;
 use cmd::SubCommand;
 pub use error::Error;
 use python_info::PythonInfo;
+use venv_manager::InstallOptions;
 use venv_manager::VenvManager;
 pub use venv_manager::LOCK_FILE_NAME;
 
@@ -33,8 +34,17 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let python_info = PythonInfo::new(&cmd.python_binary)?;
     let venv_manager = VenvManager::new(working_dir, python_info)?;
     match &cmd.sub_cmd {
-        SubCommand::Install {} => venv_manager.install(),
+        SubCommand::Install {
+            no_develop,
+            no_upgrade_pip,
+        } => {
+            let mut install_options = InstallOptions::default();
+            install_options.develop = !no_develop;
+            install_options.upgrade_pip = !no_upgrade_pip;
+            venv_manager.install(install_options)
+        }
         SubCommand::Clean {} => venv_manager.clean(),
+        SubCommand::Develop {} => venv_manager.develop(),
         SubCommand::Init {
             name,
             version,

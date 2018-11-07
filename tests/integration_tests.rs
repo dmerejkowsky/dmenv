@@ -59,12 +59,23 @@ fn lock_workflow() {
 }
 
 #[test]
-fn install_workflow() {
+fn install_workflow_all_in_one() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
     let lock_contents = include_str!("../demo/requirements.lock");
     test_app.write_lock(&lock_contents);
     test_app.assert_run_ok(vec!["install"]);
+}
+
+#[test]
+fn install_workflow_step_by_step() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let lock_contents = include_str!("../demo/requirements.lock");
+    test_app.write_lock(&lock_contents);
+    test_app.assert_run_ok(vec!["install", "--no-develop", "--no-upgrade-pip"]);
+    test_app.assert_run_ok(vec!["develop"]);
+    test_app.assert_run_ok(vec!["run", "demo"]);
 }
 
 #[test]
