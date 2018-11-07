@@ -20,8 +20,7 @@ fn init_generates_setup_py() {
     test_app.remove_setup_py();
     #[cfg_attr(rustfmt, rustfmt_skip)]
     test_app.assert_run_ok(vec![
-        "init",
-        "--name", "foo",
+        "init", "foo",
         "--version", "0.42",
         "--author", "jane@corp.com",
     ]);
@@ -36,7 +35,7 @@ fn init_generates_setup_py() {
 fn init_does_not_overwrite_existing_setup_py() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
-    test_app.assert_run_error(vec!["init", "--name", "foo"]);
+    test_app.assert_run_error(vec!["init", "foo"]);
     test_app.assert_setup_py();
 }
 

@@ -28,7 +28,7 @@ pub enum SubCommand {
 
     #[structopt(name = "init", about = "Initialize a new project")]
     Init {
-        #[structopt(long = "name", help = "Project name")]
+        #[structopt(help = "Project name")]
         name: String,
 
         #[structopt(long = "version", help = "Project version", default_value = "0.1.0")]
