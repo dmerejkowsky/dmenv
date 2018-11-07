@@ -17,8 +17,8 @@ First, `dmenv` needs a Python3 interpreter in PATH, which should be called `pyth
 
 Second, `dmenv` needs a `setup.py` file to work.
 
-* If you don't have a `setup.py` yet, you can run `dmenv init --name <project
-  name>` to generate one. In this case, make sure to read the comments inside
+* If you don't have a `setup.py` yet, you can run `dmenv init <project name>`
+  to generate one. In this case, make sure to read the comments inside
   and edit it to fit your needs.
 
 * If you already have one, please note that `dmenv` uses the `extras_require` keyword with a `dev` key
