@@ -1,11 +1,13 @@
-# Next
+# 0.5.0
 
 * `dmenv init`: since name is required, it is now an argument, no longer an option.
-  So instead of `dmenv init --name foo --version 0.42`, use `dmenv init foo --version 0.42`.
+  So instead of `dmenv init --name foo --version 0.42`, use `dmenv init foo --version 0.42`
+* Add a command named `dmenv develop` that justs runs `python setup.py develop` and nothing else
+* `dmenv install`: add `--no-upgrade-pip` and `--no-develop` options
 
 # 0.4.3
 
-* Add a `--author` option to `dmenv init`, used when generating the `setup.py` file.
+* Add a `--author` option to `dmenv init`, used when generating the `setup.py` file
 * `dmenv lock` now exits immediately if the lock file is missing. (#12)
 * Workaround Debian bug in pip (#15)
 
