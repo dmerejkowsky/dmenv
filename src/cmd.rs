@@ -23,8 +23,17 @@ pub enum SubCommand {
     #[structopt(name = "clean", about = "clean existing virtualenv")]
     Clean {},
 
+    #[structopt(name = "develop", about = "run setup.py develop")]
+    Develop {},
+
     #[structopt(name = "install", about = "Install all dependencies")]
-    Install {},
+    Install {
+        #[structopt(long = "--no-develop", help = "do not run setup.py develop")]
+        no_develop: bool,
+
+        #[structopt(long = "--no-upgrade-pip", help = "do not upgrade pip")]
+        no_upgrade_pip: bool,
+    },
 
     #[structopt(name = "init", about = "Initialize a new project")]
     Init {

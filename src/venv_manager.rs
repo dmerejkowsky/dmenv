@@ -12,6 +12,12 @@ pub struct VenvManager {
     python_info: PythonInfo,
 }
 
+#[derive(Default)]
+pub struct InstallOptions {
+    pub develop: bool,
+    pub upgrade_pip: bool,
+}
+
 impl VenvManager {
     pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
@@ -43,7 +49,17 @@ impl VenvManager {
         std::fs::remove_dir_all(&self.paths.venv).map_err(|x| x.into())
     }
 
-    pub fn install(&self) -> Result<(), Error> {
+    pub fn develop(&self) -> Result<(), Error> {
+        if !self.paths.setup_py.exists() {
+            return Err(Error::new(
+                "setup.py not found. You may want to run `dmenv init` now",
+            ));
+        }
+
+        self.run_venv_cmd("python", vec!["setup.py", "develop"])
+    }
+
+    pub fn install(&self, install_options: InstallOptions) -> Result<(), Error> {
         if !self.paths.lock.exists() {
             return Err(Error::new(&format!(
                 "{} does not exist. Please run dmenv lock",
@@ -52,8 +68,15 @@ impl VenvManager {
         }
 
         self.ensure_venv()?;
-        self.upgrade_pip()?;
-        self.install_from_lock()
+        if install_options.upgrade_pip {
+            self.upgrade_pip()?;
+        }
+        self.install_from_lock()?;
+
+        if install_options.develop {
+            self.develop()?;
+        }
+        Ok(())
     }
 
     pub fn run(&self, args: &Vec<String>) -> Result<(), Error> {
