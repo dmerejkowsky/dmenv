@@ -5,11 +5,10 @@
 
 ## Installation
 
-Download the [dmenv installer](https://raw.githubusercontent.com/TankerHQ/dmenv/master/installer.py), then run
-`python installer.py`, or `python3 installer.py`, depending on how your Python interpreter is called. Just make
-sure it's Python3, not 2.
+The easiest way is to download the matching binary from the [releases page](https://github.com/TankerHQ/dmenv/releases) for your platform and put it
+somewhere on in your $PATH.
 
-The script will fetch pre-compiled binaries from GitHub. If you prefer, you can also [install rust](https://www.rust-lang.org/en-US/install.html) and install dmenv with `cargo install dmenv`.
+If you prefer, you can also [install rust](https://www.rust-lang.org/en-US/install.html) and install dmenv with `cargo install dmenv`.
 
 ## Setup
 
