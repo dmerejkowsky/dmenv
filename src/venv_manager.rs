@@ -150,11 +150,11 @@ impl VenvManager {
     }
 
     fn run_pip_freeze(&self) -> Result<(), Error> {
-        let python = self.get_path_in_venv("python")?;
-        let args = vec!["-m", "pip", "freeze", "--exclude-editable"];
-        let python_str = python.to_string_lossy().to_string();
-        Self::print_cmd(&python_str, &args);
-        let command = std::process::Command::new(python)
+        let pip = self.get_path_in_venv("pip")?;
+        let pip_str = pip.to_string_lossy().to_string();
+        let args = vec!["freeze", "--exclude-editable"];
+        Self::print_cmd(&pip_str, &args);
+        let command = std::process::Command::new(pip)
             .current_dir(&self.paths.working_dir)
             .args(args)
             .output()?;
@@ -201,16 +201,8 @@ impl VenvManager {
 
     fn install_from_lock(&self) -> Result<(), Error> {
         let as_str = &self.paths.lock.to_string_lossy();
-        let args = vec![
-            "-m",
-            "pip",
-            "install",
-            "--requirement",
-            as_str,
-            "--editable",
-            ".[dev]",
-        ];
-        self.run_venv_cmd("python", args)
+        let args = vec!["install", "--requirement", as_str];
+        self.run_venv_cmd("pip", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
