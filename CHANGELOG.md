@@ -1,3 +1,8 @@
+# Next
+
+* `dmenv init`: since name is required, it is now an argument, no longer an option.
+  So instead of `dmenv init --name foo --version 0.42`, use `dmenv init foo --version 0.42`.
+
 # 0.4.3
 
 * Add a `--author` option to `dmenv init`, used when generating the `setup.py` file.
