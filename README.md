@@ -6,7 +6,13 @@
 ## Installation
 
 The easiest way is to download the matching binary from the [releases page](https://github.com/TankerHQ/dmenv/releases) for your platform and put it
-somewhere on in your $PATH.
+somewhere on in your $PATH:
+
+```console
+cd ~/.local/bin
+curl-L https://github.com/TankerHQ/dmenv/releases/download/v<version>/dmenv-<platform> -o dmenv
+chmod u+x dmenv
+```
 
 If you prefer, you can also [install rust](https://www.rust-lang.org/en-US/install.html) and install dmenv with `cargo install dmenv`.
 
