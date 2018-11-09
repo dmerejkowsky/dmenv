@@ -1,3 +1,7 @@
+# next
+
+* Run `setup.py develop` with `--no-deps`. This is faster and less noisy
+
 # 0.5.0
 
 * `dmenv init`: since name is required, it is now an argument, no longer an option.
