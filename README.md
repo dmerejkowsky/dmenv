@@ -1,122 +1,43 @@
-# dmenv: the stupid virtualenv manager
+# dmenv: the stupid virtualenv manager for Python
 
-<a href="https://crates.io/crates/dmenv"><img src="https://img.shields.io/crates/v/dmenv.svg"/></a>
+[![crates.io image](https://img.shields.io/crates/v/dmenv.svg)](https://crates.io/crates/dmenv)
 [![Build](https://img.shields.io/travis/TankerHQ/dmenv.svg?branch=master)](https://travis-ci.org/TankerHQ/dmenv)
 
-## Installation
 
-The easiest way is to download the matching binary from the [releases page](https://github.com/TankerHQ/dmenv/releases) for your platform and put it
-somewhere on in your $PATH.
+## Overview
 
-For instance:
+`dmenv` handles creation of virtualenv and lock files for you.
 
+Here it is in action:
 
-```console
-cd ~/.local/bin
-curl --fail -L https://github.com/TankerHQ/dmenv/releases/download/v0.8.2/dmenv-$PLATFORM -o dmenv
-chmod u+x dmenv
+* First, generate a `requirements.lock` to "freeze" all your dependencies
+
+```bash
+$ dmenv lock
+Creating virtualenv in: /path/to/.venv/3.6.7
+-> running /usr/bin/python3 -m /path/to/.venv venv/3.6.7
+-> running /path/to/.venv/3.6.7/bin/python -m pip install pip --upgrade
+...
+-> running /path/to/.venv/3.6.7/bin/pip freeze --exclude-editable
+:: Requirements written to /path/to/requirements.lock
 ```
 
-Note: replace $PLATFORM by your current platform: `linux`, `osx` or `windows`.
+* Then, anyone can use the `requirements.lock` to install all the dependencies
+  at their frozen version:
 
-If you prefer, you can also [install rust](https://www.rust-lang.org/en-US/install.html) and install dmenv with `cargo install dmenv`.
-
-## Setup
-
-First, `dmenv` needs a Python3 interpreter in PATH, which should be called `python` or `python3`. This should already be the case if you've just installed Python3, regardless of your operating system.
-
-Second, `dmenv` needs a `setup.py` file to work.
-
-* If you don't have a `setup.py` yet, you can run `dmenv init <project name>`
-  to generate one. In this case, make sure to read the comments inside
-  and edit it to fit your needs.
-
-* If you already have one, please note that `dmenv` uses the `extras_require` keyword with a `dev` key
-  to specify development dependencies, which you can use to replace your `dev-requirements.txt`
-  file for instance.
-
-And that's it. Now you are ready to use `dmenv`!
-
-Here's a description of the main commands:
-
-## dmenv lock
-
-Here's what `dmenv lock` does:
-
-* First, it creates a virtualenv for you with `python -m venv` in
-  `.venv/<version>`, where `<version>` is read from `python --version`. Make
-  sure to add `.venv` to your `.gitignore`! Note that this step is skipped
-  if `dmenv` detects it is run from an existing virtualenv.
-
-* Then it runs `pip intall --editable .[dev]` so that your dev deps are installed, and the scripts listed in `entry_points` are
-  created.
-
-* Finally, it runs `pip freeze` to generate a `requirements.lock` file.
-
-Now you can add the `requirements.lock` file to your version control system.
-
-This leads us to the next command.
-
-## dmenv install
-
-Now that the complete list of dependencies and their versions is written in the
-`requirements.lock` file, anyone can run `dmenv install` to install all the
-dependencies and get exactly the same versions you got when you ran `dmenv lock`.
-
-Hooray reproducible builds!
-
-## dmenv run
-
-As a convenience, you can use:`dmenv run` to run any binary from the virtualenv. If the program you want to run
-needs command-line options, use a `--` to separated them from `dmenv` options, like so:
-
-```console
-dmenv run -- pytest --collect-only
+```bash
+$ dmenv install
+:: Creating virtualenv in: /path/to/.venv/3.6.7
+-> running /usr/bin/python3 -m venv /path/to/.venv/3.6.7
+-> running /path/to/.venv/3.6.7/bin/python -m pip install pip --upgrade
+...
+-> running /path/to/.venv/3.6.7/bin/python setup.py develop --no-deps
+...
+Installing demo script to /path/to/.venv/3.6.7/bin
 ```
 
-## dmenv upgrade-pip
 
-Tired of `pip` telling you to upgrade itself? Run `dmenv upgrade-pip` :)
+## Interested?
 
-It's exactly the same as typing `dmenv run -- python -m pip install --upgrade pip`, but with less keystrokes :P
-
-## Using an other python interpreter
-
-To use an other Python interpreter than the one in PATH, you can either:
-
-* Modify your PATH environment variable so that it appears there. (For instance, with [pyenv](https://github.com/pyenv/pyenv)).
-* Prefix all the `dmenv` commands with a `--python /path/to/other/python` flag.
-
-# FAQ
-
-Q: I'm on Debian, and I've got errors when running `bdist_wheel`! <br />
-A: This is an [upstream bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=917006).
-   As a workaround, you can install virtualenv with `python3 -m pip install virtualenv --user`
-   and then set the `DMENV_NO_VENV_STDLIB` environment variable.
-
-Q: How do I upgrade a dependency?<br/>
-A: Just run `dmenv lock` again. If something breaks, either fix your code or
-   use more precise version specifiers in `setup.py`, like `foobar < 2.0`.
-
-Q: How do I depend on a git specific repo/branch?<br/>
-A: Edit the `requirements.lock` by hand like this, where the part after `#egg=` matches the name of the dependency in
-   the `setup.py`
-
-```
-https://gitlab.com/foo/bar@my-branch#egg=bar
-```
-
-Q: But that sucks and it will disappear when I re-run `dmenv lock`! <br />
-A: See [#7](https://github.com/TankerHQ/dmenv/issues/7). We are looking for a proper solution. In the mean time, feel free to:
-
-  * Open a pull request if you've forked an upstream project
-  * Use a local pipy mirror and a little bit of CI to publish your sources there
-
-
-Q: Why Rust? <br />
-A:
-
-* Because it has excellent support for what we need: manipulate paths and run commands in a cross-platform way
-* Because it's my second favorite language
-* Because distribution is really easy
-* Because by *not* using Python at all `dmenv` is less likely to break if something on your system changes.
+Go [read the fine documentation](https://tankerhq.github.io/dmenv/) and learn how
+to use dmenv for your own Python project :)

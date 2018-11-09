@@ -1,0 +1,26 @@
+site_name: dmenv
+
+docs_dir: contents
+
+theme:
+  name: readthedocs
+
+strict: true
+
+markdown_extensions:
+  - markdown.extensions.admonition #for !!! notice
+  - markdown.extensions.def_list
+
+  - toc:
+      permalink: True
+      separator: "_"
+
+nav:
+  - Home: index.md
+
+  - Installation: installation.md
+  - Usage: usage.md
+
+  - FAQ: faq.md
+
+  - Changelog: changelog.md
