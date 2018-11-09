@@ -1,6 +1,7 @@
-# next
+# 0.6.0
 
-* Run `setup.py develop` with `--no-deps`. This is faster and less noisy
+* Run `setup.py develop` with `--no-deps`
+* Rename `show` to `show:venv_path`, add `show:deps` to display the list of dependencies
 
 # 0.5.0
 
