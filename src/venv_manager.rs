@@ -56,7 +56,7 @@ impl VenvManager {
             ));
         }
 
-        self.run_venv_cmd("python", vec!["setup.py", "develop"])
+        self.run_venv_cmd("python", vec!["setup.py", "develop", "--no-deps"])
     }
 
     pub fn install(&self, install_options: InstallOptions) -> Result<(), Error> {
