@@ -7,10 +7,10 @@ mod helpers;
 use helpers::TestApp;
 
 #[test]
-fn show_does_not_crash() {
+fn show_venv_path() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
-    test_app.assert_run_ok(vec!["show"]);
+    test_app.assert_run_ok(vec!["show:venv_path"]);
 }
 
 #[test]
@@ -54,6 +54,7 @@ fn lock_workflow() {
     let lock_contents = test_app.read_lock();
     assert!(lock_contents.contains("pytest=="));
     assert!(!lock_contents.contains("pkg-resources=="));
+    test_app.assert_run_ok(vec!["show:deps"]);
     test_app.assert_run_ok(vec!["run", "demo"]);
     test_app.assert_run_ok(vec!["run", "pytest"]);
 }

@@ -52,7 +52,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         } => venv_manager.init(&name, &version, author),
         SubCommand::Lock {} => venv_manager.lock(),
         SubCommand::Run { ref cmd } => venv_manager.run(cmd),
-        SubCommand::Show {} => venv_manager.show(),
+        SubCommand::ShowDeps {} => venv_manager.show_deps(),
+        SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),
         SubCommand::UpgradePip {} => venv_manager.upgrade_pip(),
     }
 }

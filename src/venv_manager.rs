@@ -111,7 +111,11 @@ impl VenvManager {
         Ok(())
     }
 
-    pub fn show(&self) -> Result<(), Error> {
+    pub fn show_deps(&self) -> Result<(), Error> {
+        self.run_venv_cmd("pip", vec!["list"])
+    }
+
+    pub fn show_venv_path(&self) -> Result<(), Error> {
         println!("{}", self.paths.venv.to_string_lossy());
         Ok(())
     }
