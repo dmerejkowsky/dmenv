@@ -13,7 +13,7 @@ For instance:
 
 ```console
 cd ~/.local/bin
-curl -L https://github.com/TankerHQ/dmenv/releases/download/v0.6.0/dmenv-$PLATFORM -o dmenv
+curl --fail -L https://github.com/TankerHQ/dmenv/releases/download/v0.6.0/dmenv-$PLATFORM -o dmenv
 chmod u+x dmenv
 ```
 
