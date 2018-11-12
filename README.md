@@ -10,7 +10,7 @@ somewhere on in your $PATH:
 
 ```console
 cd ~/.local/bin
-curl-L https://github.com/TankerHQ/dmenv/releases/download/v<version>/dmenv-<platform> -o dmenv
+curl -L https://github.com/TankerHQ/dmenv/releases/download/v<version>/dmenv-<platform> -o dmenv
 chmod u+x dmenv
 ```
 
