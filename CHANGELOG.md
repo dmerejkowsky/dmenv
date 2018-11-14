@@ -1,3 +1,7 @@
+# 0.6.1
+
+* `dmenv lock`: add `--clean` option, to clean the virtualenv before re-generating the lock.
+
 # 0.6.0
 
 * Run `setup.py develop` with `--no-deps`

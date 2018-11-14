@@ -18,6 +18,11 @@ pub struct InstallOptions {
     pub upgrade_pip: bool,
 }
 
+#[derive(Default)]
+pub struct LockOptions {
+    pub clean: bool,
+}
+
 impl VenvManager {
     pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
@@ -94,11 +99,15 @@ impl VenvManager {
         self.run_venv_cmd(&cmd, args)
     }
 
-    pub fn lock(&self) -> Result<(), Error> {
+    pub fn lock(&self, lock_options: LockOptions) -> Result<(), Error> {
         if !self.paths.setup_py.exists() {
             return Err(Error::new(
                 "setup.py not found. You may want to run `dmenv init` now",
             ));
+        }
+
+        if lock_options.clean {
+            self.clean()?;
         }
 
         self.write_metadata()?;

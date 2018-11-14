@@ -13,9 +13,9 @@ pub use cmd::Command;
 use cmd::SubCommand;
 pub use error::Error;
 use python_info::PythonInfo;
-use venv_manager::InstallOptions;
 use venv_manager::VenvManager;
 pub use venv_manager::LOCK_FILE_NAME;
+use venv_manager::{InstallOptions, LockOptions};
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {
@@ -50,7 +50,11 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             version,
             author,
         } => venv_manager.init(&name, &version, author),
-        SubCommand::Lock {} => venv_manager.lock(),
+        SubCommand::Lock { clean } => {
+            let mut lock_options = LockOptions::default();
+            lock_options.clean = *clean;
+            venv_manager.lock(lock_options)
+        }
         SubCommand::Run { ref cmd } => venv_manager.run(cmd),
         SubCommand::ShowDeps {} => venv_manager.show_deps(),
         SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),

@@ -48,7 +48,10 @@ pub enum SubCommand {
     },
 
     #[structopt(name = "lock", about = "(Re)-generate requirements.lock")]
-    Lock {},
+    Lock {
+        #[structopt(long = "clean", help = "clean the virtualenv first")]
+        clean: bool,
+    },
 
     #[structopt(name = "run", about = "Run the given binary from the virtualenv")]
     Run {
