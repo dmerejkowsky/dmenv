@@ -228,7 +228,7 @@ impl VenvManager {
 
     fn install_from_lock(&self) -> Result<(), Error> {
         let as_str = &self.paths.lock.to_string_lossy();
-        let args = vec!["install", "--requirement", as_str];
+        let args = vec!["install", "--requirement", as_str, "--upgrade"];
         self.run_venv_cmd("pip", args)
     }
 
