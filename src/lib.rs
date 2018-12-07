@@ -23,14 +23,15 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {
         std::path::PathBuf::from(cwd)
     } else {
-        std::env::current_dir()?
+        let maybe_cwd = std::env::current_dir();
+        if let Err(_e) = maybe_cwd {
+            return error::new("Could not get current directory");
+        }
+        maybe_cwd.unwrap()
     };
     if let SubCommand::Run { ref cmd } = cmd.sub_cmd {
         if cmd.is_empty() {
-            return Err(Error::new(&format!(
-                "Missing argument after '{}'",
-                "run".green()
-            )));
+            return error::new(&format!("Missing argument after '{}'", "run".green()));
         }
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
