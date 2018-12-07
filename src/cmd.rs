@@ -35,6 +35,18 @@ pub enum SubCommand {
         no_upgrade_pip: bool,
     },
 
+    #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]
+    BumpInLock {
+        #[structopt(help = "name")]
+        name: String,
+
+        #[structopt(long = "--git")]
+        git: bool,
+
+        #[structopt(help = "version")]
+        version: String,
+    },
+
     #[structopt(name = "init", about = "Initialize a new project")]
     Init {
         #[structopt(help = "Project name")]

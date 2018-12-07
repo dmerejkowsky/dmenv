@@ -2,6 +2,7 @@ extern crate colored;
 use colored::*;
 
 use error::Error;
+use lock::Lock;
 use python_info::PythonInfo;
 use std::io::Write;
 
@@ -134,6 +135,18 @@ impl VenvManager {
         };
         std::fs::write(&self.paths.setup_py, to_write)?;
         println!("{} Generated a new setup.py", "::".blue());
+        Ok(())
+    }
+
+    pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
+        let lock_contents = std::fs::read_to_string(&self.paths.lock)?;
+        let lock = Lock::new(&lock_contents);
+        let new_contents = if git {
+            lock.git_bump(&name, &version)
+        } else {
+            lock.bump(&name, &version)
+        }?;
+        std::fs::write(&self.paths.lock, &new_contents)?;
         Ok(())
     }
 

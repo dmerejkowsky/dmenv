@@ -6,6 +6,7 @@ use colored::*;
 
 mod cmd;
 mod error;
+mod lock;
 mod python_info;
 mod venv_manager;
 
@@ -51,6 +52,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             author,
         } => venv_manager.init(&name, &version, author),
         SubCommand::Lock {} => venv_manager.lock(),
+        SubCommand::BumpInLock { name, version, git } => {
+            venv_manager.bump_in_lock(name, version, *git)
+        }
         SubCommand::Run { ref cmd } => venv_manager.run(cmd),
         SubCommand::ShowDeps {} => venv_manager.show_deps(),
         SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),

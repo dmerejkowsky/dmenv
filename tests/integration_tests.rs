@@ -32,6 +32,36 @@ fn init_generates_setup_py() {
 }
 
 #[test]
+fn bump_in_lock_simple() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let lock_contents = r#"
+foo==0.42
+-e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
+"#;
+    test_app.write_lock(&lock_contents);
+
+    test_app.assert_run_ok(vec!["bump-in-lock", "foo", "0.43"]);
+
+    let actual_contents = test_app.read_lock();
+    let expected_contents = lock_contents.replace("0.42", "0.43");
+    assert_eq!(actual_contents, expected_contents);
+}
+
+#[test]
+fn bump_in_lock_git() {
+    let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
+    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let lock_contents = r#"
+foo==0.42
+-e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
+"#;
+    test_app.write_lock(&lock_contents);
+
+    test_app.assert_run_ok(vec!["bump-in-lock", "--git", "bar", "bfc42a"]);
+}
+
+#[test]
 fn init_does_not_overwrite_existing_setup_py() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
