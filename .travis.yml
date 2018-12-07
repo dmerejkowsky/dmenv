@@ -18,6 +18,7 @@ addons:
   apt:
     packages:
       - python3-venv
+      - python3-pip
 
 
 
