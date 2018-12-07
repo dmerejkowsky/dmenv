@@ -4,6 +4,7 @@ pub struct Lock {
     contents: String,
 }
 
+// Takes (line, name, version) and returns the bumped line
 type BumpFunc = Fn(&str, &str, &str) -> Result<String, Error>;
 
 // line is:
@@ -20,7 +21,10 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
     let chunks: Vec<_> = after_at.split("#").collect();
     // chunks is [abce64, egg=bar]
     if chunks.len() != 2 {
-        return Err(Error::new("malformed lock"));
+        return Err(Error::new(&format!(
+            "Expecting `<ref>#egg=<name>` after `@`, got '{}'",
+            after_at
+        )));
     }
     let dep_ref = chunks[0];
 
@@ -29,7 +33,10 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
 
     let with_egg = chunks[1];
     if !with_egg.starts_with("egg=") {
-        return Err(Error::new("malformed lock"));
+        return Err(Error::new(&format!(
+            "Expecting '{}' to start with `egg=`",
+            with_egg,
+        )));
     }
     let dep_name = &with_egg[4..];
     if dep_name != name {
@@ -53,7 +60,10 @@ fn simple_bump(line: &str, name: &str, version: &str) -> Result<String, Error> {
     }
     let words: Vec<_> = line.split("==").collect();
     if words.len() != 2 {
-        return Err(Error::new("malformed lock"));
+        return Err(Error::new(&format!(
+            "Expecting `<name>==<version>`, got '{}'",
+            line
+        )));
     }
 
     let dep_name = words[0];
@@ -87,8 +97,16 @@ impl Lock {
     ) -> Result<String, Error> {
         let mut res = String::new();
         let mut num_changes = 0;
-        for line in self.contents.lines() {
-            let bumped_line = (bump_func)(line, name, version)?;
+        for (i, line) in self.contents.lines().enumerate() {
+            let bumped_line = (bump_func)(line, name, version);
+            if let Err(error) = bumped_line {
+                return Err(Error::new(&format!(
+                    "Malformed lock on line {}:\n{}",
+                    (i + 1),
+                    error
+                )));
+            }
+            let bumped_line = bumped_line.unwrap();
             if bumped_line != line {
                 num_changes += 1;
             }
@@ -108,6 +126,19 @@ impl Lock {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn malformed_lock() {
+        let lock_contents = "\
+# some comments
+git@foo@dm/foo#egggg=bar
+";
+        let lock = Lock::new(lock_contents);
+        let actual = lock.git_bump("bar", "0.43");
+        let err = actual.unwrap_err();
+        assert!(err.to_string().contains("Malformed lock"));
+        assert!(err.to_string().contains("line 2"));
+    }
 
     #[test]
     fn simple_bump() {
