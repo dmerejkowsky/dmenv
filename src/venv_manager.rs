@@ -139,9 +139,9 @@ impl VenvManager {
         let lock_contents = std::fs::read_to_string(&self.paths.lock)?;
         let lock = Lock::new(&lock_contents);
         let new_contents = if git {
-            lock.git_bump(&name, &version)
+            lock.git_bump(name, version)
         } else {
-            lock.bump(&name, &version)
+            lock.bump(name, version)
         }?;
         std::fs::write(&self.paths.lock, &new_contents)?;
         Ok(())
