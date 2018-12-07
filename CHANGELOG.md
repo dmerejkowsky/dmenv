@@ -1,3 +1,8 @@
+# 0.7.0
+
+* Add `bump-in-lock` command. Use to bump version or git references in the `requirements.lock`
+  file.
+
 # 0.6.0
 
 * Run `setup.py develop` with `--no-deps`
