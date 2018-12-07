@@ -1,4 +1,5 @@
 extern crate colored;
+use cmd::*;
 use colored::*;
 
 use error::Error;
@@ -39,11 +40,7 @@ impl VenvManager {
     }
 
     pub fn clean(&self) -> Result<(), Error> {
-        println!(
-            "{} Cleaning {}",
-            "::".blue(),
-            &self.paths.venv.to_string_lossy()
-        );
+        print_info_1(&format!("Cleaning {}", &self.paths.venv.to_string_lossy()));
         if !self.paths.venv.exists() {
             return Ok(());
         }
@@ -106,7 +103,7 @@ impl VenvManager {
         self.ensure_venv()?;
         self.upgrade_pip()?;
 
-        println!("{} Generating requirements.txt from setup.py", "::".blue());
+        print_info_1("Generating requirements.txt from setup.py");
         self.install_editable()?;
         self.run_pip_freeze()?;
         Ok(())
@@ -134,7 +131,7 @@ impl VenvManager {
             with_version
         };
         std::fs::write(&self.paths.setup_py, to_write)?;
-        println!("{} Generated a new setup.py", "::".blue());
+        print_info_1("Generated a new setup.py");
         Ok(())
     }
 
@@ -152,11 +149,10 @@ impl VenvManager {
 
     fn ensure_venv(&self) -> Result<(), Error> {
         if self.paths.venv.exists() {
-            println!(
-                "{} Using existing virtualenv: {}",
-                "->".blue(),
+            print_info_1(&format!(
+                "Using existing virtualenv: {}",
                 self.paths.venv.to_string_lossy()
-            );
+            ));
         } else {
             self.create_venv()?;
         }
@@ -169,11 +165,10 @@ impl VenvManager {
             return Err(Error::new("venv_path has no parent"));
         }
         let parent_venv_path = parent_venv_path.unwrap();
-        println!(
-            "{} Creating virtualenv in: {}",
-            "::".blue(),
+        print_info_1(&format!(
+            "Creating virtualenv in: {}",
             self.paths.venv.to_string_lossy()
-        );
+        ));
         std::fs::create_dir_all(&parent_venv_path)?;
         let venv_path = &self.paths.venv.to_string_lossy();
         let args = vec!["-m", "venv", venv_path];
@@ -301,12 +296,7 @@ impl VenvManager {
     }
 
     fn print_cmd(bin_path: &str, args: &Vec<&str>) {
-        println!(
-            "{} running {} {}",
-            "->".blue(),
-            bin_path.bold(),
-            args.join(" ")
-        );
+        print_info_2(&format!("Running {} {}", bin_path.bold(), args.join(" ")));
     }
 }
 
