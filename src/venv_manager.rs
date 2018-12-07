@@ -57,7 +57,7 @@ impl VenvManager {
         self.run_venv_cmd("python", vec!["setup.py", "develop", "--no-deps"])
     }
 
-    pub fn install(&self, install_options: InstallOptions) -> Result<(), Error> {
+    pub fn install(&self, install_options: &InstallOptions) -> Result<(), Error> {
         if !self.paths.lock.exists() {
             return Err(Error::new(&format!(
                 "{} does not exist. Please run dmenv lock",
@@ -77,7 +77,7 @@ impl VenvManager {
         Ok(())
     }
 
-    pub fn run(&self, args: &Vec<String>) -> Result<(), Error> {
+    pub fn run(&self, args: &[String]) -> Result<(), Error> {
         if !self.paths.venv.exists() {
             let mut message = format!(
                 "The virtualenv in {} does not exist",
@@ -206,14 +206,14 @@ impl VenvManager {
         let mut lines = vec![];
         for line in out.lines() {
             if !line.starts_with("pkg-resources==") {
-                lines.push(line.clone());
+                lines.push(line);
             }
         }
         let mut file = std::fs::OpenOptions::new()
             .append(true)
             .open(&self.paths.lock)?;
-        file.write(lines.join("\n").as_bytes())?;
-        file.write("\n".as_bytes())?;
+        file.write_all(lines.join("\n").as_bytes())?;
+        file.write_all(b"\n")?;
         println!(
             "{} Requirements written to {}",
             "::".blue(),
@@ -295,7 +295,7 @@ impl VenvManager {
         Ok(path)
     }
 
-    fn print_cmd(bin_path: &str, args: &Vec<&str>) {
+    fn print_cmd(bin_path: &str, args: &[&str]) {
         print_info_2(&format!("Running {} {}", bin_path.bold(), args.join(" ")));
     }
 }

@@ -12,13 +12,13 @@ type BumpFunc = Fn(&str, &str, &str) -> Result<String, Error>;
 // we want:
 //   git@foo.com:bar/baz@<new>@egg=bar
 fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
-    if !line.contains("@") {
+    if !line.contains('@') {
         return Ok(line.to_string());
     }
-    let chunks: Vec<_> = line.rsplit("@").collect();
+    let chunks: Vec<_> = line.rsplit('@').collect();
     // chunks is [git, foo:com:bar/baz, abce64#egg=bar]
     let after_at = chunks.first().unwrap();
-    let chunks: Vec<_> = after_at.split("#").collect();
+    let chunks: Vec<_> = after_at.split('#').collect();
     // chunks is [abce64, egg=bar]
     if chunks.len() != 2 {
         return Err(Error::new(&format!(
