@@ -1,17 +1,29 @@
+use error;
 use error::Error;
 
 pub struct Lock {
     contents: String,
 }
 
+#[derive(Debug)]
+struct ParseError {
+    details: String,
+}
+
+fn new_parse_error<T>(details: &str) -> Result<T, ParseError> {
+    Err(ParseError {
+        details: details.to_string(),
+    })
+}
+
 // Takes (line, name, version) and returns the bumped line
-type BumpFunc = Fn(&str, &str, &str) -> Result<String, Error>;
+type BumpFunc = Fn(&str, &str, &str) -> Result<String, ParseError>;
 
 // line is:
 //   git@foo.com:bar/baz@<old>#egg=bar
 // we want:
 //   git@foo.com:bar/baz@<new>@egg=bar
-fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
+fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, ParseError> {
     if !line.contains('@') {
         return Ok(line.to_string());
     }
@@ -21,10 +33,10 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
     let chunks: Vec<_> = after_at.split('#').collect();
     // chunks is [abce64, egg=bar]
     if chunks.len() != 2 {
-        return Err(Error::new(&format!(
-            "Expecting `<ref>#egg=<name>` after `@`, got '{}'",
+        return new_parse_error(&format!(
+            "expecting `<ref>#egg=<name>` after `@`, got '{}'",
             after_at
-        )));
+        ));
     }
     let dep_ref = chunks[0];
 
@@ -33,10 +45,7 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
 
     let with_egg = chunks[1];
     if !with_egg.starts_with("egg=") {
-        return Err(Error::new(&format!(
-            "Expecting '{}' to start with `egg=`",
-            with_egg,
-        )));
+        return new_parse_error(&format!("expecting '{}' to start with `egg=`", with_egg,));
     }
     let dep_name = &with_egg[4..];
     if dep_name != name {
@@ -54,16 +63,13 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, Error> {
 //   foo==<old>
 // we want:
 //   foo==<new>
-fn simple_bump(line: &str, name: &str, version: &str) -> Result<String, Error> {
+fn simple_bump(line: &str, name: &str, version: &str) -> Result<String, ParseError> {
     if !line.contains("==") {
         return Ok(line.to_string());
     }
     let words: Vec<_> = line.split("==").collect();
     if words.len() != 2 {
-        return Err(Error::new(&format!(
-            "Expecting `<name>==<version>`, got '{}'",
-            line
-        )));
+        return new_parse_error(&format!("expecting `<name>==<version>`, got '{}'", line));
     }
 
     let dep_name = words[0];
@@ -100,11 +106,7 @@ impl Lock {
         for (i, line) in self.contents.lines().enumerate() {
             let bumped_line = (bump_func)(line, name, version);
             if let Err(error) = bumped_line {
-                return Err(Error::new(&format!(
-                    "Malformed lock on line {}:\n{}",
-                    (i + 1),
-                    error
-                )));
+                return error::malformed_lock(i + 1, &error.details);
             }
             let bumped_line = bumped_line.unwrap();
             if bumped_line != line {
@@ -114,10 +116,10 @@ impl Lock {
             res.push_str("\n");
         }
         if num_changes == 0 {
-            return Err(Error::new("No changes made"));
+            return error::nothing_to_bump(name);
         }
         if num_changes > 1 {
-            return Err(Error::new("Too many changes"));
+            return error::multiple_bumps(name);
         }
         Ok(res)
     }
@@ -135,9 +137,10 @@ git@foo@dm/foo#egggg=bar
 ";
         let lock = Lock::new(lock_contents);
         let actual = lock.git_bump("bar", "0.43");
-        let err = actual.unwrap_err();
-        assert!(err.to_string().contains("Malformed lock"));
-        assert!(err.to_string().contains("line 2"));
+        match actual {
+            Err(Error::MalformedLock { line, .. }) => assert_eq!(line, 2),
+            _ => panic!("Expecting MalformedLock, got: {:?}", actual),
+        }
     }
 
     #[test]
@@ -161,9 +164,11 @@ bar==0.3
 foo==0.42
 "#;
         let lock = Lock::new(lock_contents);
-        let actual = lock.bump("no such", "0.43");
-        let error = actual.unwrap_err();
-        assert_eq!(error.to_string(), "No changes made");
+        let actual = lock.bump("no-such", "0.43");
+        match actual {
+            Err(Error::NothingToBump { name }) => assert_eq!(name, "no-such"),
+            _ => panic!("Expecting NothingToBump, got: {:?}", actual),
+        }
     }
 
     #[test]
