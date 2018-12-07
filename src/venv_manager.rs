@@ -177,9 +177,15 @@ impl VenvManager {
             self.paths.venv.to_string_lossy()
         ));
         std::fs::create_dir_all(&parent_venv_path)?;
-        let venv_path = &self.paths.venv.to_string_lossy();
-        let args = vec!["-m", "venv", venv_path];
         let python_binary = &self.python_info.binary;
+        let venv_path = &self.paths.venv.to_string_lossy();
+        let mut args = vec!["-m"];
+        if std::env::var("DMENV_OLD_PYTHON").is_ok() {
+            args.push("virtualenv");
+        } else {
+            args.push("venv");
+        }
+        args.push(venv_path);
         Self::print_cmd(&python_binary.to_string_lossy(), &args);
         let status = std::process::Command::new(&python_binary)
             .current_dir(&self.paths.working_dir)
