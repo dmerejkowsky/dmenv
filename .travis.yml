@@ -25,10 +25,8 @@ addons:
 install:
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then choco install python; fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then export PATH="/c/Python37:${PATH}";  fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] ; then sudo pip3 install --upgrade setuptools ; fi
-  # We need support of setup.cfg in setuptools, hence this hack.
-  # Note: running the above command is fine in a travis container. *Don't* do
-  # that on your development box!
+  # Xenial counts as 'old' python. So install virtualenv and use `-m virtualenv` instead of `-m venv`:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] ; then pip3 install virtualenv --user ; export DMENV_OLD_PYTHON=1 ; fi
   - cargo install cargo-audit --force
 
 script:
