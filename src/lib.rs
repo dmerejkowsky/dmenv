@@ -26,7 +26,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         std::env::current_dir()?
     };
     if let SubCommand::Run { ref cmd } = cmd.sub_cmd {
-        if cmd.len() == 0 {
+        if cmd.is_empty() {
             return Err(Error::new(&format!(
                 "Missing argument after '{}'",
                 "run".green()
@@ -43,7 +43,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             let mut install_options = InstallOptions::default();
             install_options.develop = !no_develop;
             install_options.upgrade_pip = !no_upgrade_pip;
-            venv_manager.install(install_options)
+            venv_manager.install(&install_options)
         }
         SubCommand::Clean {} => venv_manager.clean(),
         SubCommand::Develop {} => venv_manager.develop(),

@@ -21,7 +21,7 @@ impl PythonInfo {
             )));
         }
         let info_out = String::from_utf8_lossy(&command.stdout);
-        let lines: Vec<_> = info_out.split("\n").collect();
+        let lines: Vec<_> = info_out.split('\n').collect();
         if lines.len() != 3 {
             return Err(Error::new(&format!(
             "Expected two lines in info_out, got: {}", lines.len())));
