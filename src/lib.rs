@@ -6,6 +6,7 @@ mod cmd;
 mod error;
 mod lock;
 mod python_info;
+mod setup_cfg;
 mod venv_manager;
 
 pub use cmd::Command;
