@@ -1,4 +1,5 @@
 extern crate colored;
+use colored::*;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -76,4 +77,16 @@ pub enum SubCommand {
 
     #[structopt(name = "upgrade-pip", about = "Upgrade pip in the virtualenv")]
     UpgradePip {},
+}
+
+pub fn print_error(description: &str) {
+    eprintln!("{}: {}", "Error".bold().red(), description);
+}
+
+pub fn print_info_1(message: &str) {
+    println!("{} {}", "::".blue(), message);
+}
+
+pub fn print_info_2(message: &str) {
+    println!("{} {}", "->".blue(), message);
 }

@@ -12,6 +12,7 @@ mod venv_manager;
 
 pub use cmd::Command;
 use cmd::SubCommand;
+pub use cmd::{print_error, print_info_1, print_info_2};
 pub use error::Error;
 use python_info::PythonInfo;
 use venv_manager::InstallOptions;
