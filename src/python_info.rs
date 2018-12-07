@@ -24,11 +24,17 @@ impl PythonInfo {
         let lines: Vec<_> = info_out.split('\n').collect();
         if lines.len() != 3 {
             return Err(Error::new(&format!(
-            "Expected two lines in info_out, got: {}", lines.len())));
+                "Expected two lines in info_out, got: {}",
+                lines.len()
+            )));
         }
         let version = lines[0].trim().to_string();
         let platform = lines[1].trim().to_string();
-        Ok(PythonInfo { binary, version, platform })
+        Ok(PythonInfo {
+            binary,
+            version,
+            platform,
+        })
     }
 }
 
