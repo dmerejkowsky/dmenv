@@ -33,10 +33,18 @@ impl TestApp {
             self.tmp_path.join("setup.py"),
             include_str!("../../demo/setup.py"),
         ).expect("");
+        std::fs::write(
+            self.tmp_path.join("setup.cfg"),
+            include_str!("../../demo/setup.cfg"),
+        ).expect("");
     }
 
     pub fn remove_setup_py(&self) {
         self.remove_file("setup.py");
+    }
+
+    pub fn remove_setup_cfg(&self) {
+        self.remove_file("setup.cfg");
     }
 
     pub fn run(&self, args: Vec<String>) -> Result<(), dmenv::Error> {
@@ -90,8 +98,8 @@ impl TestApp {
         std::fs::remove_file(path).expect("");
     }
 
-    pub fn read_setup_py(&self) -> String {
-        std::fs::read_to_string(self.tmp_path.join("setup.py")).expect("")
+    pub fn read_setup_cfg(&self) -> String {
+        std::fs::read_to_string(self.tmp_path.join("setup.cfg")).expect("")
     }
 }
 

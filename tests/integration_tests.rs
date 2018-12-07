@@ -14,10 +14,11 @@ fn show_venv_path() {
 }
 
 #[test]
-fn init_generates_setup_py() {
+fn init_generates_setup_cfg() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
     test_app.remove_setup_py();
+    test_app.remove_setup_cfg();
     #[cfg_attr(rustfmt, rustfmt_skip)]
     test_app.assert_run_ok(vec![
         "init", "foo",
@@ -25,7 +26,7 @@ fn init_generates_setup_py() {
         "--author", "jane@corp.com",
     ]);
 
-    let written = test_app.read_setup_py();
+    let written = test_app.read_setup_cfg();
     assert!(written.contains("foo"));
     assert!(written.contains("0.42"));
     assert!(written.contains("jane@corp.com"));

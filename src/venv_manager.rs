@@ -24,6 +24,7 @@ impl VenvManager {
     pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
         let setup_py_path = working_dir.join("setup.py");
+        let setup_cfg_path = working_dir.join("setup.cfg");
         let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
             std::path::PathBuf::from(env_var)
         } else {
@@ -34,6 +35,7 @@ impl VenvManager {
             venv: venv_path,
             lock: lock_path,
             setup_py: setup_py_path,
+            setup_cfg: setup_cfg_path,
         };
         let venv_manager = VenvManager { paths, python_info };
         Ok(venv_manager)
@@ -122,7 +124,10 @@ impl VenvManager {
         if self.paths.setup_py.exists() {
             return Err(Error::new("setup.py already exists. Aborting"));
         }
-        let template = include_str!("setup.in.py");
+        if self.paths.setup_cfg.exists() {
+            return Err(Error::new("setup.cfg already exists. Aborting"));
+        }
+        let template = include_str!("setup.in.cfg");
         let with_name = template.replace("<NAME>", name);
         let with_version = with_name.replace("<VERSION>", version);
         let to_write = if let Some(author) = author {
@@ -130,8 +135,10 @@ impl VenvManager {
         } else {
             with_version
         };
-        std::fs::write(&self.paths.setup_py, to_write)?;
-        print_info_1("Generated a new setup.py");
+        std::fs::write(&self.paths.setup_cfg, to_write)?;
+        print_info_2("Generated setup.cfg");
+        std::fs::write(&self.paths.setup_py, include_str!("setup.py"))?;
+        print_info_2("Create setup.py");
         Ok(())
     }
 
@@ -305,4 +312,5 @@ struct Paths {
     venv: std::path::PathBuf,
     lock: std::path::PathBuf,
     setup_py: std::path::PathBuf,
+    setup_cfg: std::path::PathBuf,
 }
