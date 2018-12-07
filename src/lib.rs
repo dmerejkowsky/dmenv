@@ -5,6 +5,7 @@ mod error;
 mod execv;
 mod lock;
 mod python_info;
+mod setup_cfg;
 mod venv_manager;
 
 pub use crate::cmd::Command;

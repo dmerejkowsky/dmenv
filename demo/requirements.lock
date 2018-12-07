@@ -1,4 +1,4 @@
-# Generated with dmenv 0.4.1, python 3.7.1, on linux
+# Generated with dmenv 0.8.0, python 3.7.1, on Linux
 atomicwrites==1.2.1
 attrs==18.2.0
 importlib-metadata==0.6
