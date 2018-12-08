@@ -44,9 +44,6 @@ impl TestApp {
         cmd.extend(vec!["dmenv".to_string()]);
         let tmp_path: String = self.tmp_path.to_string_lossy().into();
         cmd.extend(vec!["--cwd".to_string(), tmp_path]);
-
-        let cfg_path: String = self.tmp_path.join("dmenv.toml").to_string_lossy().into();
-        cmd.extend(vec!["--cfg-path".to_string(), cfg_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).expect("");
         dmenv::run(cmd)
