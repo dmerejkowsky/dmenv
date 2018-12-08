@@ -8,10 +8,6 @@ pub struct Command {
     #[structopt(long = "python", help = "python binary")]
     pub python_binary: Option<String>,
 
-    // Those are mainly useful for tests, but you never know:
-    #[structopt(long = "cfg-path", help = "path to the config file")]
-    pub cfg_path: Option<String>,
-
     #[structopt(long = "cwd", help = "path to use as the workining directory")]
     pub working_dir: Option<String>,
 
