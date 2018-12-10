@@ -199,17 +199,6 @@ foo =
         assert_multi(&setup_cfg, "section", "foo", vec!["bar".to_string()]);
     }
 
-    const CONTENTS: &str = "\
-[metadata]
-name = foo
-version = 0.42
-
-[options]
-install_requires =
-  colorama
-  path-py
-";
-
     fn assert_single(setup_cfg: &SetupCfg, section: &str, key: &str, value: &str) {
         let actual = setup_cfg.get_single(section, key).expect("");
         assert_eq!(actual, value);
@@ -231,6 +220,18 @@ install_requires =
         assert!(actual.is_err());
         println!("error: {}", actual.unwrap_err());
     }
+
+    const CONTENTS: &str = "\
+[metadata]
+name = foo
+version = 0.42
+
+[options]
+install_requires =
+  colorama
+  # this is a comment
+  path-py
+";
 
     #[test]
     fn test_parse_happy() {
