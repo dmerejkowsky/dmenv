@@ -24,19 +24,23 @@ impl TestApp {
         std::fs::write(
             self.tmp_path.join("demo.py"),
             include_str!("../../demo/demo.py"),
-        ).expect("");
+        )
+        .expect("");
         std::fs::write(
             self.tmp_path.join("test_demo.py"),
             include_str!("../../demo/test_demo.py"),
-        ).expect("");
+        )
+        .expect("");
         std::fs::write(
             self.tmp_path.join("setup.py"),
             include_str!("../../demo/setup.py"),
-        ).expect("");
+        )
+        .expect("");
         std::fs::write(
             self.tmp_path.join("setup.cfg"),
             include_str!("../../demo/setup.cfg"),
-        ).expect("");
+        )
+        .expect("");
     }
 
     pub fn remove_setup_py(&self) {

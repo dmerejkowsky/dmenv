@@ -194,7 +194,8 @@ did_not_expect_me_there
 foo =
   bar
   ",
-        ).expect(""); // note the trailing space in the last line
+        )
+        .expect(""); // note the trailing space in the last line
         assert_multi(&setup_cfg, "section", "foo", vec!["bar".to_string()]);
     }
 
