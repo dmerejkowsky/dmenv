@@ -60,6 +60,10 @@ impl SetupCfg {
     }
 }
 
+fn is_comment(line: &str) -> bool {
+    line.trim_start().starts_with("#")
+}
+
 fn is_section(line: &str) -> Option<String> {
     if line.starts_with("[") && line.ends_with("]") {
         return Some(line[1..line.len() - 1].to_string());
@@ -94,6 +98,9 @@ enum Token {
 fn tokenize(contents: &str) -> Vec<Token> {
     let mut tokens = vec![];
     for line in contents.lines() {
+        if is_comment(line) {
+            continue;
+        }
         if let Some(section_name) = is_section(line) {
             let token = Token::Section(section_name.to_string());
             tokens.push(token);
