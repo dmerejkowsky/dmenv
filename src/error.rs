@@ -103,14 +103,14 @@ pub fn new<T>(message: &str) -> Result<T, Error> {
 pub fn write<T>(path: std::path::PathBuf, error: std::io::Error) -> Result<T, Error> {
     Err(Error::WriteError {
         io_error: error,
-        path: path,
+        path,
     })
 }
 
 pub fn read<T>(path: std::path::PathBuf, error: std::io::Error) -> Result<T, Error> {
     Err(Error::ReadError {
         io_error: error,
-        path: path,
+        path,
     })
 }
 

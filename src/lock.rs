@@ -95,6 +95,7 @@ impl Lock {
         self.bump_with_func(name, git_ref, Box::new(git_bump))
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn bump_with_func(
         &self,
         name: &str,

@@ -52,8 +52,8 @@ impl TestApp {
         dmenv::run(cmd)
     }
 
-    pub fn assert_run_ok(&self, args: Vec<&str>) {
-        let args = to_string_args(args);
+    pub fn assert_run_ok(&self, args: &[&str]) {
+        let args = to_string_args(&args);
         self.run(args).expect("");
     }
 
@@ -70,8 +70,8 @@ impl TestApp {
         assert!(self.tmp_path.join(name).exists());
     }
 
-    pub fn assert_run_error(&self, args: Vec<&str>) -> String {
-        let args = to_string_args(args);
+    pub fn assert_run_error(&self, args: &[&str]) -> String {
+        let args = to_string_args(&args);
         let res = self.run(args);
         res.unwrap_err().to_string()
     }
@@ -95,6 +95,6 @@ impl TestApp {
     }
 }
 
-pub fn to_string_args(args: Vec<&str>) -> Vec<String> {
+pub fn to_string_args(args: &[&str]) -> Vec<String> {
     args.iter().map(|x| x.to_string()).collect()
 }
