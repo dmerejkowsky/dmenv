@@ -100,7 +100,7 @@ impl VenvManager {
         self.ensure_venv()?;
         self.upgrade_pip()?;
 
-        print_info_1("Generating requirements.txt from setup.py");
+        print_info_1("Generating requirements.lock from setup.py");
         self.install_editable()?;
         self.run_pip_freeze()?;
         Ok(())
