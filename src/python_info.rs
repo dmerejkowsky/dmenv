@@ -8,6 +8,7 @@ pub struct PythonInfo {
 }
 
 impl PythonInfo {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(python: &Option<String>) -> Result<Self, Error> {
         let binary = get_python_binary(&python)?;
         let info_script = include_str!("info.py");

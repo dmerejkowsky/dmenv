@@ -22,6 +22,7 @@ pub struct InstallOptions {
 }
 
 impl VenvManager {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
         let lock_path = working_dir.join(LOCK_FILE_NAME);
         let setup_py_path = working_dir.join("setup.py");
@@ -47,15 +48,13 @@ impl VenvManager {
         }
         let outcome = std::fs::remove_dir_all(&self.paths.venv);
         match outcome {
-            Ok(()) => return Ok(()),
-            Err(e) => {
-                return error::new(&format!(
-                    "could not remove {}: {}",
-                    &self.paths.venv.to_string_lossy(),
-                    e
-                ))
-            }
-        };
+            Ok(()) => Ok(()),
+            Err(e) => error::new(&format!(
+                "could not remove {}: {}",
+                &self.paths.venv.to_string_lossy(),
+                e
+            )),
+        }
     }
 
     pub fn develop(&self) -> Result<(), Error> {
