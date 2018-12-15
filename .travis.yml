@@ -1,5 +1,8 @@
 language: rust
 
+before_script:
+  - rustup component add clippy
+
 rust:
   - stable
 
@@ -26,6 +29,7 @@ install:
 
 script:
   - cargo audit
+  - cargo clippy --all-targets -- -D warnings
   - cargo build --release
   - cargo test --release
 
