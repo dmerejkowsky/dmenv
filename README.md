@@ -94,11 +94,11 @@ A: Just run `dmenv lock` again. If something breaks, either fix your code or
    use more precise version specifiers in `setup.py`, like `foobar < 2.0`.
 
 Q: How do I depend on a git specific repo/branch?<br/>
-A: Edit the `requirements.lock` by hand like this:
+A: Edit the `requirements.lock` by hand like this, where the part after `#egg=` matches the name of the dependency in
+   the `setup.py`
 
 ```
-foo==0.1
-https://gitlab.com/foo/bar@my-branch
+https://gitlab.com/foo/bar@my-branch#egg=bar
 ```
 
 Q: But that sucks and it will disappear when I re-run `dmenv lock`! <br />
