@@ -1,4 +1,3 @@
-use error;
 use error::Error;
 
 pub struct Lock {
@@ -10,10 +9,12 @@ struct ParseError {
     details: String,
 }
 
-fn new_parse_error<T>(details: &str) -> Result<T, ParseError> {
-    Err(ParseError {
-        details: details.to_string(),
-    })
+impl ParseError {
+    pub fn new(details: &str) -> Self {
+        ParseError {
+            details: details.to_string(),
+        }
+    }
 }
 
 // Takes (line, name, version) and returns the bumped line
@@ -33,10 +34,10 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, ParseError>
     let chunks: Vec<_> = after_at.split('#').collect();
     // chunks is [abce64, egg=bar]
     if chunks.len() != 2 {
-        return new_parse_error(&format!(
+        return Err(ParseError::new(&format!(
             "expecting `<ref>#egg=<name>` after `@`, got '{}'",
             after_at
-        ));
+        )));
     }
     let dep_ref = chunks[0];
 
@@ -45,7 +46,10 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, ParseError>
 
     let with_egg = chunks[1];
     if !with_egg.starts_with("egg=") {
-        return new_parse_error(&format!("expecting '{}' to start with `egg=`", with_egg,));
+        return Err(ParseError::new(&format!(
+            "expecting '{}' to start with `egg=`",
+            with_egg
+        )));
     }
     let dep_name = &with_egg[4..];
     if dep_name != name {
@@ -69,7 +73,10 @@ fn simple_bump(line: &str, name: &str, version: &str) -> Result<String, ParseErr
     }
     let words: Vec<_> = line.split("==").collect();
     if words.len() != 2 {
-        return new_parse_error(&format!("expecting `<name>==<version>`, got '{}'", line));
+        return Err(ParseError::new(&format!(
+            "expecting `<name>==<version>`, got '{}'",
+            line
+        )));
     }
 
     let dep_name = words[0];
@@ -106,10 +113,10 @@ impl Lock {
         let mut num_changes = 0;
         for (i, line) in self.contents.lines().enumerate() {
             let bumped_line = (bump_func)(line, name, version);
-            if let Err(error) = bumped_line {
-                return error::malformed_lock(i + 1, &error.details);
-            }
-            let bumped_line = bumped_line.unwrap();
+            let bumped_line = bumped_line.map_err(|e| Error::MalformedLock {
+                line: i + 1,
+                details: e.details,
+            })?;
             if bumped_line != line {
                 num_changes += 1;
             }
@@ -117,10 +124,14 @@ impl Lock {
             res.push_str("\n");
         }
         if num_changes == 0 {
-            return error::nothing_to_bump(name);
+            return Err(Error::NothingToBump {
+                name: name.to_string(),
+            });
         }
         if num_changes > 1 {
-            return error::multiple_bumps(name);
+            return Err(Error::MultipleBumps {
+                name: name.to_string(),
+            });
         }
         Ok(res)
     }
