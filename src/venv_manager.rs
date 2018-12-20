@@ -185,7 +185,13 @@ impl VenvManager {
             ),
         })?;
         let venv_path = &self.paths.venv.to_string_lossy();
-        let args = vec!["-m", "venv", venv_path];
+        let mut args = vec!["-m"];
+        if self.python_info.venv_from_stdlib {
+            args.push("venv")
+        } else {
+            args.push("virtualenv")
+        };
+        args.push(venv_path);
         let python_binary = &self.python_info.binary;
         Self::print_cmd(&python_binary.to_string_lossy(), &args);
         let status = std::process::Command::new(&python_binary)
