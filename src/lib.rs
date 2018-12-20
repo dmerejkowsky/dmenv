@@ -36,7 +36,10 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             });
         }
     }
-    let python_info = PythonInfo::new(&cmd.python_binary)?;
+    let mut python_info = PythonInfo::new(&cmd.python_binary)?;
+    if std::env::var("DMENV_NO_VENV_STDLIB").is_ok() {
+        python_info.venv_from_stdlib = false;
+    }
     let venv_manager = VenvManager::new(working_dir, python_info)?;
     match &cmd.sub_cmd {
         SubCommand::Install {

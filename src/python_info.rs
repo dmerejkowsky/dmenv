@@ -4,6 +4,7 @@ pub struct PythonInfo {
     pub binary: std::path::PathBuf,
     pub version: String,
     pub platform: String,
+    pub venv_from_stdlib: bool,
 }
 
 impl PythonInfo {
@@ -37,6 +38,7 @@ impl PythonInfo {
             binary,
             version,
             platform,
+            venv_from_stdlib: true,
         })
     }
 }
