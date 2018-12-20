@@ -66,6 +66,7 @@ impl VenvManager {
         }
 
         self.ensure_venv()?;
+        self.ensure_wheel()?;
         if install_options.upgrade_pip {
             self.upgrade_pip()?;
         }
@@ -157,6 +158,14 @@ impl VenvManager {
             self.create_venv()?;
         }
         Ok(())
+    }
+
+    // Workaround for broken python3-venv on Debian-like
+    // Make sure the `wheel` package is installed before
+    // doing anything else
+    fn ensure_wheel(&self) -> Result<(), Error> {
+        let args = vec!["-m", "pip", "install", "wheel"];
+        self.run_venv_cmd("python", args)
     }
 
     fn create_venv(&self) -> Result<(), Error> {
