@@ -45,8 +45,7 @@ impl VenvManager {
         if !self.paths.venv.exists() {
             return Ok(());
         }
-        let outcome = std::fs::remove_dir_all(&self.paths.venv);
-        outcome.map_err(|e| Error::Other {
+        std::fs::remove_dir_all(&self.paths.venv).map_err(|e| Error::Other {
             message: format!(
                 "could not remove {}: {}",
                 &self.paths.venv.to_string_lossy(),
@@ -171,13 +170,9 @@ impl VenvManager {
     }
 
     fn create_venv(&self) -> Result<(), Error> {
-        let parent_venv_path = &self.paths.venv.parent();
-        if parent_venv_path.is_none() {
-            return Err(Error::Other {
-                message: "venv_path has no parent".to_string(),
-            });
-        }
-        let parent_venv_path = parent_venv_path.unwrap();
+        let parent_venv_path = &self.paths.venv.parent().ok_or(Error::Other {
+            message: "venv_path has no parent".to_string(),
+        })?;
         print_info_1(&format!(
             "Creating virtualenv in: {}",
             self.paths.venv.to_string_lossy()
