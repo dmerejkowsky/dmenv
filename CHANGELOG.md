@@ -1,3 +1,11 @@
+# 0.8.0
+
+* Allow using `python3 -m virtualenv` instead of `python3 -m venv` to create the virtual
+  environments. This can be used to work around
+  [some](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=871790)
+  [bugs](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=917006) in
+  Debian-based distributions.
+
 # 0.7.0
 
 * Add `bump-in-lock` command. Use to bump version or git references in the `requirements.lock`
