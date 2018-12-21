@@ -89,6 +89,11 @@ To use an other Python interpreter than the one in PATH, you can either:
 
 # FAQ
 
+Q: I'm on Debian, and I've got errors when running `bdist_wheel`! <br />
+A: This is an [upstream bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=917006).
+   As a workaround, you can install virtualenv with `python3 -m pip install virtualenv --user`
+   and then set the `DMENV_NO_VENV_STDLIB` environment variable.
+
 Q: How do I upgrade a dependency?<br/>
 A: Just run `dmenv lock` again. If something breaks, either fix your code or
    use more precise version specifiers in `setup.py`, like `foobar < 2.0`.
