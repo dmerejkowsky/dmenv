@@ -76,7 +76,7 @@ dependencies = [
 
 [[package]]
 name = "dmenv"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "colored 1.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "structopt 0.2.12 (registry+https://github.com/rust-lang/crates.io-index)",
