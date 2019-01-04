@@ -17,3 +17,4 @@ which = "2.0"
 
 [dev-dependencies]
 tempdir = "0.3"
+ignore = "0.4.6"

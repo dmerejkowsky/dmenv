@@ -113,6 +113,7 @@ fn install_workflow_step_by_step() {
 fn install_without_lock() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").expect("");
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    test_app.remove_lock();
     test_app.assert_run_error(&["install"]);
 }
 

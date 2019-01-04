@@ -1,4 +1,6 @@
+extern crate ignore;
 extern crate structopt;
+use self::ignore::Walk;
 use self::structopt::StructOpt;
 
 pub struct TestApp {
@@ -8,7 +10,7 @@ pub struct TestApp {
 ///
 /// An instance of dmenv::App designed for testing
 ///
-/// By default, contains a copy of all the Python files in
+/// By default, contains a copy of all the files in
 /// demo/
 impl TestApp {
     pub fn new(tmp_path: std::path::PathBuf) -> Self {
@@ -21,25 +23,25 @@ impl TestApp {
     }
 
     fn copy_demo_files(&self) {
-        std::fs::write(
-            self.tmp_path.join("demo.py"),
-            include_str!("../../demo/demo.py"),
-        )
-        .expect("");
-        std::fs::write(
-            self.tmp_path.join("test_demo.py"),
-            include_str!("../../demo/test_demo.py"),
-        )
-        .expect("");
-        std::fs::write(
-            self.tmp_path.join("setup.py"),
-            include_str!("../../demo/setup.py"),
-        )
-        .expect("");
+        for result in Walk::new("demo") {
+            let entry = result.unwrap();
+            if let Some(file_type) = entry.file_type() {
+                if file_type.is_file() {
+                    let src = entry.path();
+                    let name = entry.file_name();
+                    let dest = self.tmp_path.join(name);
+                    std::fs::copy(src, dest).expect("");
+                }
+            }
+        }
     }
 
     pub fn remove_setup_py(&self) {
         self.remove_file("setup.py");
+    }
+
+    pub fn remove_lock(&self) {
+        self.remove_file(dmenv::LOCK_FILE_NAME);
     }
 
     pub fn run(&self, args: Vec<String>) -> Result<(), dmenv::Error> {
