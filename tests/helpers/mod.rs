@@ -32,6 +32,11 @@ impl TestApp {
                 }
             }
         }
+        std::fs::write(
+            self.tmp_path.join("setup.cfg"),
+            include_str!("../../demo/setup.cfg"),
+        )
+        .expect("");
     }
 
     pub fn remove_setup_py(&self) {
