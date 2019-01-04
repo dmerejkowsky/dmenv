@@ -1,7 +1,5 @@
 language: rust
-
-before_script:
-  - rustup component add clippy
+dist: xenial
 
 rust:
   - stable
@@ -17,26 +15,14 @@ addons:
     packages:
       - python
 
-  apt:
-    packages:
-      - python3.4-venv
-
-
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then choco install python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]] ; then export PATH="/c/Python37:${PATH}";  fi
-  - cargo install cargo-audit --force
+  - bash ci/install.sh
 
 script:
-  - cargo audit
-  - cargo clippy --all-targets -- -D warnings
-  - cargo build --release
-  - cargo test --release
+  - bash ci/check.sh
 
 before_deploy:
-  - mkdir -p dist/
-  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then mv target/release/dmenv dist/dmenv-${TRAVIS_OS_NAME} ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then mv target/release/dmenv.exe dist/dmenv-windows.exe ; fi
+  - bash ci/gen_artifacts.sh
 
 deploy:
   skip_cleanup: true
