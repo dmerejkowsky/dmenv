@@ -85,8 +85,8 @@ fn lock_workflow() {
     assert!(lock_contents.contains("pytest=="));
     assert!(!lock_contents.contains("pkg-resources=="));
     test_app.assert_run_ok(&["show:deps"]);
-    test_app.assert_run_ok(&["run", "demo"]);
-    test_app.assert_run_ok(&["run", "pytest"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "pytest"]);
 }
 
 #[test]
@@ -106,7 +106,7 @@ fn install_workflow_step_by_step() {
     test_app.write_lock(&lock_contents);
     test_app.assert_run_ok(&["install", "--no-develop", "--no-upgrade-pip"]);
     test_app.assert_run_ok(&["develop"]);
-    test_app.assert_run_ok(&["run", "demo"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
 }
 
 #[test]

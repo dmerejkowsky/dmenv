@@ -29,7 +29,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
         maybe_cwd.unwrap()
     };
-    if let SubCommand::Run { ref cmd } = cmd.sub_cmd {
+    if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
         if cmd.is_empty() {
             return Err(Error::Other {
                 message: format!("Missing argument after '{}'", "run".green()),
@@ -65,7 +65,13 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             println!("{}", "ok!".green());
             Ok(())
         }
-        SubCommand::Run { ref cmd } => venv_manager.run(cmd),
+        SubCommand::Run { ref cmd, no_exec } => {
+            if *no_exec {
+                venv_manager.run_no_exec(cmd)
+            } else {
+                venv_manager.run(cmd)
+            }
+        }
         SubCommand::ShowDeps {} => venv_manager.show_deps(),
         SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),
         SubCommand::UpgradePip {} => venv_manager.upgrade_pip(),

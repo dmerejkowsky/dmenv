@@ -11,6 +11,12 @@ pub enum Error {
         io_error: std::io::Error,
     },
 
+    NulByteFound {
+        arg: String,
+    },
+    ProcessStartError {
+        message: String,
+    },
     ProcessWaitError {
         io_error: std::io::Error,
     },
@@ -51,6 +57,8 @@ impl std::fmt::Display for Error {
         let message = match self {
             Error::Other { message } => message.to_string(),
 
+            Error::NulByteFound { arg } => format!("nul byte found in arg: {:?}", arg),
+
             Error::ReadError { path, io_error } => {
                 format!("could not read {}: {}", path.to_string_lossy(), io_error)
             }
@@ -58,6 +66,7 @@ impl std::fmt::Display for Error {
                 format!("could not write {}: {}", path.to_string_lossy(), io_error)
             }
 
+            Error::ProcessStartError { message } => format!("could not start process: {}", message),
             Error::ProcessWaitError { io_error } => {
                 format!("could not wait for process: {}", io_error)
             }
