@@ -59,7 +59,7 @@ impl VenvManager {
             return Err(Error::MissingSetupPy {});
         }
 
-        self.run_venv_cmd("python", vec!["setup.py", "develop", "--no-deps"])
+        self.run_cmd_in_venv("python", vec!["setup.py", "develop", "--no-deps"])
     }
 
     pub fn install(&self, install_options: &InstallOptions) -> Result<(), Error> {
@@ -106,7 +106,7 @@ impl VenvManager {
     }
 
     pub fn show_deps(&self) -> Result<(), Error> {
-        self.run_venv_cmd("pip", vec!["list"])
+        self.run_cmd_in_venv("pip", vec!["list"])
     }
 
     pub fn show_venv_path(&self) -> Result<(), Error> {
@@ -275,22 +275,22 @@ impl VenvManager {
     fn install_from_lock(&self) -> Result<(), Error> {
         let as_str = &self.paths.lock.to_string_lossy();
         let args = vec!["install", "--requirement", as_str];
-        self.run_venv_cmd("pip", args)
+        self.run_cmd_in_venv("pip", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
         let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
-        self.run_venv_cmd("python", args)
+        self.run_cmd_in_venv("python", args)
     }
 
     fn install_editable(&self) -> Result<(), Error> {
         // tells pip to run `setup.py develop` (that's -e), and
         // install the dev requirements too
         let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
-        self.run_venv_cmd("python", args)
+        self.run_cmd_in_venv("python", args)
     }
 
-    fn run_venv_cmd(&self, name: &str, args: Vec<&str>) -> Result<(), Error> {
+    fn run_cmd_in_venv(&self, name: &str, args: Vec<&str>) -> Result<(), Error> {
         let bin_path = &self.get_path_in_venv(name)?;
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path)
