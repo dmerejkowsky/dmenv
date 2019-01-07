@@ -1,11 +1,14 @@
 extern crate colored;
+extern crate libc;
 use cmd::*;
 use colored::*;
 
 use error::*;
 use lock::Lock;
 use python_info::PythonInfo;
+use std::ffi::CString;
 use std::io::Write;
+use std::os::raw::c_char;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
@@ -80,14 +83,51 @@ impl VenvManager {
     }
 
     pub fn run(&self, args: &[String]) -> Result<(), Error> {
-        if !self.paths.venv.exists() {
-            return Err(Error::MissingVenv {
-                path: self.paths.venv.clone(),
+        self.expect_venv()?;
+        // Compiler assumes `rc` is never read
+        // Maybe because of the unsafe block ?
+        #[allow(unused_assignments)]
+        let mut rc = 0;
+        unsafe {
+            let arg0 = &args[0].clone();
+            let bin_path = &self.get_path_in_venv(&arg0)?;
+            let bin_path_str = bin_path.to_str().ok_or(Error::Other {
+                message: "Could not convert binary path to char*".to_string(),
+            })?;
+            let mut fixed_args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
+            fixed_args[0] = bin_path_str.to_string();
+
+            let mut c_args = vec![];
+            for arg in fixed_args {
+                c_args.push(CString::new(arg.as_str()).map_err(|_| Error::NulByteFound { arg })?);
+            }
+            let mut args: Vec<*const c_char> =
+                c_args.iter().map(|x| x.as_ptr() as *const c_char).collect();
+            args.push(std::ptr::null());
+            let c_args = args.as_ptr() as *const *const c_char;
+            let c_program = CString::new(bin_path_str).map_err(|_| Error::NulByteFound {
+                arg: bin_path_str.to_string(),
+            })?;
+            let c_program = c_program.as_ptr() as *const c_char;
+            rc = libc::execv(c_program, c_args)
+        }
+        if rc != 0 {
+            let error = std::io::Error::last_os_error();
+            return Err(Error::ProcessStartError {
+                message: format!("execv() failed: {}", error),
             });
         }
+
+        Ok(())
+    }
+
+    // Same as run(), but don't use execv()
+    // Useful for tests
+    pub fn run_no_exec(&self, args: &[String]) -> Result<(), Error> {
+        self.expect_venv()?;
         let cmd = args[0].clone();
         let args: Vec<&str> = args.iter().skip(1).map(|x| x.as_str()).collect();
-        self.run_venv_cmd(&cmd, args)
+        self.run_cmd_in_venv(&cmd, args)
     }
 
     pub fn lock(&self) -> Result<(), Error> {
@@ -165,6 +205,15 @@ impl VenvManager {
             ));
         } else {
             self.create_venv()?;
+        }
+        Ok(())
+    }
+
+    fn expect_venv(&self) -> Result<(), Error> {
+        if !self.paths.venv.exists() {
+            return Err(Error::MissingVenv {
+                path: self.paths.venv.clone(),
+            });
         }
         Ok(())
     }

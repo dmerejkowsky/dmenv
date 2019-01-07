@@ -61,6 +61,9 @@ pub enum SubCommand {
 
     #[structopt(name = "run", about = "Run the given binary from the virtualenv")]
     Run {
+        #[structopt(long = "--no-exec", help = "Do not use execv())")]
+        no_exec: bool,
+
         #[structopt(name = "command")]
         cmd: Vec<String>,
     },
