@@ -84,10 +84,7 @@ impl VenvManager {
 
     pub fn run(&self, args: &[String]) -> Result<(), Error> {
         self.expect_venv()?;
-        // Compiler assumes `rc` is never read
-        // Maybe because of the unsafe block ?
-        #[allow(unused_assignments)]
-        let mut rc = 0;
+        let rc;
         unsafe {
             let arg0 = &args[0].clone();
             let bin_path = &self.get_path_in_venv(&arg0)?;
@@ -121,8 +118,8 @@ impl VenvManager {
         Ok(())
     }
 
-    // Same as run(), but don't use execv()
-    // Useful for tests
+    /// Same as `run()`, but use `execv()` instead of
+    /// forking a new process.
     pub fn run_no_exec(&self, args: &[String]) -> Result<(), Error> {
         self.expect_venv()?;
         let cmd = args[0].clone();
