@@ -8,7 +8,6 @@ use lock::Lock;
 use python_info::PythonInfo;
 use std::ffi::CString;
 use std::io::Write;
-use std::os::raw::c_char;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
@@ -84,29 +83,23 @@ impl VenvManager {
 
     pub fn run(&self, args: &[String]) -> Result<(), Error> {
         self.expect_venv()?;
+        let bin_path = &self.get_path_in_venv(&args[0])?;
+        let bin_path_str = bin_path.to_str().ok_or(Error::Other {
+            message: "Could not convert binary path to char*".to_string(),
+        })?;
+        let mut fixed_args: Vec<String> = args.to_vec();
+        fixed_args[0] = bin_path_str.to_string();
+
+        let mut args_cstring = vec![];
+        for arg in fixed_args {
+            args_cstring.push(to_c_string(&arg)?);
+        }
+        let mut args_ptr: Vec<_> = args_cstring.iter().map(|x| x.as_ptr()).collect();
+        args_ptr.push(std::ptr::null());
+        let c_program = to_c_string(bin_path_str)?;
         let rc;
         unsafe {
-            let arg0 = &args[0].clone();
-            let bin_path = &self.get_path_in_venv(&arg0)?;
-            let bin_path_str = bin_path.to_str().ok_or(Error::Other {
-                message: "Could not convert binary path to char*".to_string(),
-            })?;
-            let mut fixed_args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
-            fixed_args[0] = bin_path_str.to_string();
-
-            let mut c_args = vec![];
-            for arg in fixed_args {
-                c_args.push(CString::new(arg.as_str()).map_err(|_| Error::NulByteFound { arg })?);
-            }
-            let mut args: Vec<*const c_char> =
-                c_args.iter().map(|x| x.as_ptr() as *const c_char).collect();
-            args.push(std::ptr::null());
-            let c_args = args.as_ptr() as *const *const c_char;
-            let c_program = CString::new(bin_path_str).map_err(|_| Error::NulByteFound {
-                arg: bin_path_str.to_string(),
-            })?;
-            let c_program = c_program.as_ptr() as *const c_char;
-            rc = libc::execv(c_program, c_args)
+            rc = libc::execv(c_program.as_ptr(), args_ptr.as_ptr());
         }
         if rc != 0 {
             let error = std::io::Error::last_os_error();
@@ -393,4 +386,10 @@ struct Paths {
     venv: std::path::PathBuf,
     lock: std::path::PathBuf,
     setup_py: std::path::PathBuf,
+}
+
+fn to_c_string(string: &str) -> Result<CString, Error> {
+    CString::new(string.to_string()).map_err(|_| Error::NulByteFound {
+        arg: string.to_string(),
+    })
 }
