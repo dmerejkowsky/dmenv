@@ -1,5 +1,3 @@
-extern crate colored;
-extern crate structopt;
 use colored::*;
 
 mod cmd;
@@ -8,14 +6,14 @@ mod lock;
 mod python_info;
 mod venv_manager;
 
-pub use cmd::Command;
-use cmd::SubCommand;
-pub use cmd::{print_error, print_info_1, print_info_2};
-pub use error::Error;
-use python_info::PythonInfo;
-use venv_manager::InstallOptions;
-use venv_manager::VenvManager;
-pub use venv_manager::LOCK_FILE_NAME;
+pub use crate::cmd::Command;
+use crate::cmd::SubCommand;
+pub use crate::cmd::{print_error, print_info_1, print_info_2};
+pub use crate::error::Error;
+use crate::python_info::PythonInfo;
+use crate::venv_manager::InstallOptions;
+use crate::venv_manager::VenvManager;
+pub use crate::venv_manager::LOCK_FILE_NAME;
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {

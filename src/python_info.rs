@@ -1,4 +1,4 @@
-use error::Error;
+use crate::error::Error;
 
 pub struct PythonInfo {
     pub binary: std::path::PathBuf,

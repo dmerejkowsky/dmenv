@@ -1,10 +1,5 @@
-extern crate structopt;
-
-extern crate dmenv;
-extern crate tempdir;
-
 mod helpers;
-use helpers::TestApp;
+use crate::helpers::TestApp;
 
 #[test]
 fn show_venv_path() {
