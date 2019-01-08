@@ -2,7 +2,7 @@
 edition = "2018"
 authors = ["Dimitri Merejkowsky <d.merej@gmail.com>"]
 name = "dmenv"
-version = "0.8.0"
+version = "0.8.1"
 description = "The stupid virtualenv manager"
 license = "BSD-3-Clause"
 readme = "README.md"
