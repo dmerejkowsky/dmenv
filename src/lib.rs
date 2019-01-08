@@ -2,6 +2,7 @@ use colored::*;
 
 mod cmd;
 mod error;
+mod execv;
 mod lock;
 mod python_info;
 mod venv_manager;

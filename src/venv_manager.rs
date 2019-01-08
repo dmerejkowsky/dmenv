@@ -1,10 +1,10 @@
 use crate::cmd::*;
+use crate::execv::execv;
 use colored::*;
 
 use crate::error::*;
 use crate::lock::Lock;
 use crate::python_info::PythonInfo;
-use std::ffi::CString;
 use std::io::Write;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
@@ -88,25 +88,7 @@ impl VenvManager {
         let mut fixed_args: Vec<String> = args.to_vec();
         fixed_args[0] = bin_path_str.to_string();
 
-        let mut args_cstring = vec![];
-        for arg in fixed_args {
-            args_cstring.push(to_c_string(&arg)?);
-        }
-        let mut args_ptr: Vec<_> = args_cstring.iter().map(|x| x.as_ptr()).collect();
-        args_ptr.push(std::ptr::null());
-        let c_program = to_c_string(bin_path_str)?;
-        let rc;
-        unsafe {
-            rc = libc::execv(c_program.as_ptr(), args_ptr.as_ptr());
-        }
-        if rc != 0 {
-            let error = std::io::Error::last_os_error();
-            return Err(Error::ProcessStartError {
-                message: format!("execv() failed: {}", error),
-            });
-        }
-
-        Ok(())
+        execv(bin_path_str, fixed_args)
     }
 
     /// Same as `run()`, but use `execv()` instead of
@@ -384,10 +366,4 @@ struct Paths {
     venv: std::path::PathBuf,
     lock: std::path::PathBuf,
     setup_py: std::path::PathBuf,
-}
-
-fn to_c_string(string: &str) -> Result<CString, Error> {
-    CString::new(string.to_string()).map_err(|_| Error::NulByteFound {
-        arg: string.to_string(),
-    })
 }
