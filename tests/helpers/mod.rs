@@ -1,7 +1,5 @@
-extern crate ignore;
-extern crate structopt;
-use self::ignore::Walk;
-use self::structopt::StructOpt;
+use ignore::Walk;
+use structopt::StructOpt;
 
 pub struct TestApp {
     tmp_path: std::path::PathBuf,

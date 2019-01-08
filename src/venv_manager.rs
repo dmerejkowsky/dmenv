@@ -1,11 +1,9 @@
-extern crate colored;
-extern crate libc;
-use cmd::*;
+use crate::cmd::*;
 use colored::*;
 
-use error::*;
-use lock::Lock;
-use python_info::PythonInfo;
+use crate::error::*;
+use crate::lock::Lock;
+use crate::python_info::PythonInfo;
 use std::ffi::CString;
 use std::io::Write;
 

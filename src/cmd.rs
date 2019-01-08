@@ -1,4 +1,3 @@
-extern crate colored;
 use colored::*;
 use structopt::StructOpt;
 

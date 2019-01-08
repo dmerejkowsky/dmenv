@@ -1,6 +1,3 @@
-extern crate colored;
-extern crate dmenv;
-extern crate structopt;
 use structopt::StructOpt;
 
 fn main() {
