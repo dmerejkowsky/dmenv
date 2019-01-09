@@ -1,3 +1,7 @@
+# 0.8.2
+
+* Fix using non-ASCII chars in `dmenv run` command on Windows (#45).
+
 # 0.8.1
 
 * `dmenv run` now uses `execv` from `libc`. This means the child process is killed when killing `dmenv`.
