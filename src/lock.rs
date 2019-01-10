@@ -17,16 +17,22 @@ impl ParseError {
     }
 }
 
-// Takes (line, name, version) and returns the bumped line
-type BumpFunc = Fn(&str, &str, &str) -> Result<String, ParseError>;
+/// Takes `(line, name, version)` and returns either:
+///   - `None' if no match was found
+///   - Or `Some(new line) if a match was found
+type BumpFunc = Fn(&str, &str, &str) -> Result<Option<String>, ParseError>;
 
-// line is:
-//   git@foo.com:bar/baz@<old>#egg=bar
-// we want:
-//   git@foo.com:bar/baz@<new>@egg=bar
-fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, ParseError> {
+/// Bump the reference number for a git dependency specification
+///
+/// line is:
+///   git@foo.com:bar/baz@<old>#egg=bar
+/// we want:
+///   git@foo.com:bar/baz@<new>@egg=bar
+///
+/// Return None if the name was not found, or Some(new_line)
+fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<Option<String>, ParseError> {
     if !line.contains('@') {
-        return Ok(line.to_string());
+        return Ok(None);
     }
     let chunks: Vec<_> = line.rsplit('@').collect();
     // chunks is [git, foo:com:bar/baz, abce64#egg=bar]
@@ -53,23 +59,28 @@ fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<String, ParseError>
     }
     let dep_name = &with_egg[4..];
     if dep_name != name {
-        return Ok(line.to_string());
+        return Ok(None);
     }
 
     let mut res = String::new();
     res.push_str(&line[0..start]);
     res.push_str(git_ref);
     res.push_str(&line[end..]);
-    Ok(res)
+    Ok(Some(res))
 }
 
-// line is:
-//   foo==<old>
-// we want:
-//   foo==<new>
-fn simple_bump(line: &str, name: &str, version: &str) -> Result<String, ParseError> {
+/// Bump the version number for a simple dependency specification
+///
+/// line is:
+///    foo==<old>
+///
+///  we want:
+///    foo==<new>
+///
+/// Return None if the name was not found, or Some(new_line)
+fn simple_bump(line: &str, name: &str, version: &str) -> Result<Option<String>, ParseError> {
     if !line.contains("==") {
-        return Ok(line.to_string());
+        return Ok(None);
     }
     let words: Vec<_> = line.split("==").collect();
     if words.len() != 2 {
@@ -81,10 +92,10 @@ fn simple_bump(line: &str, name: &str, version: &str) -> Result<String, ParseErr
 
     let dep_name = words[0];
     if dep_name != name {
-        return Ok(line.to_string());
+        return Ok(None);
     }
 
-    Ok(format!("{}=={}", dep_name, version).to_string())
+    Ok(Some(format!("{}=={}", dep_name, version)))
 }
 
 impl Lock {
@@ -94,11 +105,15 @@ impl Lock {
         }
     }
 
-    pub fn bump(&self, name: &str, version: &str) -> Result<String, Error> {
+    /// Bump the dependency `name` to new `version`.
+    /// Returns a tuple (locked_changed: bool, new_contents: String)
+    pub fn bump(&self, name: &str, version: &str) -> Result<(bool, String), Error> {
         self.bump_with_func(name, version, Box::new(simple_bump))
     }
 
-    pub fn git_bump(&self, name: &str, git_ref: &str) -> Result<String, Error> {
+    /// Bump the git dependency `name` to new `git_ref`.
+    /// Returns a tuple (locked_changed: bool, new_contents: String)
+    pub fn git_bump(&self, name: &str, git_ref: &str) -> Result<(bool, String), Error> {
         self.bump_with_func(name, git_ref, Box::new(git_bump))
     }
 
@@ -108,32 +123,37 @@ impl Lock {
         name: &str,
         version: &str,
         bump_func: Box<BumpFunc>,
-    ) -> Result<String, Error> {
+    ) -> Result<(bool, String), Error> {
         let mut res = String::new();
-        let mut num_changes = 0;
+        let mut num_matches = 0;
+        let mut changed = false;
         for (i, line) in self.contents.lines().enumerate() {
             let bumped_line = (bump_func)(line, name, version);
             let bumped_line = bumped_line.map_err(|e| Error::MalformedLock {
                 line: i + 1,
                 details: e.details,
             })?;
-            if bumped_line != line {
-                num_changes += 1;
-            }
-            res.push_str(&bumped_line);
-            res.push_str("\n");
+            if let Some(bumped_line) = bumped_line {
+                num_matches += 1;
+                if bumped_line != line {
+                    changed = true;
+                }
+                res.push_str(&format!("{}\n", bumped_line));
+            } else {
+                res.push_str(&format!("{}\n", line));
+            };
         }
-        if num_changes == 0 {
+        if num_matches == 0 {
             return Err(Error::NothingToBump {
                 name: name.to_string(),
             });
         }
-        if num_changes > 1 {
+        if num_matches > 1 {
             return Err(Error::MultipleBumps {
                 name: name.to_string(),
             });
         }
-        Ok(res)
+        Ok((changed, res))
     }
 }
 
@@ -164,7 +184,7 @@ foo==0.42
 "#;
         let lock = Lock::new(lock_contents);
         let actual = lock.bump("foo", "0.43").expect("");
-        let expected = lock_contents.replace("0.42", "0.43");
+        let expected = (true, lock_contents.replace("0.42", "0.43"));
         assert_eq!(actual, expected);
     }
 
@@ -184,6 +204,18 @@ foo==0.42
     }
 
     #[test]
+    fn idem_potent_change() {
+        let lock_contents = r#"
+# some comments
+bar==0.3
+foo==0.42
+"#;
+        let lock = Lock::new(lock_contents);
+        let actual = lock.bump("bar", "0.3").unwrap();
+        assert_eq!(actual, (false, lock_contents.to_string()));
+    }
+
+    #[test]
     fn git_bump() {
         let old_sha1 = "dae42f";
         let lock_contents = format!(
@@ -196,7 +228,7 @@ git@example.com/bar.git@{}#egg=bar
         let lock = Lock::new(&lock_contents);
         let new_sha1 = "cda431";
         let actual = lock.git_bump("bar", new_sha1).expect("");
-        let expected = lock_contents.replace(old_sha1, new_sha1);
+        let expected = (true, lock_contents.replace(old_sha1, new_sha1));
         assert_eq!(actual, expected);
     }
 
