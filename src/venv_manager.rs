@@ -148,22 +148,28 @@ impl VenvManager {
     }
 
     pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
+        print_info_1(&format!("Bumping {} to {} ...", name, version));
         let path = &self.paths.lock;
         let lock_contents = std::fs::read_to_string(&path).map_err(|e| Error::ReadError {
             path: path.to_path_buf(),
             io_error: e,
         })?;
         let lock = Lock::new(&lock_contents);
-        let new_contents = if git {
+        let (changed, new_contents) = if git {
             lock.git_bump(name, version)
         } else {
             lock.bump(name, version)
         }?;
         let path = &self.paths.lock;
+        if !changed {
+            print_warning(&format!("Dependency {} already up-to-date", name.bold()));
+            return Ok(());
+        }
         std::fs::write(&path, &new_contents).map_err(|e| Error::WriteError {
             path: path.to_path_buf(),
             io_error: e,
         })?;
+        println!("{}", "ok!".green());
         Ok(())
     }
 
