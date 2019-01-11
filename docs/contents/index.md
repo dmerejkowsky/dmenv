@@ -21,4 +21,4 @@ If does it by:
 As the name implies, its implementation is as simple as possible and it contains the
 *bare minimum* amount of features.
 
-Want to try it? Proceed to [installation](installation.md) and [usage](usage.md)
+Want to try it? Proceed to [installation](installation.md) and [usage](usage.md).
