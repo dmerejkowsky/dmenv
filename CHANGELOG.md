@@ -1,3 +1,7 @@
+# 0.8.3
+
+* Add documentation link to `Cargo.toml`
+
 # 0.8.2
 
 * Fix using non-ASCII chars in `dmenv run` command on Windows (#45).
@@ -10,7 +14,7 @@
 # 0.8.0
 
 * Allow using `python3 -m virtualenv` instead of `python3 -m venv` to create the virtual
-  environments by setting an environment variable named DMENV_NO_VENV_STDLIB. This can be used to work around
+  environments by setting an environment variable named `DMENV_NO_VENV_STDLIB`. This can be used to work around
   some bugs in Debian-based distributions.
 
 # 0.7.0
