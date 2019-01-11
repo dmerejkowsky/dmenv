@@ -7,6 +7,7 @@ description = "The stupid virtualenv manager"
 license = "BSD-3-Clause"
 readme = "README.md"
 repository = "https://github.com/TankerHQ/dmenv"
+documentation = "https://tankerhq.github.io/dmenv/"
 
 keywords = ["python", "virtualenv"]
 categories = ["command-line-utilities"]
