@@ -1,3 +1,7 @@
+# 0.8.4
+
+* Fix (#49): return code was always 0 when using `dmenv run` on Windows. (regression introduced in `0.8.1`).
+
 # 0.8.3
 
 * Add documentation link to `Cargo.toml`
