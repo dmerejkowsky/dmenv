@@ -62,7 +62,7 @@ pub enum SubCommand {
     Run {
         #[structopt(
             long = "--no-exec",
-            help = "Fork a new process instead of using exec()"
+            help = "On Unix, fork a new process instead of using exec(). On Windows, this is a no op"
         )]
         no_exec: bool,
 

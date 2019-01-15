@@ -2,10 +2,13 @@ use colored::*;
 
 mod cmd;
 mod error;
+#[cfg(unix)]
 mod execv;
 mod lock;
 mod python_info;
 mod venv_manager;
+#[cfg(windows)]
+mod win_job;
 
 pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
