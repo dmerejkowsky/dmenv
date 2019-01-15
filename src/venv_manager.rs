@@ -1,10 +1,13 @@
 use crate::cmd::*;
+#[cfg(unix)]
 use crate::execv::execv;
 use colored::*;
 
 use crate::error::*;
 use crate::lock::Lock;
 use crate::python_info::PythonInfo;
+#[cfg(windows)]
+use crate::win_job;
 use std::io::Write;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
@@ -79,20 +82,33 @@ impl VenvManager {
         Ok(())
     }
 
+    /// Run a program from the virtualenv, making sure it dies
+    /// when we get killed and that the exit code is forwarded
     pub fn run(&self, args: &[String]) -> Result<(), Error> {
-        self.expect_venv()?;
-        let bin_path = &self.get_path_in_venv(&args[0])?;
-        let bin_path_str = bin_path.to_str().ok_or(Error::Other {
-            message: "Could not convert binary path to char*".to_string(),
-        })?;
-        let mut fixed_args: Vec<String> = args.to_vec();
-        fixed_args[0] = bin_path_str.to_string();
+        #[cfg(windows)]
+        {
+            unsafe {
+                win_job::setup();
+            }
+            self.run_no_exec(args)
+        }
 
-        execv(bin_path_str, fixed_args)
+        #[cfg(unix)]
+        {
+            let bin_path = &self.get_path_in_venv(&args[0])?;
+            let bin_path_str = bin_path.to_str().ok_or(Error::Other {
+                message: "Could not convert binary path to String".to_string(),
+            })?;
+            let mut fixed_args: Vec<String> = args.to_vec();
+            fixed_args[0] = bin_path_str.to_string();
+            execv(bin_path_str, fixed_args)
+        }
     }
 
-    /// Same as `run()`, but use `execv()` instead of
-    /// forking a new process.
+    /// On Windows:
+    ///   - same as run
+    /// On Linux:
+    ///   - same as run, but create a new process instead of using execv()
     pub fn run_no_exec(&self, args: &[String]) -> Result<(), Error> {
         self.expect_venv()?;
         let cmd = args[0].clone();
