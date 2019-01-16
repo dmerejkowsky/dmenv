@@ -28,7 +28,7 @@ impl TestApp {
                     let src = entry.path();
                     let name = entry.file_name();
                     let dest = self.tmp_path.join(name);
-                    std::fs::copy(src, dest).expect("");
+                    std::fs::copy(src, dest).unwrap();
                 }
             }
         }
@@ -48,18 +48,18 @@ impl TestApp {
         let tmp_path: String = self.tmp_path.to_string_lossy().into();
         cmd.extend(vec!["--cwd".to_string(), tmp_path]);
         cmd.extend(args);
-        let cmd = dmenv::Command::from_iter_safe(cmd).expect("");
+        let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
         dmenv::run(cmd)
     }
 
     pub fn assert_run_ok(&self, args: &[&str]) {
         let args = to_string_args(&args);
-        self.run(args).expect("");
+        self.run(args).unwrap();
     }
 
     pub fn read_lock(&self) -> String {
         let lock_path = &self.tmp_path.join(dmenv::LOCK_FILE_NAME);
-        std::fs::read_to_string(lock_path).expect("")
+        std::fs::read_to_string(lock_path).unwrap()
     }
 
     pub fn assert_setup_py(&self) {
@@ -82,16 +82,16 @@ impl TestApp {
 
     pub fn write_file(&self, name: &str, contents: &str) {
         let path = self.tmp_path.join(name);
-        std::fs::write(path, &contents).expect("");
+        std::fs::write(path, &contents).unwrap();
     }
 
     pub fn remove_file(&self, name: &str) {
         let path = self.tmp_path.join(name);
-        std::fs::remove_file(path).expect("");
+        std::fs::remove_file(path).unwrap();
     }
 
     pub fn read_setup_py(&self) -> String {
-        std::fs::read_to_string(self.tmp_path.join("setup.py")).expect("")
+        std::fs::read_to_string(self.tmp_path.join("setup.py")).unwrap()
     }
 }
 

@@ -183,7 +183,7 @@ bar==0.3
 foo==0.42
 "#;
         let lock = Lock::new(lock_contents);
-        let actual = lock.bump("foo", "0.43").expect("");
+        let actual = lock.bump("foo", "0.43").unwrap();
         let expected = (true, lock_contents.replace("0.42", "0.43"));
         assert_eq!(actual, expected);
     }
@@ -227,7 +227,7 @@ git@example.com/bar.git@{}#egg=bar
         );
         let lock = Lock::new(&lock_contents);
         let new_sha1 = "cda431";
-        let actual = lock.git_bump("bar", new_sha1).expect("");
+        let actual = lock.git_bump("bar", new_sha1).unwrap();
         let expected = (true, lock_contents.replace(old_sha1, new_sha1));
         assert_eq!(actual, expected);
     }
