@@ -24,6 +24,8 @@ pub enum Error {
         io_error: std::io::Error,
     },
 
+    PipUpgradeFailed {},
+
     MissingSetupPy {},
     MissingLock {},
     MissingVenv {
@@ -87,6 +89,9 @@ impl std::fmt::Display for Error {
                 );
                 message.push_str("Please run `dmenv lock` or `dmenv install` to create it");
                 message
+            }
+            Error::PipUpgradeFailed {} => {
+                "could not upgrade pip. Try using `dmenv clean`".to_string()
             }
 
             Error::FileExists { path } => format!("{} already exist", path.to_string_lossy()),

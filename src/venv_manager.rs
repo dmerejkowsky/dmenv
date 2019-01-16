@@ -320,8 +320,10 @@ impl VenvManager {
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
+        print_info_1("Upgrading pip");
         let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
         self.run_cmd_in_venv("python", args)
+            .map_err(|_| Error::PipUpgradeFailed {})
     }
 
     fn install_editable(&self) -> Result<(), Error> {
