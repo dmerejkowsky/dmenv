@@ -9,10 +9,10 @@ somewhere on in your $PATH.
 
 ```console
 cd ~/.local/bin
-curl --fail -L https://github.com/TankerHQ/dmenv/releases/download/v<version>/dmenv-<platform> -o dmenv
+curl --fail -L https://github.com/TankerHQ/dmenv/releases/download/v0.8.4/dmenv-<platform> -o dmenv
 chmod u+x dmenv
 ```
-Note: replace $PLATFORM by your current platform: `linux`, or `osx`.
+Note: replace `<platform>` by your current platform: `linux`, or `osx`.
 
 ### Windows
 
