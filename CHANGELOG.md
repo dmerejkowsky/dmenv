@@ -2,6 +2,9 @@
 
 * Fix #54: rename `--cwd` option to `--project`.
 
+* Avoid blindly overwriting the `requirements.lock` file when running
+  `dmenv lock`. See #11 and #7 for background.
+
 # 0.8.4
 
 * Fix #49: return code was always 0 when using `dmenv run` on Windows. (regression introduced in `0.8.1`).

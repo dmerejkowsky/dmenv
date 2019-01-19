@@ -27,8 +27,7 @@ fn init_generates_setup_py() {
 #[test]
 fn bump_in_lock_simple() {
     let test_app = TestApp::new();
-    let lock_contents = r#"
-foo==0.42
+    let lock_contents = r#"foo==0.42
 -e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
 "#;
     test_app.write_lock(&lock_contents);

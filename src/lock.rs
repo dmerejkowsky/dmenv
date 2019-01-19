@@ -1,147 +1,112 @@
+use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
 use crate::error::Error;
 
-pub struct Lock {
-    contents: String,
-}
-
 #[derive(Debug)]
-struct ParseError {
-    details: String,
+pub struct Lock {
+    dependencies: Vec<LockedDependency>,
 }
 
-impl ParseError {
-    pub fn new(details: &str) -> Self {
-        ParseError {
-            details: details.to_string(),
+trait Bumper {
+    fn bump(&self, dep: &mut LockedDependency) -> bool;
+}
+
+struct SimpleBumper {
+    version: String,
+}
+
+impl SimpleBumper {
+    fn new(version: &str) -> Self {
+        SimpleBumper {
+            version: version.to_string(),
         }
     }
 }
 
-/// Takes `(line, name, version)` and returns either:
-///   - `None' if no match was found
-///   - Or `Some(new line) if a match was found
-type BumpFunc = Fn(&str, &str, &str) -> Result<Option<String>, ParseError>;
-
-/// Bump the reference number for a git dependency specification
-///
-/// line is:
-///   git@foo.com:bar/baz@<old>#egg=bar
-/// we want:
-///   git@foo.com:bar/baz@<new>@egg=bar
-///
-/// Return None if the name was not found, or Some(new_line)
-fn git_bump(line: &str, name: &str, git_ref: &str) -> Result<Option<String>, ParseError> {
-    if !line.contains('@') {
-        return Ok(None);
+impl Bumper for SimpleBumper {
+    fn bump(&self, dep: &mut LockedDependency) -> bool {
+        if let LockedDependency::Simple(s) = dep {
+            s.bump(&self.version)
+        } else {
+            false
+        }
     }
-    let chunks: Vec<_> = line.rsplit('@').collect();
-    // chunks is [git, foo:com:bar/baz, abce64#egg=bar]
-    let after_at = chunks.first().unwrap();
-    let chunks: Vec<_> = after_at.split('#').collect();
-    // chunks is [abce64, egg=bar]
-    if chunks.len() != 2 {
-        return Err(ParseError::new(&format!(
-            "expecting `<ref>#egg=<name>` after `@`, got '{}'",
-            after_at
-        )));
-    }
-    let dep_ref = chunks[0];
-
-    let start = line.len() - after_at.len();
-    let end = start + dep_ref.len();
-
-    let with_egg = chunks[1];
-    if !with_egg.starts_with("egg=") {
-        return Err(ParseError::new(&format!(
-            "expecting '{}' to start with `egg=`",
-            with_egg
-        )));
-    }
-    let dep_name = &with_egg[4..];
-    if dep_name != name {
-        return Ok(None);
-    }
-
-    let mut res = String::new();
-    res.push_str(&line[0..start]);
-    res.push_str(git_ref);
-    res.push_str(&line[end..]);
-    Ok(Some(res))
 }
 
-/// Bump the version number for a simple dependency specification
-///
-/// line is:
-///    foo==<old>
-///
-///  we want:
-///    foo==<new>
-///
-/// Return None if the name was not found, or Some(new_line)
-fn simple_bump(line: &str, name: &str, version: &str) -> Result<Option<String>, ParseError> {
-    if !line.contains("==") {
-        return Ok(None);
-    }
-    let words: Vec<_> = line.split("==").collect();
-    if words.len() != 2 {
-        return Err(ParseError::new(&format!(
-            "expecting `<name>==<version>`, got '{}'",
-            line
-        )));
-    }
+struct GitBumper {
+    git_ref: String,
+}
 
-    let dep_name = words[0];
-    if dep_name != name {
-        return Ok(None);
+impl GitBumper {
+    fn new(git_ref: &str) -> Self {
+        GitBumper {
+            git_ref: git_ref.to_string(),
+        }
     }
+}
 
-    Ok(Some(format!("{}=={}", dep_name, version)))
+impl Bumper for GitBumper {
+    fn bump(&self, dep: &mut LockedDependency) -> bool {
+        if let LockedDependency::Git(g) = dep {
+            g.bump(&self.git_ref)
+        } else {
+            false
+        }
+    }
 }
 
 impl Lock {
-    pub fn new(contents: &str) -> Lock {
-        Lock {
-            contents: contents.to_owned(),
+    pub fn from_string(string: &str) -> Result<Self, Error> {
+        let mut dependencies = vec![];
+        for (i, line) in string.lines().enumerate() {
+            let line = line.trim();
+            if line.is_empty() {
+                continue;
+            }
+            if line.starts_with('#') {
+                continue;
+            }
+            let dep = LockedDependency::from_line(&line).map_err(|e| Error::MalformedLock {
+                line: i + 1,
+                details: e.details,
+            })?;
+            dependencies.push(dep);
         }
+        Ok(Lock { dependencies })
+    }
+
+    pub fn to_string(&self) -> String {
+        let mut res = String::new();
+        for dep in &self.dependencies {
+            res.push_str(&format!("{}\n", dep.line()));
+        }
+        res
     }
 
     /// Bump the dependency `name` to new `version`.
     /// Returns a tuple (locked_changed: bool, new_contents: String)
-    pub fn bump(&self, name: &str, version: &str) -> Result<(bool, String), Error> {
-        self.bump_with_func(name, version, Box::new(simple_bump))
+    pub fn bump(&mut self, name: &str, version: &str) -> Result<bool, Error> {
+        let simple_bumper = SimpleBumper::new(version);
+        self.bump_impl(&simple_bumper, name)
     }
 
     /// Bump the git dependency `name` to new `git_ref`.
     /// Returns a tuple (locked_changed: bool, new_contents: String)
-    pub fn git_bump(&self, name: &str, git_ref: &str) -> Result<(bool, String), Error> {
-        self.bump_with_func(name, git_ref, Box::new(git_bump))
+    pub fn git_bump(&mut self, name: &str, git_ref: &str) -> Result<bool, Error> {
+        let git_bumper = GitBumper::new(git_ref);
+        self.bump_impl(&git_bumper, name)
     }
 
-    #[allow(clippy::needless_pass_by_value)]
-    fn bump_with_func(
-        &self,
-        name: &str,
-        version: &str,
-        bump_func: Box<BumpFunc>,
-    ) -> Result<(bool, String), Error> {
-        let mut res = String::new();
+    fn bump_impl<T>(&mut self, bumper: &T, name: &str) -> Result<bool, Error>
+    where
+        T: Bumper,
+    {
+        let mut changed = true;
         let mut num_matches = 0;
-        let mut changed = false;
-        for (i, line) in self.contents.lines().enumerate() {
-            let bumped_line = (bump_func)(line, name, version);
-            let bumped_line = bumped_line.map_err(|e| Error::MalformedLock {
-                line: i + 1,
-                details: e.details,
-            })?;
-            if let Some(bumped_line) = bumped_line {
+        for dep in &mut self.dependencies {
+            if dep.name() == name {
                 num_matches += 1;
-                if bumped_line != line {
-                    changed = true;
-                }
-                res.push_str(&format!("{}\n", bumped_line));
-            } else {
-                res.push_str(&format!("{}\n", line));
-            };
+                changed = bumper.bump(dep);
+            }
         }
         if num_matches == 0 {
             return Err(Error::NothingToBump {
@@ -153,7 +118,52 @@ impl Lock {
                 name: name.to_string(),
             });
         }
-        Ok((changed, res))
+        Ok(changed)
+    }
+
+    pub fn freeze(&mut self, deps: &[FrozenDependency]) {
+        self.patch_existing_deps(&deps);
+        self.add_missing_deps(&deps);
+    }
+
+    fn add_missing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
+        let known_names: &Vec<_> = &mut self.dependencies.iter().map(|d| d.name()).collect();
+        let new_deps: Vec<_> = frozen_deps
+            .iter()
+            .filter(|x| !known_names.contains(&&x.name))
+            .collect();
+        for dep in new_deps {
+            let locked_dep = SimpleDependency::from_frozen(dep);
+            println!("+ {}", locked_dep.line);
+            self.dependencies.push(LockedDependency::Simple(locked_dep));
+        }
+    }
+
+    fn patch_existing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
+        for dep in &mut self.dependencies {
+            match dep {
+                LockedDependency::Git(_) => (),
+                LockedDependency::Simple(s) => {
+                    Self::patch_existing_dep(s, frozen_deps);
+                }
+            }
+        }
+    }
+
+    fn patch_existing_dep(
+        dep: &mut SimpleDependency,
+        frozen_deps: &[FrozenDependency],
+    ) -> Option<()> {
+        let frozen_match = frozen_deps.iter().find(|x| x.name == dep.name);
+        let frozen_match = frozen_match?;
+        if dep.version.value != frozen_match.version {
+            println!(
+                "{}: {} -> {}",
+                dep.name, dep.version.value, &frozen_match.version
+            );
+        };
+        dep.freeze(&frozen_match.version);
+        Some(())
     }
 }
 
@@ -161,41 +171,41 @@ impl Lock {
 mod tests {
     use super::*;
 
+    impl FrozenDependency {
+        pub fn new(name: &str, version: &str) -> Self {
+            FrozenDependency {
+                name: name.to_string(),
+                version: version.to_string(),
+            }
+        }
+    }
+
     #[test]
     fn malformed_lock() {
-        let lock_contents = "\
-# some comments
-git@foo@dm/foo#egggg=bar
-";
-        let lock = Lock::new(lock_contents);
-        let actual = lock.git_bump("bar", "0.43");
+        let lock_contents = "bar==42\ngit://foo/bar.git@master#egggg=bar";
+        let actual = Lock::from_string(&lock_contents);
+        let actual = actual.unwrap_err();
         match actual {
-            Err(Error::MalformedLock { line, .. }) => assert_eq!(line, 2),
-            _ => panic!("Expecting MalformedLock, got: {:?}", actual),
+            Error::MalformedLock { line, .. } => assert_eq!(line, 2),
+            _ => panic!("Expecting MalformedLock, got: {}", actual),
         }
     }
 
     #[test]
     fn simple_bump() {
-        let lock_contents = r#"
-# some comments
-bar==0.3
-foo==0.42
-"#;
-        let lock = Lock::new(lock_contents);
-        let actual = lock.bump("foo", "0.43").unwrap();
-        let expected = (true, lock_contents.replace("0.42", "0.43"));
+        let lock_contents = "bar==0.3\nfoo==0.42\n";
+        let mut lock = Lock::from_string(lock_contents).unwrap();
+        let changed = lock.bump("foo", "0.43").unwrap();
+        assert!(changed);
+        let expected = lock_contents.replace("0.42", "0.43");
+        let actual = lock.to_string();
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn dep_not_found() {
-        let lock_contents = r#"
-# some comments
-bar==0.3
-foo==0.42
-"#;
-        let lock = Lock::new(lock_contents);
+        let lock_contents = "bar==0.3\nfoo==0.42\n";
+        let mut lock = Lock::from_string(lock_contents).unwrap();
         let actual = lock.bump("no-such", "0.43");
         match actual {
             Err(Error::NothingToBump { name }) => assert_eq!(name, "no-such"),
@@ -205,31 +215,73 @@ foo==0.42
 
     #[test]
     fn idem_potent_change() {
-        let lock_contents = r#"
-# some comments
-bar==0.3
-foo==0.42
-"#;
-        let lock = Lock::new(lock_contents);
-        let actual = lock.bump("bar", "0.3").unwrap();
-        assert_eq!(actual, (false, lock_contents.to_string()));
+        let lock_contents = "bar==0.3\nfoo==0.42\n";
+        let mut lock = Lock::from_string(lock_contents).unwrap();
+        let changed = lock.bump("bar", "0.3").unwrap();
+        let actual = lock.to_string();
+        assert!(!changed);
+        assert_eq!(actual, lock_contents.to_string());
     }
 
     #[test]
     fn git_bump() {
         let old_sha1 = "dae42f";
-        let lock_contents = format!(
-            r#"
-# some comments
-git@example.com/bar.git@{}#egg=bar
-"#,
-            old_sha1
-        );
-        let lock = Lock::new(&lock_contents);
+        let lock_contents = format!("git@example.com/bar.git@{}#egg=bar\n", old_sha1);
+        let mut lock = Lock::from_string(&lock_contents).unwrap();
         let new_sha1 = "cda431";
-        let actual = lock.git_bump("bar", new_sha1).unwrap();
-        let expected = (true, lock_contents.replace(old_sha1, new_sha1));
+        let changed = lock.git_bump("bar", new_sha1).unwrap();
+        assert!(changed);
+        let expected = lock_contents.replace(old_sha1, new_sha1);
+        let actual = lock.to_string();
         assert_eq!(actual, expected);
+    }
+
+    fn assert_freeze(contents: &str, frozen: &[FrozenDependency], expected: &str) {
+        let mut lock = Lock::from_string(contents).unwrap();
+        lock.freeze(frozen);
+        let actual = lock.to_string();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn freeze_simple_bump() {
+        assert_freeze(
+            "foo==0.42\n",
+            &[FrozenDependency::new("foo", "0.43")],
+            "foo==0.43\n",
+        );
+    }
+
+    #[test]
+    fn freeze_keep_old_deps() {
+        assert_freeze(
+            "bar==1.3\nfoo==0.42\n",
+            &[FrozenDependency::new("foo", "0.43")],
+            "bar==1.3\nfoo==0.43\n",
+        );
+    }
+
+    #[test]
+    fn freeze_keep_git_deps() {
+        assert_freeze(
+            "git@example.com:bar/foo.git@master#egg=foo\n",
+            &[FrozenDependency::new("foo", "0.42")],
+            "git@example.com:bar/foo.git@master#egg=foo\n",
+        );
+    }
+
+    #[test]
+    fn freeze_keep_specifications() {
+        assert_freeze(
+            "foo == 1.3 ; python_version >= '3.6'\n",
+            &[FrozenDependency::new("foo", "1.4")],
+            "foo == 1.4 ; python_version >= '3.6'\n",
+        );
+    }
+
+    #[test]
+    fn freeze_add_new_deps() {
+        assert_freeze("", &[FrozenDependency::new("foo", "0.42")], "foo==0.42\n");
     }
 
 }

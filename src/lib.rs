@@ -1,6 +1,7 @@
 use colored::*;
 
 mod cmd;
+mod dependencies;
 mod error;
 #[cfg(unix)]
 mod execv;

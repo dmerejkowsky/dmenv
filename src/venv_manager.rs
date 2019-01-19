@@ -1,26 +1,33 @@
-use crate::cmd::*;
-#[cfg(unix)]
-use crate::execv::execv;
 use colored::*;
 
+#[cfg(unix)]
+use crate::execv::execv;
+#[cfg(windows)]
+use crate::win_job;
+
+use crate::cmd::*;
+use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock::Lock;
 use crate::python_info::PythonInfo;
-#[cfg(windows)]
-use crate::win_job;
-use std::io::Write;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
-pub struct VenvManager {
-    paths: Paths,
-    python_info: PythonInfo,
+struct LockMetadata {
+    dmenv_version: String,
+    python_platform: String,
+    python_version: String,
 }
 
 #[derive(Default)]
 pub struct InstallOptions {
     pub develop: bool,
     pub upgrade_pip: bool,
+}
+
+pub struct VenvManager {
+    paths: Paths,
+    python_info: PythonInfo,
 }
 
 impl VenvManager {
@@ -128,8 +135,8 @@ impl VenvManager {
         self.upgrade_pip()?;
 
         self.install_editable()?;
-        self.write_metadata()?;
-        self.run_pip_freeze()?;
+
+        self.write_lock()?;
         Ok(())
     }
 
@@ -172,17 +179,17 @@ impl VenvManager {
             path: path.to_path_buf(),
             io_error: e,
         })?;
-        let lock = Lock::new(&lock_contents);
-        let (changed, new_contents) = if git {
+        let mut lock = Lock::from_string(&lock_contents)?;
+        let changed = if git {
             lock.git_bump(name, version)
         } else {
             lock.bump(name, version)
         }?;
-        let path = &self.paths.lock;
         if !changed {
             print_warning(&format!("Dependency {} already up-to-date", name.bold()));
             return Ok(());
         }
+        let new_contents = lock.to_string();
         std::fs::write(&path, &new_contents).map_err(|e| Error::WriteError {
             path: path.to_path_buf(),
             io_error: e,
@@ -250,7 +257,58 @@ impl VenvManager {
         Ok(())
     }
 
-    fn run_pip_freeze(&self) -> Result<(), Error> {
+    fn write_lock(&self) -> Result<(), Error> {
+        let metadata = &self.get_metadata()?;
+
+        let lock_path = &self.paths.lock;
+        let lock_contents = if lock_path.exists() {
+            std::fs::read_to_string(&lock_path).map_err(|e| Error::ReadError {
+                path: lock_path.to_path_buf(),
+                io_error: e,
+            })?
+        } else {
+            String::new()
+        };
+
+        let mut lock = Lock::from_string(&lock_contents)?;
+        let frozen_deps = self.get_frozen_deps()?;
+        lock.freeze(&frozen_deps);
+        let new_contents = lock.to_string();
+
+        let LockMetadata {
+            dmenv_version,
+            python_version,
+            python_platform,
+        } = metadata;
+        let top_comment = format!(
+            "# Generated with dmenv {}, python {}, on {}\n",
+            dmenv_version, &python_version, &python_platform
+        );
+
+        let to_write = top_comment + &new_contents;
+        std::fs::write(&lock_path, &to_write).map_err(|e| Error::WriteError {
+            path: lock_path.to_path_buf(),
+            io_error: e,
+        })?;
+        Ok(())
+    }
+
+    fn get_frozen_deps(&self) -> Result<Vec<FrozenDependency>, Error> {
+        let freeze_output = self.run_pip_freeze()?;
+        let mut res = vec![];
+        for line in freeze_output.lines() {
+            let frozen_dep = FrozenDependency::from_string(&line)?;
+            // Filter out pkg-resources. This works around
+            // a Debian bug in pip: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=871790
+            if frozen_dep.name != "pkg-resources" {
+                res.push(frozen_dep);
+            }
+        }
+
+        Ok(res)
+    }
+
+    fn run_pip_freeze(&self) -> Result<String, Error> {
         print_info_2(&format!("Generating {}", LOCK_FILE_NAME));
         let pip = self.get_path_in_venv("pip")?;
         let pip_str = pip.to_string_lossy().to_string();
@@ -269,51 +327,18 @@ impl VenvManager {
                 ),
             });
         }
-        let out = String::from_utf8_lossy(&command.stdout);
-
-        // Filter out pkg-resources. This works around
-        // a Debian bug in pip: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=871790
-        let mut lines = vec![];
-        for line in out.lines() {
-            if !line.starts_with("pkg-resources==") {
-                lines.push(line);
-            }
-        }
-        let path = &self.paths.lock;
-        let file = std::fs::OpenOptions::new().append(true).open(&path);
-        let mut file = file.map_err(|e| Error::WriteError {
-            path: path.to_path_buf(),
-            io_error: e,
-        })?;
-        let mut to_write = lines.join("\n");
-        to_write.push_str("\n");
-        file.write_all(to_write.as_bytes())
-            .map_err(|e| Error::WriteError {
-                path: path.to_path_buf(),
-                io_error: e,
-            })?;
-        println!(
-            "{} Requirements written to {}",
-            "::".blue(),
-            self.paths.lock.to_string_lossy()
-        );
-        Ok(())
+        Ok(String::from_utf8_lossy(&command.stdout).to_string())
     }
 
-    fn write_metadata(&self) -> Result<(), Error> {
+    fn get_metadata(&self) -> Result<LockMetadata, Error> {
         let dmenv_version = env!("CARGO_PKG_VERSION");
         let python_platform = &self.python_info.platform;
         let python_version = &self.python_info.version;
-        let comment = format!(
-            "# Generated with dmenv {}, python {}, on {}\n",
-            dmenv_version, &python_version, &python_platform
-        );
-        let path = &self.paths.lock;
-        std::fs::write(&path, &comment).map_err(|e| Error::WriteError {
-            path: path.to_path_buf(),
-            io_error: e,
-        })?;
-        Ok(())
+        Ok(LockMetadata {
+            dmenv_version: dmenv_version.to_string(),
+            python_platform: python_platform.to_string(),
+            python_version: python_version.to_string(),
+        })
     }
 
     fn install_from_lock(&self) -> Result<(), Error> {

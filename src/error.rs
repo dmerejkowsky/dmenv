@@ -25,6 +25,9 @@ pub enum Error {
     },
 
     PipUpgradeFailed {},
+    BrokenPipFreezeLine {
+        line: String,
+    },
 
     MissingSetupPy {},
     MissingLock {},
@@ -89,6 +92,10 @@ impl std::fmt::Display for Error {
                 );
                 message.push_str("Please run `dmenv lock` or `dmenv install` to create it");
                 message
+            }
+
+            Error::BrokenPipFreezeLine { line } => {
+                format!("could not parse `pip freeze` output at line: '{}'", line)
             }
             Error::PipUpgradeFailed {} => {
                 "could not upgrade pip. Try using `dmenv clean`".to_string()
