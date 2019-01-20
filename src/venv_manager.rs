@@ -58,6 +58,7 @@ impl VenvManager {
     }
 
     pub fn develop(&self) -> Result<(), Error> {
+        print_info_2("Running setup_py.py develop");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});
         }
@@ -66,6 +67,7 @@ impl VenvManager {
     }
 
     pub fn install(&self, install_options: &InstallOptions) -> Result<(), Error> {
+        print_info_1("Preparing project for developement");
         if !self.paths.lock.exists() {
             return Err(Error::MissingLock {});
         }
@@ -117,16 +119,16 @@ impl VenvManager {
     }
 
     pub fn lock(&self) -> Result<(), Error> {
+        print_info_1("Locking dependencies");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});
         }
 
-        self.write_metadata()?;
         self.ensure_venv()?;
         self.upgrade_pip()?;
 
-        print_info_1("Generating requirements.lock from setup.py");
         self.install_editable()?;
+        self.write_metadata()?;
         self.run_pip_freeze()?;
         Ok(())
     }
@@ -191,7 +193,7 @@ impl VenvManager {
 
     fn ensure_venv(&self) -> Result<(), Error> {
         if self.paths.venv.exists() {
-            print_info_1(&format!(
+            print_info_2(&format!(
                 "Using existing virtualenv: {}",
                 self.paths.venv.to_string_lossy()
             ));
@@ -214,7 +216,7 @@ impl VenvManager {
         let parent_venv_path = &self.paths.venv.parent().ok_or(Error::Other {
             message: "venv_path has no parent".to_string(),
         })?;
-        print_info_1(&format!(
+        print_info_2(&format!(
             "Creating virtualenv in: {}",
             self.paths.venv.to_string_lossy()
         ));
@@ -249,6 +251,7 @@ impl VenvManager {
     }
 
     fn run_pip_freeze(&self) -> Result<(), Error> {
+        print_info_2(&format!("Generating {}", LOCK_FILE_NAME));
         let pip = self.get_path_in_venv("pip")?;
         let pip_str = pip.to_string_lossy().to_string();
         let args = vec!["freeze", "--exclude-editable"];
@@ -314,19 +317,22 @@ impl VenvManager {
     }
 
     fn install_from_lock(&self) -> Result<(), Error> {
+        print_info_2(&format!("Installing dependencies from {}", LOCK_FILE_NAME));
         let as_str = &self.paths.lock.to_string_lossy();
         let args = vec!["install", "--requirement", as_str];
         self.run_cmd_in_venv("pip", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
-        print_info_1("Upgrading pip");
+        print_info_2("Upgrading pip");
         let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
         self.run_cmd_in_venv("python", args)
             .map_err(|_| Error::PipUpgradeFailed {})
     }
 
     fn install_editable(&self) -> Result<(), Error> {
+        print_info_2("Installing deps from setup.py");
+
         // tells pip to run `setup.py develop` (that's -e), and
         // install the dev requirements too
         let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
@@ -381,7 +387,7 @@ impl VenvManager {
     }
 
     fn print_cmd(bin_path: &str, args: &[&str]) {
-        print_info_2(&format!("Running {} {}", bin_path.bold(), args.join(" ")));
+        println!("{} {} {}", "$".blue(), bin_path, args.join(" "));
     }
 }
 
