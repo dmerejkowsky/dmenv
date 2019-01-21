@@ -48,17 +48,11 @@ fn get_python_binary(requested_python: &Option<String>) -> Result<std::path::Pat
         return Ok(std::path::PathBuf::from(python));
     }
 
-    let python3 = which::which("python3");
-    if python3.is_ok() {
-        return Ok(python3.unwrap());
+    if let Ok(python3) = which::which("python3") {
+        return Ok(python3);
     }
 
-    // Python3 may be called 'python', for instance on Windows
-    let res = which::which("python");
-    if res.is_err() {
-        return Err(Error::Other {
-            message: "Neither `python3` nor `python` fonud in PATH".to_string(),
-        });
-    }
-    Ok(res.unwrap())
+    which::which("python").map_err(|_| Error::Other {
+        message: "Neither `python3` nor `python` found in PATH".to_string(),
+    })
 }

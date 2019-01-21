@@ -23,13 +23,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let working_dir = if let Some(cwd) = cmd.working_dir {
         std::path::PathBuf::from(cwd)
     } else {
-        let maybe_cwd = std::env::current_dir();
-        if let Err(e) = maybe_cwd {
-            return Err(Error::Other {
-                message: format!("Could not get current directory: {}", e),
-            });
-        }
-        maybe_cwd.unwrap()
+        std::env::current_dir().map_err(|e| Error::Other {
+            message: format!("Could not get current directory: {}", e),
+        })?
     };
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
         if cmd.is_empty() {
