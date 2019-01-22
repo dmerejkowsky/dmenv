@@ -2,7 +2,7 @@ use ignore::Walk;
 use structopt::StructOpt;
 
 pub struct TestApp {
-    tmp_path: std::path::PathBuf,
+    tmp_dir: tempdir::TempDir,
 }
 
 ///
@@ -11,13 +11,18 @@ pub struct TestApp {
 /// By default, contains a copy of all the files in
 /// demo/
 impl TestApp {
-    pub fn new(tmp_path: std::path::PathBuf) -> Self {
+    pub fn new() -> Self {
         if std::env::var("VIRTUAL_ENV").is_ok() {
             panic!("Please exit virtualenv before running tests");
         }
-        let test_app = TestApp { tmp_path };
+        let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
+        let test_app = TestApp { tmp_dir };
         test_app.copy_demo_files();
         test_app
+    }
+
+    fn path(&self) -> std::path::PathBuf {
+        self.tmp_dir.path().to_path_buf()
     }
 
     fn copy_demo_files(&self) {
@@ -27,7 +32,7 @@ impl TestApp {
                 if file_type.is_file() {
                     let src = entry.path();
                     let name = entry.file_name();
-                    let dest = self.tmp_path.join(name);
+                    let dest = self.path().join(name);
                     std::fs::copy(src, dest).unwrap();
                 }
             }
@@ -45,7 +50,7 @@ impl TestApp {
     pub fn run(&self, args: Vec<String>) -> Result<(), dmenv::Error> {
         let mut cmd = vec![];
         cmd.extend(vec!["dmenv".to_string()]);
-        let tmp_path: String = self.tmp_path.to_string_lossy().into();
+        let tmp_path: String = self.path().to_string_lossy().into();
         cmd.extend(vec!["--project".to_string(), tmp_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
@@ -58,7 +63,7 @@ impl TestApp {
     }
 
     pub fn read_lock(&self) -> String {
-        let lock_path = &self.tmp_path.join(dmenv::LOCK_FILE_NAME);
+        let lock_path = self.path().join(dmenv::LOCK_FILE_NAME);
         std::fs::read_to_string(lock_path).unwrap()
     }
 
@@ -67,7 +72,7 @@ impl TestApp {
     }
 
     pub fn assert_file(&self, name: &str) {
-        assert!(self.tmp_path.join(name).exists());
+        assert!(self.path().join(name).exists());
     }
 
     pub fn assert_run_error(&self, args: &[&str]) -> String {
@@ -81,17 +86,18 @@ impl TestApp {
     }
 
     pub fn write_file(&self, name: &str, contents: &str) {
-        let path = self.tmp_path.join(name);
+        let path = self.path().join(name);
         std::fs::write(path, &contents).unwrap();
     }
 
     pub fn remove_file(&self, name: &str) {
-        let path = self.tmp_path.join(name);
+        let path = self.path().join(name);
         std::fs::remove_file(path).unwrap();
     }
 
     pub fn read_setup_py(&self) -> String {
-        std::fs::read_to_string(self.tmp_path.join("setup.py")).unwrap()
+        let path = self.path().join("setup.py");
+        std::fs::read_to_string(path).unwrap()
     }
 }
 

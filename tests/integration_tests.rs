@@ -3,15 +3,13 @@ use crate::helpers::TestApp;
 
 #[test]
 fn show_venv_path() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.assert_run_ok(&["show:venv_path"]);
 }
 
 #[test]
 fn init_generates_setup_py() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.remove_setup_py();
     #[rustfmt::skip]
     test_app.assert_run_ok(&[
@@ -28,8 +26,7 @@ fn init_generates_setup_py() {
 
 #[test]
 fn bump_in_lock_simple() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     let lock_contents = r#"
 foo==0.42
 -e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
@@ -45,8 +42,7 @@ foo==0.42
 
 #[test]
 fn bump_in_lock_git() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     let lock_contents = r#"
 foo==0.42
 -e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
@@ -58,23 +54,21 @@ foo==0.42
 
 #[test]
 fn init_does_not_overwrite_existing_setup_py() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.assert_run_error(&["init", "foo"]);
     test_app.assert_setup_py();
 }
 
 #[test]
 fn lock_complains_if_setup_py_does_not_exist() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.remove_setup_py();
     test_app.assert_run_error(&["lock"]);
 }
+
 #[test]
 fn lock_workflow() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.assert_run_ok(&["lock"]);
     let lock_contents = test_app.read_lock();
     assert!(lock_contents.contains("pytest=="));
@@ -86,8 +80,7 @@ fn lock_workflow() {
 
 #[test]
 fn install_workflow_all_in_one() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     let lock_contents = include_str!("../demo/requirements.lock");
     test_app.write_lock(&lock_contents);
     test_app.assert_run_ok(&["install"]);
@@ -95,8 +88,7 @@ fn install_workflow_all_in_one() {
 
 #[test]
 fn install_workflow_step_by_step() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     let lock_contents = include_str!("../demo/requirements.lock");
     test_app.write_lock(&lock_contents);
     test_app.assert_run_ok(&["install", "--no-develop", "--no-upgrade-pip"]);
@@ -106,22 +98,19 @@ fn install_workflow_step_by_step() {
 
 #[test]
 fn install_without_lock() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.remove_lock();
     test_app.assert_run_error(&["install"]);
 }
 
 #[test]
 fn run_without_args() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.assert_run_error(&["run"]);
 }
 
 #[test]
 fn run_without_virtualenv() {
-    let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
-    let test_app = TestApp::new(tmp_dir.path().to_path_buf());
+    let test_app = TestApp::new();
     test_app.assert_run_error(&["run", "python"]);
 }
