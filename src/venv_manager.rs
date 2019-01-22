@@ -25,16 +25,16 @@ pub struct InstallOptions {
 
 impl VenvManager {
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(working_dir: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
-        let lock_path = working_dir.join(LOCK_FILE_NAME);
-        let setup_py_path = working_dir.join("setup.py");
+    pub fn new(project_path: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
+        let lock_path = project_path.join(LOCK_FILE_NAME);
+        let setup_py_path = project_path.join("setup.py");
         let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
             std::path::PathBuf::from(env_var)
         } else {
-            working_dir.join(".venv").join(&python_info.version)
+            project_path.join(".venv").join(&python_info.version)
         };
         let paths = Paths {
-            working_dir,
+            project: project_path,
             venv: venv_path,
             lock: lock_path,
             setup_py: setup_py_path,
@@ -238,7 +238,7 @@ impl VenvManager {
         let python_binary = &self.python_info.binary;
         Self::print_cmd(&python_binary.to_string_lossy(), &args);
         let status = std::process::Command::new(&python_binary)
-            .current_dir(&self.paths.working_dir)
+            .current_dir(&self.paths.project)
             .args(&args)
             .status();
         let status = status.map_err(|e| Error::ProcessWaitError { io_error: e })?;
@@ -257,7 +257,7 @@ impl VenvManager {
         let args = vec!["freeze", "--exclude-editable"];
         Self::print_cmd(&pip_str, &args);
         let command = std::process::Command::new(pip)
-            .current_dir(&self.paths.working_dir)
+            .current_dir(&self.paths.project)
             .args(args)
             .output();
         let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
@@ -333,9 +333,9 @@ impl VenvManager {
     fn install_editable(&self) -> Result<(), Error> {
         print_info_2("Installing deps from setup.py");
 
-        // tells pip to run `setup.py develop` (that's -e), and
+        // tells pip to run `setup.py develop` (that's --editable), and
         // install the dev requirements too
-        let args = vec!["-m", "pip", "install", "-e", ".[dev]"];
+        let args = vec!["-m", "pip", "install", "--editable", ".[dev]"];
         self.run_cmd_in_venv("python", args)
     }
 
@@ -344,7 +344,7 @@ impl VenvManager {
         Self::print_cmd(&bin_path.to_string_lossy(), &args);
         let command = std::process::Command::new(bin_path)
             .args(args)
-            .current_dir(&self.paths.working_dir)
+            .current_dir(&self.paths.project)
             .status();
         let command = command.map_err(|e| Error::ProcessWaitError { io_error: e })?;
         if !command.success() {
@@ -392,7 +392,7 @@ impl VenvManager {
 }
 
 struct Paths {
-    working_dir: std::path::PathBuf,
+    project: std::path::PathBuf,
     venv: std::path::PathBuf,
     lock: std::path::PathBuf,
     setup_py: std::path::PathBuf,

@@ -46,7 +46,7 @@ impl TestApp {
         let mut cmd = vec![];
         cmd.extend(vec!["dmenv".to_string()]);
         let tmp_path: String = self.tmp_path.to_string_lossy().into();
-        cmd.extend(vec!["--cwd".to_string(), tmp_path]);
+        cmd.extend(vec!["--project".to_string(), tmp_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
         dmenv::run(cmd)

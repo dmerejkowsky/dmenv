@@ -20,8 +20,8 @@ use crate::venv_manager::VenvManager;
 pub use crate::venv_manager::LOCK_FILE_NAME;
 
 pub fn run(cmd: Command) -> Result<(), Error> {
-    let working_dir = if let Some(cwd) = cmd.working_dir {
-        std::path::PathBuf::from(cwd)
+    let project_path = if let Some(project_path) = cmd.project_path {
+        std::path::PathBuf::from(project_path)
     } else {
         std::env::current_dir().map_err(|e| Error::Other {
             message: format!("Could not get current directory: {}", e),
@@ -38,7 +38,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     if std::env::var("DMENV_NO_VENV_STDLIB").is_ok() {
         python_info.venv_from_stdlib = false;
     }
-    let venv_manager = VenvManager::new(working_dir, python_info)?;
+    let venv_manager = VenvManager::new(project_path, python_info)?;
     match &cmd.sub_cmd {
         SubCommand::Install {
             no_develop,
