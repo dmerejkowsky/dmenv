@@ -1,11 +1,6 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
 use crate::error::Error;
 
-#[derive(Debug)]
-pub struct Lock {
-    dependencies: Vec<LockedDependency>,
-}
-
 trait Bumper {
     fn bump(&self, dep: &mut LockedDependency) -> bool;
 }
@@ -54,6 +49,13 @@ impl Bumper for GitBumper {
     }
 }
 
+#[derive(Debug)]
+pub struct Lock {
+    dependencies: Vec<LockedDependency>,
+    python_version: Option<String>,
+    sys_platform: Option<String>,
+}
+
 impl Lock {
     pub fn from_string(string: &str) -> Result<Self, Error> {
         let mut dependencies = vec![];
@@ -71,7 +73,11 @@ impl Lock {
             })?;
             dependencies.push(dep);
         }
-        Ok(Lock { dependencies })
+        Ok(Lock {
+            dependencies,
+            python_version: None,
+            sys_platform: None,
+        })
     }
 
     pub fn to_string(&self) -> String {
@@ -80,6 +86,14 @@ impl Lock {
             res.push_str(&format!("{}\n", dep.line()));
         }
         res
+    }
+
+    pub fn python_version(&mut self, python_version: &str) {
+        self.python_version = Some(python_version.to_string())
+    }
+
+    pub fn sys_platform(&mut self, sys_platform: &str) {
+        self.sys_platform = Some(sys_platform.to_string())
     }
 
     /// Bump the dependency `name` to new `version`.
@@ -133,7 +147,13 @@ impl Lock {
             .filter(|x| !known_names.contains(&&x.name))
             .collect();
         for dep in new_deps {
-            let locked_dep = SimpleDependency::from_frozen(dep);
+            let mut locked_dep = SimpleDependency::from_frozen(dep);
+            if let Some(python_version) = &self.python_version {
+                locked_dep.python_version(&python_version);
+            }
+            if let Some(sys_platform) = &self.sys_platform {
+                locked_dep.sys_platform(&sys_platform);
+            }
             println!("+ {}", locked_dep.line);
             self.dependencies.push(LockedDependency::Simple(locked_dep));
         }
@@ -282,6 +302,30 @@ mod tests {
     #[test]
     fn freeze_add_new_deps() {
         assert_freeze("", &[FrozenDependency::new("foo", "0.42")], "foo==0.42\n");
+    }
+
+    #[test]
+    fn freeze_different_version() {
+        let mut lock = Lock::from_string("foo==0.42\n").unwrap();
+        lock.python_version("< '3.6'");
+        lock.freeze(&[
+            FrozenDependency::new("foo", "0.42"),
+            FrozenDependency::new("bar", "1.3"),
+        ]);
+        let actual = lock.to_string();
+        assert_eq!(actual, "foo==0.42\nbar==1.3 ; python_version < '3.6'\n");
+    }
+
+    #[test]
+    fn freeze_different_platform() {
+        let mut lock = Lock::from_string("foo==0.42\n").unwrap();
+        lock.sys_platform("win32");
+        lock.freeze(&[
+            FrozenDependency::new("foo", "0.42"),
+            FrozenDependency::new("winapi", "1.3"),
+        ]);
+        let actual = lock.to_string();
+        assert_eq!(actual, "foo==0.42\nwinapi==1.3 ; sys_platform == 'win32'\n");
     }
 
 }

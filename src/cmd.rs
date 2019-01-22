@@ -56,7 +56,13 @@ pub enum SubCommand {
     },
 
     #[structopt(name = "lock", about = "(Re)-generate requirements.lock")]
-    Lock {},
+    Lock {
+        #[structopt(long = "python-version", help = "Restrict Python version")]
+        python_version: Option<String>,
+
+        #[structopt(long = "platform", help = "Restrict platform")]
+        sys_platform: Option<String>,
+    },
 
     #[structopt(name = "run", about = "Run the given binary from the virtualenv")]
     Run {
