@@ -1,5 +1,8 @@
 use colored::*;
+use regex::Regex;
 use structopt::StructOpt;
+
+use crate::error::Error;
 
 #[derive(StructOpt)]
 #[structopt(name = "dmenv", about = "The stupid virtualenv manager")]
@@ -12,6 +15,16 @@ pub struct Command {
 
     #[structopt(subcommand)]
     pub sub_cmd: SubCommand,
+}
+
+fn parse_python_version(string: &str) -> Result<String, Error> {
+    let re = Regex::new("^(==|<|<=|>|>=) (('.*?')|(\".*?\"))$").unwrap();
+    if !re.is_match(string) {
+        return Err(Error::Other {
+            message: "should match something like `<= '3.6'`".to_string(),
+        });
+    }
+    Ok(string.to_string())
 }
 
 #[derive(StructOpt)]
@@ -57,7 +70,11 @@ pub enum SubCommand {
 
     #[structopt(name = "lock", about = "(Re)-generate requirements.lock")]
     Lock {
-        #[structopt(long = "python-version", help = "Restrict Python version")]
+        #[structopt(
+            long = "python-version",
+            help = "Restrict Python version",
+            parse(try_from_str = "parse_python_version")
+        )]
         python_version: Option<String>,
 
         #[structopt(long = "platform", help = "Restrict platform")]
@@ -100,4 +117,24 @@ pub fn print_info_1(message: &str) {
 
 pub fn print_info_2(message: &str) {
     println!("{} {}", "->".blue(), message);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_python_version_ok() {
+        assert_eq!("< '3.6'", parse_python_version("< '3.6'").unwrap());
+    }
+
+    #[test]
+    fn test_parse_python_version_no_comparison() {
+        parse_python_version("3.6").unwrap_err();
+    }
+
+    #[test]
+    fn test_parse_python_version_not_quoted() {
+        parse_python_version("<= 3.6").unwrap_err();
+    }
 }
