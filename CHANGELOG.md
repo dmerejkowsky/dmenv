@@ -1,6 +1,10 @@
+# 0.8.5
+
+* Fix #54: rename `--cwd` option to `--project`.
+
 # 0.8.4
 
-* Fix (#49): return code was always 0 when using `dmenv run` on Windows. (regression introduced in `0.8.1`).
+* Fix #49: return code was always 0 when using `dmenv run` on Windows. (regression introduced in `0.8.1`).
 
 # 0.8.3
 
