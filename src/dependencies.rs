@@ -18,9 +18,16 @@ impl FrozenDependency {
         if words.len() != 2 {
             return Err(err);
         }
+
+        let name = words[0];
+        let version = words[1];
+        if version.is_empty() {
+            return Err(err);
+        }
+
         Ok(FrozenDependency {
-            name: words[0].to_string(),
-            version: words[1].to_string(),
+            name: name.to_string(),
+            version: version.to_string(),
         })
     }
 }
