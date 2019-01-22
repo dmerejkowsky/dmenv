@@ -13,7 +13,7 @@ fn init_generates_setup_py() {
     let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
     let test_app = TestApp::new(tmp_dir.path().to_path_buf());
     test_app.remove_setup_py();
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     test_app.assert_run_ok(&[
         "init", "foo",
         "--version", "0.42",
