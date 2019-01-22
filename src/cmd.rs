@@ -7,8 +7,8 @@ pub struct Command {
     #[structopt(long = "python", help = "python binary")]
     pub python_binary: Option<String>,
 
-    #[structopt(long = "cwd", help = "path to use as the working directory")]
-    pub working_dir: Option<String>,
+    #[structopt(long = "project", help = "path to use as the project directory")]
+    pub project_path: Option<String>,
 
     #[structopt(subcommand)]
     pub sub_cmd: SubCommand,
