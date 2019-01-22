@@ -58,8 +58,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         } => venv_manager.init(&name, &version, author),
         SubCommand::Lock {} => venv_manager.lock(),
         SubCommand::BumpInLock { name, version, git } => {
-            venv_manager.bump_in_lock(name, version, *git)?;
-            Ok(())
+            venv_manager.bump_in_lock(name, version, *git)
         }
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
