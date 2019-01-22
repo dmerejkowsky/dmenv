@@ -27,28 +27,13 @@ fn init_generates_setup_py() {
 #[test]
 fn bump_in_lock_simple() {
     let test_app = TestApp::new();
-    let lock_contents = r#"foo==0.42
--e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
-"#;
+    let lock_contents = "bar==1.3\nfoo==0.42\n";
     test_app.write_lock(&lock_contents);
 
     test_app.assert_run_ok(&["bump-in-lock", "foo", "0.43"]);
-
     let actual_contents = test_app.read_lock();
     let expected_contents = lock_contents.replace("0.42", "0.43");
     assert_eq!(actual_contents, expected_contents);
-}
-
-#[test]
-fn bump_in_lock_git() {
-    let test_app = TestApp::new();
-    let lock_contents = r#"
-foo==0.42
--e git+ssh://git@gitlab.local/bar@abc42f#egg=bar
-"#;
-    test_app.write_lock(&lock_contents);
-
-    test_app.assert_run_ok(&["bump-in-lock", "--git", "bar", "bfc42a"]);
 }
 
 #[test]

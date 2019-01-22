@@ -81,11 +81,9 @@ impl Lock {
     }
 
     pub fn to_string(&self) -> String {
-        let mut res = String::new();
-        for dep in &self.dependencies {
-            res.push_str(&format!("{}\n", dep.line()));
-        }
-        res
+        let mut lines: Vec<_> = self.dependencies.iter().map(|x| x.line()).collect();
+        lines.sort_by(|x, y| x.to_lowercase().cmp(&y.to_lowercase()));
+        lines.join("\n") + "\n"
     }
 
     pub fn python_version(&mut self, python_version: &str) {
@@ -313,7 +311,7 @@ mod tests {
             FrozenDependency::new("bar", "1.3"),
         ]);
         let actual = lock.to_string();
-        assert_eq!(actual, "foo==0.42\nbar==1.3 ; python_version < '3.6'\n");
+        assert_eq!(actual, "bar==1.3 ; python_version < '3.6'\nfoo==0.42\n");
     }
 
     #[test]
