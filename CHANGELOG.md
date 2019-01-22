@@ -1,4 +1,4 @@
-# 0.8.5
+# Next release
 
 * Fix #54: rename `--cwd` option to `--project`.
 
