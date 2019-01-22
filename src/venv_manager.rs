@@ -20,6 +20,12 @@ struct LockMetadata {
 }
 
 #[derive(Default)]
+pub struct LockOptions {
+    pub python_version: Option<String>,
+    pub sys_platform: Option<String>,
+}
+
+#[derive(Default)]
 pub struct InstallOptions {
     pub develop: bool,
     pub upgrade_pip: bool,
@@ -125,7 +131,7 @@ impl VenvManager {
         self.run_cmd_in_venv(&cmd, args)
     }
 
-    pub fn lock(&self) -> Result<(), Error> {
+    pub fn lock(&self, lock_options: &LockOptions) -> Result<(), Error> {
         print_info_1("Locking dependencies");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});
@@ -136,7 +142,7 @@ impl VenvManager {
 
         self.install_editable()?;
 
-        self.write_lock()?;
+        self.write_lock(&lock_options)?;
         Ok(())
     }
 
@@ -257,7 +263,7 @@ impl VenvManager {
         Ok(())
     }
 
-    fn write_lock(&self) -> Result<(), Error> {
+    fn write_lock(&self, lock_options: &LockOptions) -> Result<(), Error> {
         let metadata = &self.get_metadata()?;
 
         let lock_path = &self.paths.lock;
@@ -271,6 +277,12 @@ impl VenvManager {
         };
 
         let mut lock = Lock::from_string(&lock_contents)?;
+        if let Some(python_version) = &lock_options.python_version {
+            lock.python_version(&python_version);
+        }
+        if let Some(sys_platform) = &lock_options.sys_platform {
+            lock.sys_platform(&sys_platform);
+        }
         let frozen_deps = self.get_frozen_deps()?;
         lock.freeze(&frozen_deps);
         let new_contents = lock.to_string();

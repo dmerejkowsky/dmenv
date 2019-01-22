@@ -16,9 +16,9 @@ use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
 use crate::python_info::PythonInfo;
-use crate::venv_manager::InstallOptions;
 use crate::venv_manager::VenvManager;
 pub use crate::venv_manager::LOCK_FILE_NAME;
+use crate::venv_manager::{InstallOptions, LockOptions};
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let project_path = if let Some(project_path) = cmd.project_path {
@@ -57,7 +57,16 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             version,
             author,
         } => venv_manager.init(&name, &version, author),
-        SubCommand::Lock {} => venv_manager.lock(),
+        SubCommand::Lock {
+            python_version,
+            sys_platform,
+        } => {
+            let lock_options = LockOptions {
+                python_version: python_version.as_ref().map(|x| x.to_string()),
+                sys_platform: sys_platform.as_ref().map(|x| x.to_string()),
+            };
+            venv_manager.lock(&lock_options)
+        }
         SubCommand::BumpInLock { name, version, git } => {
             venv_manager.bump_in_lock(name, version, *git)
         }

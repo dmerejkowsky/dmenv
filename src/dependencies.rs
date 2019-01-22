@@ -90,6 +90,14 @@ impl SimpleDependency {
         }
     }
 
+    pub fn python_version(&mut self, python_version: &str) {
+        self.line = format!("{} ; python_version {}", self.line, python_version);
+    }
+
+    pub fn sys_platform(&mut self, sys_platform: &str) {
+        self.line = format!("{} ; sys_platform == '{}'", self.line, sys_platform);
+    }
+
     pub fn bump(&mut self, new_version: &str) -> bool {
         let VersionSpec { start, end, value } = &self.version;
         if new_version == value {
