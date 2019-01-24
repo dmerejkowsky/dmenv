@@ -141,8 +141,8 @@ impl LockedDependency {
 
     pub fn from_line(line: &str) -> Result<LockedDependency, ParseError> {
         if line.contains("#egg=") {
-            let name = Self::parse_git_name(&line);
-            let git_ref = Self::parse_git_ref(&line)?;
+            let name = Self::parse_git_name(line);
+            let git_ref = Self::parse_git_ref(line)?;
             let dep = GitDependency {
                 line: line.to_string(),
                 name,

@@ -301,8 +301,7 @@ impl VenvManager {
         std::fs::write(&lock_path, &to_write).map_err(|e| Error::WriteError {
             path: lock_path.to_path_buf(),
             io_error: e,
-        })?;
-        Ok(())
+        })
     }
 
     fn get_frozen_deps(&self) -> Result<Vec<FrozenDependency>, Error> {

@@ -62,8 +62,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             sys_platform,
         } => {
             let lock_options = LockOptions {
-                python_version: python_version.as_ref().map(|x| x.to_string()),
-                sys_platform: sys_platform.as_ref().map(|x| x.to_string()),
+                python_version: python_version.clone(),
+                sys_platform: sys_platform.clone(),
             };
             venv_manager.lock(&lock_options)
         }

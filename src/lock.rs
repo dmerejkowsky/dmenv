@@ -61,10 +61,7 @@ impl Lock {
         let mut dependencies = vec![];
         for (i, line) in string.lines().enumerate() {
             let line = line.trim();
-            if line.is_empty() {
-                continue;
-            }
-            if line.starts_with('#') {
+            if line.is_empty() || line.starts_with('#') {
                 continue;
             }
             let dep = LockedDependency::from_line(&line).map_err(|e| Error::MalformedLock {
@@ -134,8 +131,8 @@ impl Lock {
     }
 
     pub fn freeze(&mut self, deps: &[FrozenDependency]) {
-        self.patch_existing_deps(&deps);
-        self.add_missing_deps(&deps);
+        self.patch_existing_deps(deps);
+        self.add_missing_deps(deps);
     }
 
     fn add_missing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
@@ -147,10 +144,10 @@ impl Lock {
         for dep in new_deps {
             let mut locked_dep = SimpleDependency::from_frozen(dep);
             if let Some(python_version) = &self.python_version {
-                locked_dep.python_version(&python_version);
+                locked_dep.python_version(python_version);
             }
             if let Some(sys_platform) = &self.sys_platform {
-                locked_dep.sys_platform(&sys_platform);
+                locked_dep.sys_platform(sys_platform);
             }
             println!("+ {}", locked_dep.line);
             self.dependencies.push(LockedDependency::Simple(locked_dep));
