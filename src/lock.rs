@@ -165,20 +165,18 @@ impl Lock {
         }
     }
 
-    fn patch_existing_dep(
-        dep: &mut SimpleDependency,
-        frozen_deps: &[FrozenDependency],
-    ) -> Option<()> {
+    fn patch_existing_dep(dep: &mut SimpleDependency, frozen_deps: &[FrozenDependency]) {
         let frozen_match = frozen_deps.iter().find(|x| x.name == dep.name);
-        let frozen_match = frozen_match?;
-        if dep.version.value != frozen_match.version {
-            println!(
-                "{}: {} -> {}",
-                dep.name, dep.version.value, &frozen_match.version
-            );
+        let frozen_version = match frozen_match {
+            None => return,
+            Some(frozen) => &frozen.version,
         };
-        dep.freeze(&frozen_match.version);
-        Some(())
+        if &dep.version.value == frozen_version {
+            return;
+        }
+
+        println!("{}: {} -> {}", dep.name, dep.version.value, &frozen_version);
+        dep.freeze(&frozen_version)
     }
 }
 
