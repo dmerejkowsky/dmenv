@@ -10,6 +10,7 @@ strict: true
 markdown_extensions:
   - markdown.extensions.admonition #for !!! notice
   - markdown.extensions.def_list
+  - footnotes
 
   - toc:
       permalink: True
@@ -19,7 +20,9 @@ nav:
   - Home: index.md
 
   - Installation: installation.md
-  - Usage: usage.md
+  - Basic Usage: basic_usage.md
+  - Goodies: goodies.md
+  - Advanced Usage: advanced_usage.md
 
   - FAQ: faq.md
 

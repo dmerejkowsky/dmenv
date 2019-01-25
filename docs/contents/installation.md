@@ -9,16 +9,21 @@ somewhere on in your $PATH.
 
 ```console
 cd ~/.local/bin
-curl --fail -L https://github.com/TankerHQ/dmenv/releases/download/v0.10.0/dmenv-<platform> -o dmenv
+curl --fail -L \
+  https://github.com/TankerHQ/dmenv/releases/download/v0.10.0/dmenv-<platform> \
+  -o dmenv
 chmod u+x dmenv
 ```
-Note: replace `<platform>` by your current platform: `linux`, or `osx`.
+Notes:
+
+* Replace `<platform>` by your current platform: `linux`, or `osx` in the above command line.
+* Make sure `~/.local/bin` is in your PATH.
 
 ### Windows
 
 Download the `dmenv-windows.exe` [from the release
 page](https://github.com/TankerHQ/dmenv/releases) and save it for instance in
-`c:\path\to\python\Scripts\dmenv.exe`. (This folder should already be in you PATH if you
+`c:\path\to\python\Scripts\dmenv.exe`. (This directory should already be in you PATH if you
 used the default settings when installing Python).
 
 ## Installing from source

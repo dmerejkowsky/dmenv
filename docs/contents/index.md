@@ -1,4 +1,4 @@
-# dmenv: the stupid virtualenv manager for Python
+# dmenv: the stupid virtual environment manager for Python
 
 [![crates.io image](https://img.shields.io/crates/v/dmenv.svg)](https://crates.io/crates/dmenv)
 [![Build](https://img.shields.io/travis/TankerHQ/dmenv.svg?branch=master)](https://travis-ci.org/TankerHQ/dmenv)
@@ -7,7 +7,7 @@
 
 `dmenv` takes care of:
 
-* Creating virtualenvs for you: one virtualenv per project and Python version, thus
+* Creating virtual environments for you: one virtual environment per project and Python version, thus
   enforcing some commonly agreed-upon best practices
 
 * Generating a *lock file* that contains *all the versions* of all your dependencies at
@@ -21,4 +21,4 @@ If does it by:
 As the name implies, its implementation is as simple as possible and it contains the
 *bare minimum* amount of features.
 
-Want to try it? Proceed to [installation](installation.md) and [usage](usage.md).
+Want to try it? Proceed to [installation](installation.md) and [usage](./basic_usage.md).
