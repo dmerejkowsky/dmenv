@@ -1,4 +1,4 @@
-# dmenv: the stupid virtualenv manager for Python
+# dmenv: the not so stupid virtualenv manager for Python
 
 [![Docs](https://img.shields.io/badge/docs-latest-green.svg)](https://tankerhq.github.io/dmenv/)
 [![crates.io image](https://img.shields.io/crates/v/dmenv.svg)](https://crates.io/crates/dmenv)
