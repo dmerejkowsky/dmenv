@@ -1,3 +1,4 @@
+use app_dirs::{AppDataType, AppInfo};
 use colored::*;
 
 #[cfg(unix)]
@@ -36,16 +37,17 @@ pub struct VenvManager {
     python_info: PythonInfo,
 }
 
+const APP_INFO: AppInfo = AppInfo {
+    name: "dmenv",
+    author: "Tanker",
+};
+
 impl VenvManager {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(project_path: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
         let lock_path = project_path.join(LOCK_FILE_NAME);
         let setup_py_path = project_path.join("setup.py");
-        let venv_path = if let Ok(env_var) = std::env::var("VIRTUAL_ENV") {
-            std::path::PathBuf::from(env_var)
-        } else {
-            project_path.join(".venv").join(&python_info.version)
-        };
+        let venv_path = Self::get_venv_path(&project_path, &python_info.version)?;
         let paths = Paths {
             project: project_path,
             venv: venv_path,
@@ -54,6 +56,42 @@ impl VenvManager {
         };
         let venv_manager = VenvManager { paths, python_info };
         Ok(venv_manager)
+    }
+
+    fn get_venv_path(
+        project_path: &std::path::PathBuf,
+        python_version: &str,
+    ) -> Result<std::path::PathBuf, Error> {
+        if let Ok(existing_venv) = std::env::var("VIRTUAL_ENV") {
+            return Ok(std::path::PathBuf::from(existing_venv));
+        }
+        if std::env::var("DMENV_VENV_OUTSIDE_PROJECT").is_ok() {
+            return Self::get_venv_path_outside(project_path, python_version);
+        }
+        Self::get_venv_path_inside(project_path, python_version)
+    }
+
+    fn get_venv_path_inside(
+        project_path: &std::path::PathBuf,
+        python_version: &str,
+    ) -> Result<std::path::PathBuf, Error> {
+        Ok(project_path.join(".venv").join(python_version))
+    }
+
+    fn get_venv_path_outside(
+        project_path: &std::path::PathBuf,
+        python_version: &str,
+    ) -> Result<std::path::PathBuf, Error> {
+        let data_dir =
+            app_dirs::app_dir(AppDataType::UserCache, &APP_INFO, "venv").map_err(|e| {
+                Error::Other {
+                    message: format!("Could not create dmenv cache path: {}", e.to_string()),
+                }
+            })?;
+        let project_name = project_path.file_name().ok_or_else(|| Error::Other {
+            message: format!("project path: {:?} has no file name", project_path),
+        })?;
+        Ok(data_dir.join(python_version).join(project_name))
     }
 
     pub fn clean(&self) -> Result<(), Error> {
