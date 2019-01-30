@@ -18,6 +18,7 @@ structopt = "0.2"
 which = "2.0"
 libc = "0.2.46"
 regex = "1.1.0"
+app_dirs = "1.2.1"
 
 [dev-dependencies]
 tempdir = "0.3"
