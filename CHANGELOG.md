@@ -1,3 +1,7 @@
+# Next release
+
+* Add `dmenv show:bin_path` to show path of the virtualenv's binaries.
+
 # 0.10.0
 
 * Allow using `dmenv` outside the current project, by setting an environment variable named `DMENV_VENV_OUTSIDE_PROJECT`.

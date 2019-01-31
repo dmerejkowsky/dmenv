@@ -1,6 +1,8 @@
 # dmenv goodies
 
-`dmenv` also comes with a few commands for carrying out boring tasks:
+`dmenv` also comes with a few commands for carrying out boring tasks. You can
+view the full list by running `dmenv help`, here are a few more details:
+
 
 ## dmenv run
 
@@ -18,13 +20,24 @@ Tired of `pip` telling you to upgrade itself? Run `dmenv upgrade-pip` :)
 It's exactly the same as typing `dmenv run -- python -m pip install --upgrade pip`, but with less keystrokes :P
 
 
+
 ## dmenv show:venv_path
 
-Useful to activate the virtual environment for your current shell. For instance:
+`dmenv show:venv_path` shows the path of the current virtual environment. Nothing more, nothing less.
 
-```bash
-source "$(dmenv show:venv_path)/bin/activate"
+
+## dmenv show:bin_path
+
+`dmenv show:bin_path` shows the path of the virtual environment's binaries.
+
+You can use it in CI scripts like this:
+
+```yaml
+script:
+  - dmenv install
+  - export PATH=$(dmenv show:bin_path):$PATH
 ```
+
 
 ## dmenv show:deps
 

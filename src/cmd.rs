@@ -99,6 +99,12 @@ pub enum SubCommand {
     #[structopt(name = "show:venv_path", about = "Show path of the virtualenv")]
     ShowVenvPath {},
 
+    #[structopt(
+        name = "show:bin_path",
+        about = "Show path of the virtualenv's binaries"
+    )]
+    ShowVenvBin {},
+
     #[structopt(name = "upgrade-pip", about = "Upgrade pip in the virtualenv")]
     UpgradePip {},
 }
