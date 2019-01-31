@@ -193,6 +193,12 @@ impl VenvManager {
         Ok(())
     }
 
+    pub fn show_venv_bin_path(&self) -> Result<(), Error> {
+        let bin_path = &self.get_venv_bin_path();
+        println!("{}", bin_path.to_string_lossy());
+        Ok(())
+    }
+
     pub fn init(&self, name: &str, version: &str, author: &Option<String>) -> Result<(), Error> {
         let path = &self.paths.setup_py;
         if path.exists() {
@@ -430,6 +436,16 @@ impl VenvManager {
         Ok(())
     }
 
+    fn get_venv_bin_path(&self) -> std::path::PathBuf {
+        #[cfg(not(windows))]
+        let binaries_subdirs = "bin";
+
+        #[cfg(windows)]
+        let binaries_subdirs = "Scripts";
+
+        self.paths.venv.join(binaries_subdirs)
+    }
+
     fn get_path_in_venv(&self, name: &str) -> Result<std::path::PathBuf, Error> {
         if !self.paths.venv.exists() {
             return Err(Error::Other {
@@ -440,18 +456,14 @@ impl VenvManager {
             });
         }
 
-        #[cfg(not(windows))]
-        let binaries_subdirs = "bin";
+        #[cfg(windows)]
+        let suffix = ".exe";
         #[cfg(not(windows))]
         let suffix = "";
 
-        #[cfg(windows)]
-        let binaries_subdirs = "Scripts";
-        #[cfg(windows)]
-        let suffix = ".exe";
-
         let name = format!("{}{}", name, suffix);
-        let path = self.paths.venv.join(binaries_subdirs).join(name);
+        let bin_path = &self.get_venv_bin_path();
+        let path = self.paths.venv.join(bin_path).join(name);
         if !path.exists() {
             return Err(Error::Other {
                 message: format!("Cannot run: '{}' does not exist", &path.to_string_lossy()),

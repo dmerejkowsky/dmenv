@@ -79,6 +79,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
         SubCommand::ShowDeps {} => venv_manager.show_deps(),
         SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),
+        SubCommand::ShowVenvBin {} => venv_manager.show_venv_bin_path(),
         SubCommand::UpgradePip {} => venv_manager.upgrade_pip(),
     }
 }
