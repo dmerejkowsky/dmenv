@@ -1,6 +1,6 @@
 # Next release
 
-* Add `dmenv show:bin_path` to show path of the virtualenv's binaries.
+* Add `dmenv show:bin_path` to show the path of the virtual environment binaries.
 
 # 0.10.0
 
@@ -79,7 +79,7 @@
 
 # 0.3.4
 
-* Fix [#9](https://github.com/TankerHQ/dmenv/issues/9): If `dmenv` is run *inside an existing virtualenv*, just use it.
+* Fix [#9](https://github.com/TankerHQ/dmenv/issues/9): If `dmenv` is run *inside an existing virtual environment*, just use it.
 
 # 0.3.3
 
