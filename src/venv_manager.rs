@@ -367,7 +367,7 @@ impl VenvManager {
         print_info_2(&format!("Generating {}", LOCK_FILE_NAME));
         let pip = self.get_path_in_venv("pip")?;
         let pip_str = pip.to_string_lossy().to_string();
-        let args = vec!["freeze", "--exclude-editable"];
+        let args = vec!["freeze", "--exclude-editable", "--all"];
         Self::print_cmd(&pip_str, &args);
         let command = std::process::Command::new(pip)
             .current_dir(&self.paths.project)
