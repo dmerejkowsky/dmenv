@@ -399,8 +399,8 @@ impl VenvManager {
     fn install_from_lock(&self) -> Result<(), Error> {
         print_info_2(&format!("Installing dependencies from {}", LOCK_FILE_NAME));
         let as_str = &self.paths.lock.to_string_lossy();
-        let args = vec!["install", "--requirement", as_str];
-        self.run_cmd_in_venv("pip", args)
+        let args = vec!["-m", "pip", "install", "--requirement", as_str];
+        self.run_cmd_in_venv("python", args)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
