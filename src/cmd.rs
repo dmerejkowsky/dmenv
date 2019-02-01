@@ -39,9 +39,6 @@ pub enum SubCommand {
     Install {
         #[structopt(long = "--no-develop", help = "do not run setup.py develop")]
         no_develop: bool,
-
-        #[structopt(long = "--no-upgrade-pip", help = "do not upgrade pip")]
-        no_upgrade_pip: bool,
     },
 
     #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]

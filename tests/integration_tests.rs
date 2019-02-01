@@ -75,7 +75,7 @@ fn install_workflow_step_by_step() {
     let test_app = TestApp::new();
     let lock_contents = include_str!("../demo/requirements.lock");
     test_app.write_lock(&lock_contents);
-    test_app.assert_run_ok(&["install", "--no-develop", "--no-upgrade-pip"]);
+    test_app.assert_run_ok(&["install", "--no-develop"]);
     test_app.assert_run_ok(&["develop"]);
     test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
 }

@@ -29,7 +29,6 @@ pub struct LockOptions {
 #[derive(Default)]
 pub struct InstallOptions {
     pub develop: bool,
-    pub upgrade_pip: bool,
 }
 
 pub struct VenvManager {
@@ -124,9 +123,6 @@ impl VenvManager {
         }
 
         self.ensure_venv()?;
-        if install_options.upgrade_pip {
-            self.upgrade_pip()?;
-        }
         self.install_from_lock()?;
 
         if install_options.develop {
