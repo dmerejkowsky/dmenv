@@ -1,9 +1,15 @@
 # Next release
 
 * Add `dmenv show:bin_path` to show the path of the virtual environment binaries.
+
+## Breaking changes
+
 * Fix [#31](https://github.com/TankerHQ/dmenv/issues/31): make sure the wheel
   package gets frozen when running `dmenv lock`. Note: this also causes other packages
-  like `setuptools` and `pip` itself to get frozen. Hopefully this does not break anything.
+  like `setuptools` and `pip` itself to get frozen. As a consequence `dmenv
+  install` no longer upgrades pip automatically, and so the `--no-upgrade-pip` option
+  is gone.
+
 
 # 0.10.0
 

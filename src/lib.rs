@@ -41,13 +41,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     }
     let venv_manager = VenvManager::new(project_path, python_info)?;
     match &cmd.sub_cmd {
-        SubCommand::Install {
-            no_develop,
-            no_upgrade_pip,
-        } => {
+        SubCommand::Install { no_develop } => {
             let mut install_options = InstallOptions::default();
             install_options.develop = !no_develop;
-            install_options.upgrade_pip = !no_upgrade_pip;
             venv_manager.install(&install_options)
         }
         SubCommand::Clean {} => venv_manager.clean(),
