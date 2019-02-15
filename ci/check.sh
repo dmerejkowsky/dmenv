@@ -10,7 +10,7 @@ cargo_audit() {
 
 clippy() {
   rustup component add clippy
-  cargo clippy --all-targets -- -D warnings
+  cargo clippy --all-targets -- --deny warnings
 }
 
 build_release() {
