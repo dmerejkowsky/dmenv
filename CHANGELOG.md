@@ -1,4 +1,4 @@
-# Next release
+# 0.11.0
 
 * Add `dmenv show:bin_path` to show the path of the virtual environment binaries.
 
@@ -9,7 +9,6 @@
   like `setuptools` and `pip` itself to get frozen. As a consequence `dmenv
   install` no longer upgrades pip automatically, and so the `--no-upgrade-pip` option
   is gone.
-
 
 # 0.10.0
 
