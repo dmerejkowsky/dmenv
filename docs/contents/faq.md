@@ -4,7 +4,7 @@
 
 This is an [upstream bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=917006).
 As a workaround, you can install virtual environment with `python3 -m pip install virtual environment --user`
-and then set the `DMENV_NO_VENV_STDLIB` environment variable.
+and then set the `DMENV_NO_VENV_STDLIB` environment variable to a non-empty value like `1`.
 
 #### Why Rust?
 

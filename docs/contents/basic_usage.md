@@ -94,7 +94,7 @@ exclude =
 ```
 
 As an alternative, you can also ask `dmenv` to create its virtual environment *outside* your project,
-by setting the `DMENV_VENV_OUTSIDE_PROJECT` environment variable. It will then use
+by setting the `DMENV_VENV_OUTSIDE_PROJECT` environment variable to a non-empty value like `1`. It will then use
 the [app_dirs crate](https://crates.io/crates/app_dirs) as a location to store the created virtual environments.
 
 ## Going further
