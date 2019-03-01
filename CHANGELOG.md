@@ -1,3 +1,7 @@
+# 0.11.1
+
+* Fix metadata on Cargo to include new tagline.
+
 # 0.11.0
 
 * Add `dmenv show:bin_path` to show the path of the virtual environment binaries.
