@@ -5,7 +5,10 @@ use structopt::StructOpt;
 use crate::error::Error;
 
 #[derive(StructOpt)]
-#[structopt(name = "dmenv", about = "The stupid virtualenv manager")]
+#[structopt(
+    name = "dmenv",
+    about = "Simple and practical virtualenv manager for Python"
+)]
 pub struct Command {
     #[structopt(long = "python", help = "python binary")]
     pub python_binary: Option<String>,
