@@ -1,4 +1,3 @@
-use app_dirs::{AppDataType, AppInfo};
 use colored::*;
 
 #[cfg(unix)]
@@ -10,10 +9,9 @@ use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock::Lock;
+use crate::paths::{Paths, LOCK_FILE_NAME};
 use crate::python_info::PythonInfo;
 use crate::settings::Settings;
-
-pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
 struct LockMetadata {
     dmenv_version: String,
@@ -38,74 +36,15 @@ pub struct VenvManager {
     settings: Settings,
 }
 
-const APP_INFO: AppInfo = AppInfo {
-    name: "dmenv",
-    author: "Tanker",
-};
-
 impl VenvManager {
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(
-        project_path: std::path::PathBuf,
-        python_info: PythonInfo,
-        settings: Settings,
-    ) -> Result<Self, Error> {
-        let lock_path = project_path.join(LOCK_FILE_NAME);
-        let setup_py_path = project_path.join("setup.py");
-        let venv_path = Self::get_venv_path(
-            &project_path,
-            &python_info.version,
-            settings.venv_outside_project,
-        )?;
-        let paths = Paths {
-            project: project_path,
-            venv: venv_path,
-            lock: lock_path,
-            setup_py: setup_py_path,
-        };
+    pub fn new(paths: Paths, python_info: PythonInfo, settings: Settings) -> Result<Self, Error> {
         let venv_manager = VenvManager {
             paths,
-            python_info,
             settings,
+            python_info,
         };
         Ok(venv_manager)
-    }
-
-    fn get_venv_path(
-        project_path: &std::path::PathBuf,
-        python_version: &str,
-        venv_outside_project: bool,
-    ) -> Result<std::path::PathBuf, Error> {
-        if let Ok(existing_venv) = std::env::var("VIRTUAL_ENV") {
-            return Ok(std::path::PathBuf::from(existing_venv));
-        }
-        if venv_outside_project {
-            return Self::get_venv_path_outside(project_path, python_version);
-        }
-        Self::get_venv_path_inside(project_path, python_version)
-    }
-
-    fn get_venv_path_inside(
-        project_path: &std::path::PathBuf,
-        python_version: &str,
-    ) -> Result<std::path::PathBuf, Error> {
-        Ok(project_path.join(".venv").join(python_version))
-    }
-
-    fn get_venv_path_outside(
-        project_path: &std::path::PathBuf,
-        python_version: &str,
-    ) -> Result<std::path::PathBuf, Error> {
-        let data_dir =
-            app_dirs::app_dir(AppDataType::UserCache, &APP_INFO, "venv").map_err(|e| {
-                Error::Other {
-                    message: format!("Could not create dmenv cache path: {}", e.to_string()),
-                }
-            })?;
-        let project_name = project_path.file_name().ok_or_else(|| Error::Other {
-            message: format!("project path: {:?} has no file name", project_path),
-        })?;
-        Ok(data_dir.join(python_version).join(project_name))
     }
 
     pub fn clean(&self) -> Result<(), Error> {
@@ -486,11 +425,4 @@ impl VenvManager {
     fn print_cmd(bin_path: &str, args: &[&str]) {
         println!("{} {} {}", "$".blue(), bin_path, args.join(" "));
     }
-}
-
-struct Paths {
-    project: std::path::PathBuf,
-    venv: std::path::PathBuf,
-    lock: std::path::PathBuf,
-    setup_py: std::path::PathBuf,
 }

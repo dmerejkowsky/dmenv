@@ -6,6 +6,7 @@ mod error;
 #[cfg(unix)]
 mod execv;
 mod lock;
+mod paths;
 mod python_info;
 mod settings;
 mod venv_manager;
@@ -16,6 +17,7 @@ pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
+use crate::paths::PathsResolver;
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 use crate::venv_manager::VenvManager;
@@ -38,7 +40,11 @@ pub fn run(cmd: Command, settings: Settings) -> Result<(), Error> {
         }
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
-    let venv_manager = VenvManager::new(project_path, python_info, settings)?;
+    let python_version = python_info.version.clone();
+    let mut resolver = PathsResolver::new(project_path, &python_version);
+    resolver.venv_outside_project = settings.venv_outside_project;
+    let paths = resolver.paths()?;
+    let venv_manager = VenvManager::new(paths, python_info, settings)?;
     match &cmd.sub_cmd {
         SubCommand::Install { no_develop } => {
             let mut install_options = InstallOptions::default();
