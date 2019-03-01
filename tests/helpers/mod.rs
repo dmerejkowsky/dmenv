@@ -1,3 +1,4 @@
+use dmenv;
 use ignore::Walk;
 use structopt::StructOpt;
 
@@ -54,7 +55,8 @@ impl TestApp {
         cmd.extend(vec!["--project".to_string(), tmp_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
-        dmenv::run(cmd)
+        let settings = dmenv::Settings::from_env();
+        dmenv::run(cmd, settings)
     }
 
     pub fn assert_run_ok(&self, args: &[&str]) {

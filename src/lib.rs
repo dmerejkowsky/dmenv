@@ -7,6 +7,7 @@ mod error;
 mod execv;
 mod lock;
 mod python_info;
+mod settings;
 mod venv_manager;
 #[cfg(windows)]
 mod win_job;
@@ -16,11 +17,12 @@ use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
 use crate::python_info::PythonInfo;
+pub use crate::settings::Settings;
 use crate::venv_manager::VenvManager;
 pub use crate::venv_manager::LOCK_FILE_NAME;
 use crate::venv_manager::{InstallOptions, LockOptions};
 
-pub fn run(cmd: Command) -> Result<(), Error> {
+pub fn run(cmd: Command, settings: Settings) -> Result<(), Error> {
     let project_path = if let Some(project_path) = cmd.project_path {
         std::path::PathBuf::from(project_path)
     } else {
@@ -35,11 +37,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             });
         }
     }
-    let mut python_info = PythonInfo::new(&cmd.python_binary)?;
-    if std::env::var("DMENV_NO_VENV_STDLIB").is_ok() {
-        python_info.venv_from_stdlib = false;
-    }
-    let venv_manager = VenvManager::new(project_path, python_info)?;
+    let python_info = PythonInfo::new(&cmd.python_binary)?;
+    let venv_manager = VenvManager::new(project_path, python_info, settings)?;
     match &cmd.sub_cmd {
         SubCommand::Install { no_develop } => {
             let mut install_options = InstallOptions::default();
