@@ -11,6 +11,7 @@ use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock::Lock;
 use crate::python_info::PythonInfo;
+use crate::settings::Settings;
 
 pub const LOCK_FILE_NAME: &str = "requirements.lock";
 
@@ -34,6 +35,7 @@ pub struct InstallOptions {
 pub struct VenvManager {
     paths: Paths,
     python_info: PythonInfo,
+    settings: Settings,
 }
 
 const APP_INFO: AppInfo = AppInfo {
@@ -43,28 +45,41 @@ const APP_INFO: AppInfo = AppInfo {
 
 impl VenvManager {
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(project_path: std::path::PathBuf, python_info: PythonInfo) -> Result<Self, Error> {
+    pub fn new(
+        project_path: std::path::PathBuf,
+        python_info: PythonInfo,
+        settings: Settings,
+    ) -> Result<Self, Error> {
         let lock_path = project_path.join(LOCK_FILE_NAME);
         let setup_py_path = project_path.join("setup.py");
-        let venv_path = Self::get_venv_path(&project_path, &python_info.version)?;
+        let venv_path = Self::get_venv_path(
+            &project_path,
+            &python_info.version,
+            settings.venv_outside_project,
+        )?;
         let paths = Paths {
             project: project_path,
             venv: venv_path,
             lock: lock_path,
             setup_py: setup_py_path,
         };
-        let venv_manager = VenvManager { paths, python_info };
+        let venv_manager = VenvManager {
+            paths,
+            python_info,
+            settings,
+        };
         Ok(venv_manager)
     }
 
     fn get_venv_path(
         project_path: &std::path::PathBuf,
         python_version: &str,
+        venv_outside_project: bool,
     ) -> Result<std::path::PathBuf, Error> {
         if let Ok(existing_venv) = std::env::var("VIRTUAL_ENV") {
             return Ok(std::path::PathBuf::from(existing_venv));
         }
-        if std::env::var("DMENV_VENV_OUTSIDE_PROJECT").is_ok() {
+        if venv_outside_project {
             return Self::get_venv_path_outside(project_path, python_version);
         }
         Self::get_venv_path_inside(project_path, python_version)
@@ -282,7 +297,7 @@ impl VenvManager {
         })?;
         let venv_path = &self.paths.venv.to_string_lossy();
         let mut args = vec!["-m"];
-        if self.python_info.venv_from_stdlib {
+        if self.settings.venv_from_stdlib {
             args.push("venv")
         } else {
             args.push("virtualenv")
