@@ -1,4 +1,5 @@
 use colored::*;
+use crate::paths::LOCK_FILE_NAME;
 
 #[derive(Debug)]
 pub enum Error {
@@ -82,9 +83,10 @@ impl std::fmt::Display for Error {
             Error::MissingSetupPy {} => {
                 "setup.py not found.\n You may want to run `dmenv init` now".to_string()
             }
-            Error::MissingLock {} => {
-                "requirements.lock not found.\n You may want to run `dmenv lock` now".to_string()
-            }
+            Error::MissingLock {} => format!(
+                "{} not found.\n You may want to run `dmenv lock` now",
+                LOCK_FILE_NAME
+            ),
             Error::MissingVenv { path } => {
                 let mut message = format!(
                     "virtualenv in {} does not exist\n",
