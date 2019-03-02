@@ -13,9 +13,6 @@ pub struct TestApp {
 /// demo/
 impl TestApp {
     pub fn new() -> Self {
-        if std::env::var("VIRTUAL_ENV").is_ok() {
-            panic!("Please exit virtualenv before running tests");
-        }
         let tmp_dir = tempdir::TempDir::new("test-dmenv").unwrap();
         let test_app = TestApp { tmp_dir };
         test_app.copy_demo_files();
