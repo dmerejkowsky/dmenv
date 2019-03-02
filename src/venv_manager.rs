@@ -242,6 +242,9 @@ impl VenvManager {
             args.push("virtualenv")
         };
         args.push(venv_path);
+        if self.settings.system_site_packages {
+            args.push("--system-site-packages");
+        }
         let python_binary = &self.python_info.binary;
         Self::print_cmd(&python_binary.to_string_lossy(), &args);
         let status = std::process::Command::new(&python_binary)
@@ -317,7 +320,7 @@ impl VenvManager {
         print_info_2(&format!("Generating {}", LOCK_FILE_NAME));
         let pip = self.get_path_in_venv("pip")?;
         let pip_str = pip.to_string_lossy().to_string();
-        let args = vec!["freeze", "--exclude-editable", "--all"];
+        let args = vec!["freeze", "--exclude-editable", "--all", "--local"];
         Self::print_cmd(&pip_str, &args);
         let command = std::process::Command::new(pip)
             .current_dir(&self.paths.project)

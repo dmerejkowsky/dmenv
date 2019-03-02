@@ -1,5 +1,5 @@
-use colored::*;
 use crate::paths::LOCK_FILE_NAME;
+use colored::*;
 
 #[derive(Debug)]
 pub enum Error {
