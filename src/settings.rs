@@ -1,7 +1,8 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     pub venv_from_stdlib: bool,
     pub venv_outside_project: bool,
+    pub system_site_packages: bool,
 }
 
 impl Default for Settings {
@@ -9,6 +10,7 @@ impl Default for Settings {
         Settings {
             venv_from_stdlib: true,
             venv_outside_project: false,
+            system_site_packages: false,
         }
     }
 }

@@ -16,6 +16,12 @@ pub struct Command {
     #[structopt(long = "project", help = "path to use as the project directory")]
     pub project_path: Option<String>,
 
+    #[structopt(
+        long = "--system-site-packages",
+        help = "Give the virtual environment access to the system site-packages dir"
+    )]
+    pub system_site_packages: bool,
+
     #[structopt(subcommand)]
     pub sub_cmd: SubCommand,
 }
