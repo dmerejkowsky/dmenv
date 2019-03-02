@@ -18,10 +18,10 @@ use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
 use crate::paths::PathsResolver;
+pub use crate::paths::LOCK_FILE_NAME;
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 use crate::venv_manager::VenvManager;
-pub use crate::venv_manager::LOCK_FILE_NAME;
 use crate::venv_manager::{InstallOptions, LockOptions};
 
 pub fn run(cmd: Command, settings: Settings) -> Result<(), Error> {
@@ -82,5 +82,15 @@ pub fn run(cmd: Command, settings: Settings) -> Result<(), Error> {
         SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),
         SubCommand::ShowVenvBin {} => venv_manager.show_venv_bin_path(),
         SubCommand::UpgradePip {} => venv_manager.upgrade_pip(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_not_in_venv() {
+        if std::env::var("VIRTUAL_ENV").is_ok() {
+            panic!("Please exit virtualenv before running tests");
+        }
     }
 }
