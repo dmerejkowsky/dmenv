@@ -1,4 +1,5 @@
 use colored::*;
+use std::path::PathBuf;
 
 #[cfg(unix)]
 use crate::execv::execv;
@@ -404,7 +405,7 @@ impl VenvManager {
         Ok(())
     }
 
-    fn get_venv_bin_path(&self) -> std::path::PathBuf {
+    fn get_venv_bin_path(&self) -> PathBuf {
         #[cfg(not(windows))]
         let binaries_subdirs = "bin";
 
@@ -414,7 +415,7 @@ impl VenvManager {
         self.paths.venv.join(binaries_subdirs)
     }
 
-    fn get_path_in_venv(&self, name: &str) -> Result<std::path::PathBuf, Error> {
+    fn get_path_in_venv(&self, name: &str) -> Result<PathBuf, Error> {
         if !self.paths.venv.exists() {
             return Err(Error::Other {
                 message: format!(

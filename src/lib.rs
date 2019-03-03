@@ -1,4 +1,5 @@
 use colored::*;
+use std::path::PathBuf;
 
 mod cmd;
 mod dependencies;
@@ -28,7 +29,7 @@ use crate::venv_manager::{InstallOptions, LockOptions};
 pub fn run(cmd: Command) -> Result<(), Error> {
     let settings = Settings::from_shell(&cmd);
     let project_path = if let Some(project_path) = cmd.project_path {
-        std::path::PathBuf::from(project_path)
+        PathBuf::from(project_path)
     } else {
         std::env::current_dir().map_err(|e| Error::Other {
             message: format!("Could not get current directory: {}", e),

@@ -1,6 +1,9 @@
-use dmenv;
+use std::path::PathBuf;
+
 use ignore::Walk;
 use structopt::StructOpt;
+
+use dmenv;
 
 pub struct TestApp {
     tmp_dir: tempdir::TempDir,
@@ -19,7 +22,7 @@ impl TestApp {
         test_app
     }
 
-    fn path(&self) -> std::path::PathBuf {
+    fn path(&self) -> PathBuf {
         self.tmp_dir.path().to_path_buf()
     }
 
