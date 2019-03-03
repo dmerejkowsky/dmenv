@@ -72,7 +72,7 @@ impl VenvManager {
     }
 
     pub fn install(&self, install_options: &InstallOptions) -> Result<(), Error> {
-        print_info_1("Preparing project for developement");
+        print_info_1("Preparing project for development");
         let lock_path = &self.paths.lock;
         if !lock_path.exists() {
             return Err(Error::MissingLock {
