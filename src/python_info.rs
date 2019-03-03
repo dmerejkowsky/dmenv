@@ -1,7 +1,8 @@
 use crate::error::Error;
+use std::path::PathBuf;
 
 pub struct PythonInfo {
-    pub binary: std::path::PathBuf,
+    pub binary: PathBuf,
     pub version: String,
     pub platform: String,
 }
@@ -41,9 +42,9 @@ impl PythonInfo {
     }
 }
 
-fn get_python_binary(requested_python: &Option<String>) -> Result<std::path::PathBuf, Error> {
+fn get_python_binary(requested_python: &Option<String>) -> Result<PathBuf, Error> {
     if let Some(python) = requested_python {
-        return Ok(std::path::PathBuf::from(python));
+        return Ok(PathBuf::from(python));
     }
 
     if let Ok(python3) = which::which("python3") {

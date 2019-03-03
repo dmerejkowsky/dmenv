@@ -1,13 +1,14 @@
 use colored::*;
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub enum Error {
     ReadError {
-        path: std::path::PathBuf,
+        path: PathBuf,
         io_error: std::io::Error,
     },
     WriteError {
-        path: std::path::PathBuf,
+        path: PathBuf,
         io_error: std::io::Error,
     },
 
@@ -31,14 +32,14 @@ pub enum Error {
 
     MissingSetupPy {},
     MissingLock {
-        expected_path: std::path::PathBuf,
+        expected_path: PathBuf,
     },
     MissingVenv {
-        path: std::path::PathBuf,
+        path: PathBuf,
     },
 
     FileExists {
-        path: std::path::PathBuf,
+        path: PathBuf,
     },
 
     Other {
