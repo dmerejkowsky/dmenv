@@ -38,15 +38,15 @@ fn parse_python_version(string: &str) -> Result<String, Error> {
 
 #[derive(StructOpt)]
 pub enum SubCommand {
-    #[structopt(name = "clean", about = "clean existing virtualenv")]
+    #[structopt(name = "clean", about = "Clean existing virtualenv")]
     Clean {},
 
-    #[structopt(name = "develop", about = "run setup.py develop")]
+    #[structopt(name = "develop", about = "Run setup.py develop")]
     Develop {},
 
     #[structopt(name = "install", about = "Install all dependencies")]
     Install {
-        #[structopt(long = "--no-develop", help = "do not run setup.py develop")]
+        #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]
         no_develop: bool,
     },
 
@@ -70,7 +70,7 @@ pub enum SubCommand {
         #[structopt(long = "version", help = "Project version", default_value = "0.1.0")]
         version: String,
 
-        #[structopt(long = "author", help = "author")]
+        #[structopt(long = "author", help = "Author name")]
         author: Option<String>,
     },
 
