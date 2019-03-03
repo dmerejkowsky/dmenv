@@ -25,7 +25,8 @@ pub use crate::settings::Settings;
 use crate::venv_manager::VenvManager;
 use crate::venv_manager::{InstallOptions, LockOptions};
 
-pub fn run(cmd: Command, settings: Settings) -> Result<(), Error> {
+pub fn run(cmd: Command) -> Result<(), Error> {
+    let settings = Settings::from_shell(&cmd);
     let project_path = if let Some(project_path) = cmd.project_path {
         std::path::PathBuf::from(project_path)
     } else {
