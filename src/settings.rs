@@ -1,3 +1,5 @@
+use crate::cmd::Command;
+
 #[derive(Debug, Clone)]
 pub struct Settings {
     pub venv_from_stdlib: bool,
@@ -18,7 +20,7 @@ impl Default for Settings {
 }
 
 impl Settings {
-    pub fn from_env() -> Settings {
+    pub fn from_shell(cmd: &Command) -> Settings {
         let mut res = Settings::default();
         if std::env::var("DMENV_NO_VENV_STDLIB").is_ok() {
             res.venv_from_stdlib = false;
@@ -26,6 +28,9 @@ impl Settings {
         if std::env::var("DMENV_VENV_OUTSIDE_PROJECT").is_ok() {
             res.venv_outside_project = true;
         }
+
+        res.production = cmd.production;
+        res.system_site_packages = cmd.system_site_packages;
         res
     }
 }

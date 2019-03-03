@@ -56,11 +56,7 @@ impl TestApp {
         cmd.extend(vec!["--project".to_string(), tmp_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
-        let mut settings = dmenv::Settings::from_env();
-        // TODO de-dup from main
-        settings.system_site_packages = cmd.system_site_packages;
-        settings.production = cmd.production;
-        dmenv::run(cmd, settings)
+        dmenv::run(cmd)
     }
 
     pub fn assert_run_ok(&self, args: &[&str]) {
