@@ -1,3 +1,4 @@
+use crate::settings::Settings;
 use app_dirs::{AppDataType, AppInfo};
 use std::path::PathBuf;
 
@@ -18,16 +19,15 @@ pub struct Paths {
 }
 
 pub struct PathsResolver {
-    pub venv_outside_project: bool,
-    pub python_version: String,
-
-    pub project_path: PathBuf,
+    venv_outside_project: bool,
+    python_version: String,
+    project_path: PathBuf,
 }
 
 impl PathsResolver {
-    pub fn new(project_path: PathBuf, python_version: &str) -> Self {
+    pub fn new(project_path: PathBuf, python_version: &str, settings: Settings) -> Self {
         PathsResolver {
-            venv_outside_project: false,
+            venv_outside_project: settings.venv_outside_project,
             project_path,
             python_version: python_version.into(),
         }
@@ -81,8 +81,10 @@ mod tests {
     fn test_resolving_paths() {
         let project_path = Path::new("/tmp/foo");
         let python_version = "3.7.1";
-        let mut paths_resolver = PathsResolver::new(project_path.to_path_buf(), python_version);
-        paths_resolver.venv_outside_project = true;
+        let mut settings = Settings::default();
+        settings.venv_outside_project = true;
+        let paths_resolver =
+            PathsResolver::new(project_path.to_path_buf(), python_version, settings);
         let paths = paths_resolver.paths().unwrap();
 
         assert_eq!(paths.project, project_path);
