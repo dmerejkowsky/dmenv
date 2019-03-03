@@ -2,12 +2,13 @@ use crate::settings::Settings;
 use app_dirs::{AppDataType, AppInfo};
 use std::path::PathBuf;
 
-pub const LOCK_FILE_NAME: &str = "requirements.lock";
-
 const APP_INFO: AppInfo = AppInfo {
     name: "dmenv",
     author: "Tanker",
 };
+
+pub const PROD_LOCK_FILENAME: &str = "production.lock";
+pub const DEV_LOCK_FILENAME: &str = "development.lock";
 
 use crate::error::*;
 
@@ -20,6 +21,7 @@ pub struct Paths {
 
 pub struct PathsResolver {
     venv_outside_project: bool,
+    production: bool,
     python_version: String,
     project_path: PathBuf,
 }
@@ -30,15 +32,21 @@ impl PathsResolver {
             venv_outside_project: settings.venv_outside_project,
             project_path,
             python_version: python_version.into(),
+            production: settings.production,
         }
     }
 
     pub fn paths(&self) -> Result<Paths, Error> {
         let venv_path = self.get_venv_path()?;
+        let lock_path = if self.production {
+            PROD_LOCK_FILENAME
+        } else {
+            DEV_LOCK_FILENAME
+        };
         Ok(Paths {
             project: self.project_path.clone(),
             venv: venv_path,
-            lock: self.project_path.join(LOCK_FILE_NAME),
+            lock: self.project_path.join(lock_path),
             setup_py: self.project_path.join("setup.py"),
         })
     }
@@ -55,7 +63,13 @@ impl PathsResolver {
     }
 
     fn get_venv_path_inside(&self) -> Result<PathBuf, Error> {
-        Ok(self.project_path.join(".venv").join(&self.python_version))
+        let subdir = if self.production { "prod" } else { "dev" };
+        let res = self
+            .project_path
+            .join(".venv")
+            .join(subdir)
+            .join(&self.python_version);
+        Ok(res)
     }
 
     fn get_venv_path_outside(&self) -> Result<PathBuf, Error> {
@@ -65,10 +79,15 @@ impl PathsResolver {
                     message: format!("Could not create dmenv cache path: {}", e.to_string()),
                 }
             })?;
+        let subdir = if self.production { "prod" } else { "dev" };
         let project_name = self.project_path.file_name().ok_or_else(|| Error::Other {
             message: format!("project path: {:?} has no file name", self.project_path),
         })?;
-        Ok(data_dir.join(&self.python_version).join(project_name))
+        let res = data_dir
+            .join(subdir)
+            .join(&self.python_version)
+            .join(project_name);
+        Ok(res)
     }
 }
 

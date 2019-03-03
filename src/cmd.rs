@@ -22,6 +22,9 @@ pub struct Command {
     )]
     pub system_site_packages: bool,
 
+    #[structopt(long = "production", help = "Ignore dev dependencies")]
+    pub production: bool,
+
     #[structopt(subcommand)]
     pub sub_cmd: SubCommand,
 }

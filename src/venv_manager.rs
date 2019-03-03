@@ -9,7 +9,7 @@ use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock::Lock;
-use crate::paths::{Paths, LOCK_FILE_NAME};
+use crate::paths::Paths;
 use crate::python_info::PythonInfo;
 use crate::settings::Settings;
 
@@ -72,8 +72,11 @@ impl VenvManager {
 
     pub fn install(&self, install_options: &InstallOptions) -> Result<(), Error> {
         print_info_1("Preparing project for developement");
-        if !self.paths.lock.exists() {
-            return Err(Error::MissingLock {});
+        let lock_path = &self.paths.lock;
+        if !lock_path.exists() {
+            return Err(Error::MissingLock {
+                expected_path: lock_path.to_path_buf(),
+            });
         }
 
         self.ensure_venv()?;
@@ -317,7 +320,8 @@ impl VenvManager {
     }
 
     fn run_pip_freeze(&self) -> Result<String, Error> {
-        print_info_2(&format!("Generating {}", LOCK_FILE_NAME));
+        let lock_path = &self.paths.lock;
+        print_info_2(&format!("Generating {}", lock_path.to_string_lossy()));
         let pip = self.get_path_in_venv("pip")?;
         let pip_str = pip.to_string_lossy().to_string();
         let args = vec!["freeze", "--exclude-editable", "--all", "--local"];
@@ -350,7 +354,11 @@ impl VenvManager {
     }
 
     fn install_from_lock(&self) -> Result<(), Error> {
-        print_info_2(&format!("Installing dependencies from {}", LOCK_FILE_NAME));
+        let lock_path = &self.paths.lock;
+        print_info_2(&format!(
+            "Installing dependencies from {}",
+            lock_path.to_string_lossy()
+        ));
         let as_str = &self.paths.lock.to_string_lossy();
         let args = vec!["-m", "pip", "install", "--requirement", as_str];
         self.run_cmd_in_venv("python", args)
@@ -364,11 +372,18 @@ impl VenvManager {
     }
 
     fn install_editable(&self) -> Result<(), Error> {
-        print_info_2("Installing deps from setup.py");
+        let mut message = "Installing deps from setup.py".to_string();
+        if self.settings.production {
+            message.push_str("(ignoring dev dependencies)");
+        }
+        print_info_2(&message);
 
-        // tells pip to run `setup.py develop` (that's --editable), and
-        // install the dev requirements too
-        let args = vec!["-m", "pip", "install", "--editable", ".[dev]"];
+        let mut args = vec!["-m", "pip", "install", "--editable"];
+        if self.settings.production {
+            args.push(".")
+        } else {
+            args.push(".[dev]")
+        }
         self.run_cmd_in_venv("python", args)
     }
 

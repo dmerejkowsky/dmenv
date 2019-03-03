@@ -41,8 +41,12 @@ impl TestApp {
         self.remove_file("setup.py");
     }
 
-    pub fn remove_lock(&self) {
-        self.remove_file(dmenv::LOCK_FILE_NAME);
+    pub fn remove_dev_lock(&self) {
+        self.remove_file(dmenv::DEV_LOCK_FILENAME);
+    }
+
+    pub fn remove_prod_lock(&self) {
+        self.remove_file(dmenv::PROD_LOCK_FILENAME);
     }
 
     pub fn run(&self, args: Vec<String>) -> Result<(), dmenv::Error> {
@@ -52,7 +56,10 @@ impl TestApp {
         cmd.extend(vec!["--project".to_string(), tmp_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
-        let settings = dmenv::Settings::from_env();
+        let mut settings = dmenv::Settings::from_env();
+        // TODO de-dup from main
+        settings.system_site_packages = cmd.system_site_packages;
+        settings.production = cmd.production;
         dmenv::run(cmd, settings)
     }
 
@@ -61,8 +68,13 @@ impl TestApp {
         self.run(args).unwrap();
     }
 
-    pub fn read_lock(&self) -> String {
-        let lock_path = self.path().join(dmenv::LOCK_FILE_NAME);
+    pub fn read_dev_lock(&self) -> String {
+        let lock_path = self.path().join(dmenv::DEV_LOCK_FILENAME);
+        std::fs::read_to_string(lock_path).unwrap()
+    }
+
+    pub fn read_prod_lock(&self) -> String {
+        let lock_path = self.path().join(dmenv::PROD_LOCK_FILENAME);
         std::fs::read_to_string(lock_path).unwrap()
     }
 
@@ -80,8 +92,8 @@ impl TestApp {
         res.unwrap_err().to_string()
     }
 
-    pub fn write_lock(&self, contents: &str) {
-        self.write_file(dmenv::LOCK_FILE_NAME, contents);
+    pub fn write_dev_lock(&self, contents: &str) {
+        self.write_file(dmenv::DEV_LOCK_FILENAME, contents);
     }
 
     pub fn write_file(&self, name: &str, contents: &str) {
