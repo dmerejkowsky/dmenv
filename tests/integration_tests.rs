@@ -28,10 +28,10 @@ fn init_generates_setup_py() {
 fn bump_in_lock_simple() {
     let test_app = TestApp::new();
     let lock_contents = "bar==1.3\nfoo==0.42\n";
-    test_app.write_lock(&lock_contents);
+    test_app.write_dev_lock(&lock_contents);
 
     test_app.assert_run_ok(&["bump-in-lock", "foo", "0.43"]);
-    let actual_contents = test_app.read_lock();
+    let actual_contents = test_app.read_dev_lock();
     let expected_contents = lock_contents.replace("0.42", "0.43");
     assert_eq!(actual_contents, expected_contents);
 }
@@ -54,7 +54,7 @@ fn lock_complains_if_setup_py_does_not_exist() {
 fn lock_workflow() {
     let test_app = TestApp::new();
     test_app.assert_run_ok(&["lock"]);
-    let lock_contents = test_app.read_lock();
+    let lock_contents = test_app.read_dev_lock();
     assert!(lock_contents.contains("pytest=="));
     assert!(!lock_contents.contains("pkg-resources=="));
     test_app.assert_run_ok(&["show:deps"]);
@@ -63,27 +63,40 @@ fn lock_workflow() {
 }
 
 #[test]
-fn install_workflow_all_in_one() {
+fn production_workflow() {
     let test_app = TestApp::new();
-    let lock_contents = include_str!("../demo/requirements.lock");
-    test_app.write_lock(&lock_contents);
+    test_app.remove_prod_lock();
+    test_app.assert_run_ok(&["--production", "lock"]);
+    let lock_contents = test_app.read_prod_lock();
+    assert!(!lock_contents.contains("pytest"));
+    assert!(lock_contents.contains("path.py"));
+
+    test_app.assert_run_ok(&["--production", "clean"]);
+    test_app.assert_run_ok(&["--production", "install"]);
+    test_app.assert_run_ok(&["--production", "run", "--no-exec", "demo"]);
+}
+
+#[test]
+fn install_workflow_basic() {
+    let test_app = TestApp::new();
     test_app.assert_run_ok(&["install"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "pytest"]);
 }
 
 #[test]
 fn install_workflow_step_by_step() {
     let test_app = TestApp::new();
-    let lock_contents = include_str!("../demo/requirements.lock");
-    test_app.write_lock(&lock_contents);
     test_app.assert_run_ok(&["install", "--no-develop"]);
     test_app.assert_run_ok(&["develop"]);
     test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "pytest"]);
 }
 
 #[test]
 fn install_without_lock() {
     let test_app = TestApp::new();
-    test_app.remove_lock();
+    test_app.remove_dev_lock();
     test_app.assert_run_error(&["install"]);
 }
 

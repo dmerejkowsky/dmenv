@@ -1,4 +1,3 @@
-use crate::paths::LOCK_FILE_NAME;
 use colored::*;
 
 #[derive(Debug)]
@@ -31,7 +30,9 @@ pub enum Error {
     },
 
     MissingSetupPy {},
-    MissingLock {},
+    MissingLock {
+        expected_path: std::path::PathBuf,
+    },
     MissingVenv {
         path: std::path::PathBuf,
     },
@@ -83,9 +84,9 @@ impl std::fmt::Display for Error {
             Error::MissingSetupPy {} => {
                 "setup.py not found.\n You may want to run `dmenv init` now".to_string()
             }
-            Error::MissingLock {} => format!(
+            Error::MissingLock { expected_path } => format!(
                 "{} not found.\n You may want to run `dmenv lock` now",
-                LOCK_FILE_NAME
+                expected_path.to_string_lossy()
             ),
             Error::MissingVenv { path } => {
                 let mut message = format!(

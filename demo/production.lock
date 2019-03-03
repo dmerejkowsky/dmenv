@@ -1,0 +1,6 @@
+# Generated with dmenv 0.11.1, python 3.7.2, on Linux
+importlib-metadata==0.8
+path.py==11.5.0
+pip==19.0.3
+setuptools==40.6.2
+zipp==0.3.3
