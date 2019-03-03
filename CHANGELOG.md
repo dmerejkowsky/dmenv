@@ -1,3 +1,44 @@
+# 0.12.0
+
+## Allow access to system site packages
+
+* Use `dmenv --system-site-packages install`  to create a virtualenv that has access to the system's site packages, similarly with `dmenv --system-site-packages` for `dmenv lock`.
+
+## Allow skipping dev dependencies
+
+This is done with the `--production` flag. For instance, `dmenv --production install`.
+`dmenv --production lock` will create a `production.lock` that contains no development dependencies.
+
+## Breaking changes
+
+* `requirement.lock` file is now called `development.lock`
+
+Virtualenv location changes:
+
+* When using `DMENV_VENV_OUTSIDE_PROJECT`
+
+| version | location |
+|-|----------|
+| <= 0.11 | DATA_DIR/dmenv/venv/3.7.1/foo/
+| >= 0.12, default | DATA_DIR/dmenv/venv/dev/3.7.1/foo/
+| >= 0.12, with --production |  DATA_DIR/dmenv/venv/prod/3.7.1/foo/
+
+
+* Otherwise:
+
+| version | location |
+|-|----------|
+| <= 0.11 | .venv/3.7.1/foo/ |
+| >= 0.12, default | .venv/dev/3.7.1/foo/ |
+| >= 0.12, with --production | .venv/prod/3.7.1/foo/ |
+
+## Migrating from 0.11
+
+* Run `dmenv clean` with `dmenv 0.11` to clean up the deprecated folder
+* Upgrade to `dmenv 0.12`
+* Run `git mv requirements.lock development.lock`
+* Run `dmenv install`  to create the new virtual environment
+
 # 0.11.1
 
 * Fix metadata on Cargo to include new tagline.
