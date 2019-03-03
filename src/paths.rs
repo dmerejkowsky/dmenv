@@ -27,7 +27,7 @@ pub struct PathsResolver {
 }
 
 impl PathsResolver {
-    pub fn new(project_path: PathBuf, python_version: &str, settings: Settings) -> Self {
+    pub fn new(project_path: PathBuf, python_version: &str, settings: &Settings) -> Self {
         PathsResolver {
             venv_outside_project: settings.venv_outside_project,
             project_path,
@@ -103,7 +103,7 @@ mod tests {
         let mut settings = Settings::default();
         settings.venv_outside_project = true;
         let paths_resolver =
-            PathsResolver::new(project_path.to_path_buf(), python_version, settings);
+            PathsResolver::new(project_path.to_path_buf(), python_version, &settings);
         let paths = paths_resolver.paths().unwrap();
 
         assert_eq!(paths.project, project_path);
