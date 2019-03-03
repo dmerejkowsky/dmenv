@@ -41,8 +41,7 @@ pub fn run(cmd: Command, settings: Settings) -> Result<(), Error> {
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
     let python_version = python_info.version.clone();
-    let mut resolver = PathsResolver::new(project_path, &python_version);
-    resolver.venv_outside_project = settings.venv_outside_project;
+    let resolver = PathsResolver::new(project_path, &python_version, settings.clone());
     let paths = resolver.paths()?;
     let venv_manager = VenvManager::new(paths, python_info, settings)?;
     match &cmd.sub_cmd {
