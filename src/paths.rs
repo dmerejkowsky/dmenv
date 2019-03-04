@@ -37,7 +37,6 @@ impl PathsResolver {
     }
 
     pub fn paths(&self) -> Result<Paths, Error> {
-        let venv_path = self.get_venv_path()?;
         let lock_path = if self.production {
             PROD_LOCK_FILENAME
         } else {
@@ -45,7 +44,7 @@ impl PathsResolver {
         };
         Ok(Paths {
             project: self.project_path.clone(),
-            venv: venv_path,
+            venv: self.get_venv_path()?,
             lock: self.project_path.join(lock_path),
             setup_py: self.project_path.join("setup.py"),
         })

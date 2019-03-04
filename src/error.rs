@@ -1,4 +1,3 @@
-use colored::*;
 use std::path::PathBuf;
 
 #[derive(Debug)]
@@ -87,13 +86,10 @@ impl std::fmt::Display for Error {
             }
             Error::MissingLock { expected_path } => format!(
                 "{} not found.\n You may want to run `dmenv lock` now",
-                expected_path.to_string_lossy()
+                expected_path.display()
             ),
             Error::MissingVenv { path } => {
-                let mut message = format!(
-                    "virtualenv in {} does not exist\n",
-                    path.to_string_lossy().bold()
-                );
+                let mut message = format!("virtualenv in '{}' does not exist\n", path.display());
                 message.push_str("Please run `dmenv lock` or `dmenv install` to create it");
                 message
             }
@@ -105,7 +101,7 @@ impl std::fmt::Display for Error {
                 "could not upgrade pip. Try using `dmenv clean`".to_string()
             }
 
-            Error::FileExists { path } => format!("{} already exist", path.to_string_lossy()),
+            Error::FileExists { path } => format!("{} already exist", path.display()),
 
             Error::MalformedLock { line, details } => {
                 format!("Malformed lock at line {}\n:{}", line, details)

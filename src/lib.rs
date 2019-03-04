@@ -19,8 +19,7 @@ use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
 use crate::paths::PathsResolver;
-pub use crate::paths::DEV_LOCK_FILENAME;
-pub use crate::paths::PROD_LOCK_FILENAME;
+pub use crate::paths::{DEV_LOCK_FILENAME,PROD_LOCK_FILENAME};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 use crate::venv_manager::VenvManager;
@@ -44,9 +43,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
     let python_version = python_info.version.clone();
-    let resolver = PathsResolver::new(project_path, &python_version, &settings.clone());
+    let resolver = PathsResolver::new(project_path, &python_version, &settings);
     let paths = resolver.paths()?;
-    let venv_manager = VenvManager::new(paths, python_info, settings)?;
+    let venv_manager = VenvManager::new(paths, python_info, settings);
     match &cmd.sub_cmd {
         SubCommand::Install { no_develop } => {
             let mut install_options = InstallOptions::default();
