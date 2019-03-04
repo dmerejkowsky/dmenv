@@ -38,27 +38,21 @@ pub struct VenvManager {
 }
 
 impl VenvManager {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(paths: Paths, python_info: PythonInfo, settings: Settings) -> Result<Self, Error> {
-        let venv_manager = VenvManager {
+    pub fn new(paths: Paths, python_info: PythonInfo, settings: Settings) -> Self {
+        VenvManager {
             paths,
             settings,
             python_info,
-        };
-        Ok(venv_manager)
+        }
     }
 
     pub fn clean(&self) -> Result<(), Error> {
-        print_info_1(&format!("Cleaning {}", &self.paths.venv.to_string_lossy()));
+        print_info_1(&format!("Cleaning {}", &self.paths.venv.display()));
         if !self.paths.venv.exists() {
             return Ok(());
         }
         std::fs::remove_dir_all(&self.paths.venv).map_err(|e| Error::Other {
-            message: format!(
-                "could not remove {}: {}",
-                &self.paths.venv.to_string_lossy(),
-                e
-            ),
+            message: format!("could not remove {}: {}", &self.paths.venv.display(), e),
         })
     }
 
@@ -119,7 +113,7 @@ impl VenvManager {
     pub fn run_no_exec(&self, args: &[String]) -> Result<(), Error> {
         self.expect_venv()?;
         let cmd = args[0].clone();
-        let args: Vec<&str> = args.iter().skip(1).map(|x| x.as_str()).collect();
+        let args: Vec<&str> = args.iter().skip(1).map(String::as_str).collect();
         self.run_cmd_in_venv(&cmd, args)
     }
 
@@ -143,13 +137,13 @@ impl VenvManager {
     }
 
     pub fn show_venv_path(&self) -> Result<(), Error> {
-        println!("{}", self.paths.venv.to_string_lossy());
+        println!("{}", self.paths.venv.display());
         Ok(())
     }
 
     pub fn show_venv_bin_path(&self) -> Result<(), Error> {
         let bin_path = &self.get_venv_bin_path();
-        println!("{}", bin_path.to_string_lossy());
+        println!("{}", bin_path.display());
         Ok(())
     }
 
@@ -206,7 +200,7 @@ impl VenvManager {
         if self.paths.venv.exists() {
             print_info_2(&format!(
                 "Using existing virtualenv: {}",
-                self.paths.venv.to_string_lossy()
+                self.paths.venv.display()
             ));
         } else {
             self.create_venv()?;
@@ -229,14 +223,10 @@ impl VenvManager {
         })?;
         print_info_2(&format!(
             "Creating virtualenv in: {}",
-            self.paths.venv.to_string_lossy()
+            self.paths.venv.display()
         ));
         std::fs::create_dir_all(&parent_venv_path).map_err(|e| Error::Other {
-            message: format!(
-                "Could not create {}: {}",
-                parent_venv_path.to_string_lossy(),
-                e
-            ),
+            message: format!("Could not create {}: {}", parent_venv_path.display(), e),
         })?;
         let venv_path = &self.paths.venv.to_string_lossy();
         let mut args = vec!["-m"];
@@ -270,7 +260,7 @@ impl VenvManager {
         let lock_path = &self.paths.lock;
         let lock_contents = if lock_path.exists() {
             std::fs::read_to_string(&lock_path).map_err(|e| Error::ReadError {
-                path: lock_path.to_path_buf(),
+                path: lock_path.to_owned(),
                 io_error: e,
             })?
         } else {
@@ -322,7 +312,7 @@ impl VenvManager {
 
     fn run_pip_freeze(&self) -> Result<String, Error> {
         let lock_path = &self.paths.lock;
-        print_info_2(&format!("Generating {}", lock_path.to_string_lossy()));
+        print_info_2(&format!("Generating {}", lock_path.display()));
         let pip = self.get_path_in_venv("pip")?;
         let pip_str = pip.to_string_lossy().to_string();
         let args = vec!["freeze", "--exclude-editable", "--all", "--local"];
@@ -358,7 +348,7 @@ impl VenvManager {
         let lock_path = &self.paths.lock;
         print_info_2(&format!(
             "Installing dependencies from {}",
-            lock_path.to_string_lossy()
+            lock_path.display()
         ));
         let as_str = &self.paths.lock.to_string_lossy();
         let args = vec!["-m", "pip", "install", "--requirement", as_str];
@@ -420,7 +410,7 @@ impl VenvManager {
             return Err(Error::Other {
                 message: format!(
                     "virtualenv in {} does not exist",
-                    &self.paths.venv.to_string_lossy()
+                    &self.paths.venv.display()
                 ),
             });
         }
@@ -435,7 +425,7 @@ impl VenvManager {
         let path = self.paths.venv.join(bin_path).join(name);
         if !path.exists() {
             return Err(Error::Other {
-                message: format!("Cannot run: '{}' does not exist", &path.to_string_lossy()),
+                message: format!("Cannot run: '{}' does not exist", &path.display()),
             });
         }
         Ok(path)

@@ -2,7 +2,7 @@
 
 ## Allow access to system site packages
 
-* Use `dmenv --system-site-packages install`  to create a virtualenv that has access to the system's site packages, similarly with `dmenv --system-site-packages` for `dmenv lock`.
+* Use `dmenv --system-site-packages install` and/or `dmenv --system-site-packages lock` to create a virtual environment that has access to the system's site packages. In the latter case, dependencies outside the virtual environment are *not* included in the lock file.
 
 ## Allow skipping dev dependencies
 
@@ -11,7 +11,7 @@ This is done with the `--production` flag. For instance, `dmenv --production ins
 
 ## Breaking changes
 
-* `requirement.lock` file is now called `development.lock`
+* The `requirement.lock` file is now called `development.lock`
 
 Virtualenv location changes:
 
