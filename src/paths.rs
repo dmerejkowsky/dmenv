@@ -8,7 +8,7 @@ const APP_INFO: AppInfo = AppInfo {
 };
 
 pub const PROD_LOCK_FILENAME: &str = "production.lock";
-pub const DEV_LOCK_FILENAME: &str = "development.lock";
+pub const DEV_LOCK_FILENAME: &str = "requirements.lock";
 
 use crate::error::*;
 
