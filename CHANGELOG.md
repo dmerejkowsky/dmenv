@@ -11,9 +11,7 @@ This is done with the `--production` flag. For instance, `dmenv --production ins
 
 ## Breaking changes
 
-* The `requirement.lock` file is now called `development.lock`
-
-Virtualenv location changes:
+Virtualenv location hash changed to allow both production and full virtual environments to coexist:
 
 * When using `DMENV_VENV_OUTSIDE_PROJECT`
 
@@ -34,9 +32,8 @@ Virtualenv location changes:
 
 ## Migrating from 0.11
 
-* Run `dmenv clean` with `dmenv 0.11` to clean up the deprecated folder
+* Run `dmenv clean` with `dmenv 0.11` to clean up the deprecated location
 * Upgrade to `dmenv 0.12`
-* Run `git mv requirements.lock development.lock`
 * Run `dmenv install`  to create the new virtual environment
 
 # 0.11.1
