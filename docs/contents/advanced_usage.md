@@ -221,3 +221,14 @@ $ dmenv lock --python '< "3.5"'  <- note the quotes
 foo==0.2
 bar==0.42 ; python_version < "3.5"
 ```
+
+## Skipping development dependencies
+
+Sometimes you will want to skip development dependencies.
+
+In this case, prefix your `dmenv` command with a `--production` flag, like so:
+
+```
+$ dmenv --production lock
+$ dmenv --production install
+```

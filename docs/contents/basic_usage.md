@@ -45,7 +45,7 @@ Here's what `dmenv lock` does:
 
 * It looks for a binary named `python3` or `python` in the `PATH` environment variable.
 * It runs a bit of Python code to determine the interpreter version (3.6, 3.7 ...).
-* Then, it creates a virtual environment in `.venv/<version>` using `python -m venv`.
+* Then, it creates a virtual environment in `.venv/dev/<version>` using `python -m venv`.
   (This step is skipped if `dmenv` detects it is run from an existing virtual environment).
   Note that you may have to [configure other tools](./advanced_usage.md#configuring-other-tools) to ignore this directory.
 

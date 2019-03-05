@@ -11,7 +11,7 @@ This is done with the `--production` flag. For instance, `dmenv --production ins
 
 ## Breaking changes
 
-Virtualenv location hash changed to allow both production and full virtual environments to coexist:
+Virtualenv location has changed to allow both production and full virtual environments to coexist:
 
 * When using `DMENV_VENV_OUTSIDE_PROJECT`
 
