@@ -18,6 +18,7 @@ build_release() {
 }
 
 test_release() {
+  export RUST_BACKTRACE=1
   case $TRAVIS_OS_NAME in
     windows)
       # Make sure Python installed by choco is first in PATH
