@@ -97,8 +97,14 @@ pub enum SubCommand {
         cmd: Vec<String>,
     },
 
-    #[structopt(name = "show:deps", about = "Show dependencies information")]
+    #[structopt(name = "show:deps", about = "Show installed dependencies information")]
     ShowDeps {},
+
+    #[structopt(
+        name = "show:outdated",
+        about = "Show outdated dependencies information"
+    )]
+    ShowOutDated {},
 
     #[structopt(name = "show:venv_path", about = "Show path of the virtualenv")]
     ShowVenvPath {},

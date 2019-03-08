@@ -184,6 +184,10 @@ impl VenvManager {
         Ok(())
     }
 
+    pub fn show_outdated(&self) -> Result<(), Error> {
+        self.run_cmd_in_venv("pip", vec!["list", "--outdated", "--format", "columns"])
+    }
+
     /// Creates `setup.py` if it does not exist.
     pub fn init(&self, name: &str, version: &str, author: &Option<String>) -> Result<(), Error> {
         let path = &self.paths.setup_py;

@@ -77,9 +77,11 @@ Let's see some examples.
 
 ## Upgrade all the things!
 
-The simplest way is to just re-run `dmenv lock` after having cleaned the virtual environment:
+The simplest way is to just re-run `dmenv lock` after having cleaned the virtual environment.
+Runinng `dmenv show:outdated` allows you to have a preview of the upgrades first.
 
 ```
+$ dmenv show:outdated
 $ dmenv clean
 $ dmenv lock
 ```
@@ -102,6 +104,7 @@ setup(
     ],
 )
 ```
+
 
 ## Freeze dev dependencies
 
