@@ -1,5 +1,9 @@
 # 0.12.0
 
+## Show outdated dependencies
+
+* Use `dmenv show:outdated`  to show outdated dependencies.
+
 ## Allow access to system site packages
 
 * `dmenv install` and `dmenv lock` commands learned the `--system-site-packages` option to create virtual environments that have access to packages installed globally on the system.

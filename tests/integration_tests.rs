@@ -58,6 +58,7 @@ fn lock_workflow() {
     assert!(lock_contents.contains("pytest=="));
     assert!(!lock_contents.contains("pkg-resources=="));
     test_app.assert_run_ok(&["show:deps"]);
+    test_app.assert_run_ok(&["show:outdated"]);
     test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
     test_app.assert_run_ok(&["run", "--no-exec", "pytest"]);
 }
