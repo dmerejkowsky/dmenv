@@ -1,7 +1,10 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
 use crate::error::Error;
 
+// Common trait used by any struct able to bump a dependency
 trait Bumper {
+    /// Modify the dep passed as argument.
+    /// Returns true if the dependency actually changed
     fn bump(&self, dep: &mut LockedDependency) -> bool;
 }
 
@@ -9,6 +12,8 @@ struct SimpleBumper {
     version: String,
 }
 
+/// Changes the `version` field for the `Simple`
+/// variant of the `LockedDependency` enum
 impl SimpleBumper {
     fn new(version: &str) -> Self {
         SimpleBumper {
@@ -27,6 +32,8 @@ impl Bumper for SimpleBumper {
     }
 }
 
+/// Changes the `git_ref` field for the `Git`
+/// variant of the `LockedDependency` enum
 struct GitBumper {
     git_ref: String,
 }
@@ -49,6 +56,15 @@ impl Bumper for GitBumper {
     }
 }
 
+/// Implements various operations on the lock file
+/// Usage:
+/// ```text
+/// let lock_contents = read_from("foo.lock");
+/// let mut lock = Lock::from_string(lock_contents)
+/// // Mutate the lock, for instance with `bump()` or `freeze()
+/// let lock_contents = lock.to_string();
+/// write_to("foo.lock", lock_contents);
+/// ```
 #[derive(Debug)]
 pub struct Lock {
     dependencies: Vec<LockedDependency>,
@@ -77,22 +93,34 @@ impl Lock {
         })
     }
 
+    /// Serialize the lock to a string
     pub fn to_string(&self) -> String {
+        // Dependencies are sorted according to their *lowercase* name.
+        // This is consistent with how `pip freeze` is implemented.
+        // See bottom of pip/_internal/operations/freeze.py:freeze()
         let mut lines: Vec<_> = self.dependencies.iter().map(|x| x.line()).collect();
         lines.sort_by(|x, y| x.to_lowercase().cmp(&y.to_lowercase()));
         lines.join("\n") + "\n"
     }
 
+    /// Set the python version
+    // Note: This cause the behavior of `freeze()` to change.
+    // See `add_missing_deps` for details
     pub fn python_version(&mut self, python_version: &str) {
         self.python_version = Some(python_version.to_string())
     }
 
+    /// Set the python platform
+    // Note: This cause the behavior of `freeze()` to change.
+    // See `add_missing_deps` for details
     pub fn sys_platform(&mut self, sys_platform: &str) {
         self.sys_platform = Some(sys_platform.to_string())
     }
 
     /// Bump the dependency `name` to new `version`.
     /// Returns a tuple (locked_changed: bool, new_contents: String)
+    // Note: the locked_changed boolean is used to improve precision of
+    // messages printed by the VenvManager struct.
     pub fn bump(&mut self, name: &str, version: &str) -> Result<bool, Error> {
         let simple_bumper = SimpleBumper::new(version);
         self.bump_impl(&simple_bumper, name)
@@ -100,11 +128,14 @@ impl Lock {
 
     /// Bump the git dependency `name` to new `git_ref`.
     /// Returns a tuple (locked_changed: bool, new_contents: String)
+    // Note: the locked_changed boolean is used to improve precision of
+    // messages printed by the VenvManager struct.
     pub fn git_bump(&mut self, name: &str, git_ref: &str) -> Result<bool, Error> {
         let git_bumper = GitBumper::new(git_ref);
         self.bump_impl(&git_bumper, name)
     }
 
+    // Implement common behavior for any Bumper (regular or git)
     fn bump_impl<T>(&mut self, bumper: &T, name: &str) -> Result<bool, Error>
     where
         T: Bumper,
@@ -130,11 +161,17 @@ impl Lock {
         Ok(changed)
     }
 
+    /// Applies a set of new FrozenDependency to the lock
+    // Basically, "merge" `self.dependencies` with some new frozen deps and
+    // make sure no existing information in the lock is lost
+    // This in not an actual merge because we only modify existing lines
+    // or add new ones (no deletion ocurrs).
     pub fn freeze(&mut self, deps: &[FrozenDependency]) {
         self.patch_existing_deps(deps);
         self.add_missing_deps(deps);
     }
 
+    /// Add dependencies from `frozen_deps` that were missing in the lock
     fn add_missing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
         let known_names: &Vec<_> = &mut self.dependencies.iter().map(|d| d.name()).collect();
         let new_deps: Vec<_> = frozen_deps
@@ -142,6 +179,13 @@ impl Lock {
             .filter(|x| !known_names.contains(&&x.name))
             .collect();
         for dep in new_deps {
+            // If self.python_version or self.sys_platform is not None,
+            // make sure to append that data.
+            // For instance, if we generated the lock on Linux and we see a
+            // new dependency `foo==42` while running `lock --platform=win32`,
+            // we know `foo` *must* be Windows-specify.
+            // Thus we want to write `foo==42; sys_platform = "win32"` in the lock
+            // so that `foo` is *not* installed when running `pip install` on Linux.
             let mut locked_dep = SimpleDependency::from_frozen(dep);
             if let Some(python_version) = &self.python_version {
                 locked_dep.python_version(python_version);
@@ -154,9 +198,12 @@ impl Lock {
         }
     }
 
+    /// Modify dependencies that were in the lock to match those passed in `frozen_deps`
     fn patch_existing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
         for dep in &mut self.dependencies {
             match dep {
+                // frozen deps *never* contain git information (because `pip freeze`
+                // only returns names and versions), so always keep those in the lock.
                 LockedDependency::Git(_) => (),
                 LockedDependency::Simple(s) => {
                     Self::patch_existing_dep(s, frozen_deps);
@@ -165,6 +212,7 @@ impl Lock {
         }
     }
 
+    /// Modify an existing dependency to match the frozen version
     fn patch_existing_dep(dep: &mut SimpleDependency, frozen_deps: &[FrozenDependency]) {
         let frozen_match = frozen_deps.iter().find(|x| x.name == dep.name);
         let frozen_version = match frozen_match {

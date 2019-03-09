@@ -29,16 +29,6 @@ pub struct Command {
     pub sub_cmd: SubCommand,
 }
 
-fn parse_python_version(string: &str) -> Result<String, Error> {
-    let re = Regex::new("^(==|<|<=|>|>=) (('.*?')|(\".*?\"))$").unwrap();
-    if !re.is_match(string) {
-        return Err(Error::Other {
-            message: "should match something like `<= '3.6'`".to_string(),
-        });
-    }
-    Ok(string.to_string())
-}
-
 #[derive(StructOpt)]
 pub enum SubCommand {
     #[structopt(name = "clean", about = "Clean existing virtualenv")]
@@ -133,6 +123,24 @@ pub fn print_info_1(message: &str) {
 pub fn print_info_2(message: &str) {
     println!("{} {}", "->".blue(), message);
 }
+
+
+// Make sure the `--python-version` option used in `dmenv lock`
+// can be written as marker in the lock file
+fn parse_python_version(string: &str) -> Result<String, Error> {
+    // Note: parsing *all* the possible syntaxes is a hard problem
+    // (see https://www.python.org/dev/peps/pep-0508/#grammar for details),
+    // so we use a regex that matches a *subset* of what is possible
+    // instead.
+    let re = Regex::new("^(==|<|<=|>|>=) (('.*?')|(\".*?\"))$").unwrap();
+    if !re.is_match(string) {
+        return Err(Error::Other {
+            message: "should match something like `<= '3.6'`".to_string(),
+        });
+    }
+    Ok(string.to_string())
+}
+
 
 #[cfg(test)]
 mod tests {

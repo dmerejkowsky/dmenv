@@ -1,5 +1,10 @@
 use std::path::PathBuf;
 
+/// Every variant matches a type of error we
+/// want the end-use to see.
+// Note: errors from external crates should be wrapped
+/// here so that we have full control over the error
+/// messages printed to the user.
 #[derive(Debug)]
 pub enum Error {
     ReadError {
@@ -59,6 +64,8 @@ pub enum Error {
     },
 }
 
+/// Implement Display for our Error type
+// Note: this is a not-so-bad way to make sure every error message is consistent
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let message = match self {

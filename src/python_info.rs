@@ -1,6 +1,9 @@
 use crate::error::Error;
 use std::path::PathBuf;
 
+/// Represent output of the info.py script
+/// This allows dmenv to know details about
+/// the Python intrepreter it is using.
 pub struct PythonInfo {
     pub binary: PathBuf,
     pub version: String,
@@ -27,9 +30,14 @@ impl PythonInfo {
         }
         let info_out = String::from_utf8_lossy(&command.stdout);
         let lines: Vec<_> = info_out.split('\n').collect();
+        let expected_lines = 3; // Keep this in sync with src/info.py
         if lines.len() != 3 {
             return Err(Error::Other {
-                message: format!("Expected two lines in info_out, got: {}", lines.len()),
+                message: format!(
+                    "Expected {} lines in info_out, got: {}",
+                    expected_lines,
+                    lines.len()
+                ),
             });
         }
         let version = lines[0].trim().to_string();
@@ -42,6 +50,9 @@ impl PythonInfo {
     }
 }
 
+/// Look for a suitable Python binary in PATH
+// Note: doses not get called if `dmenv` was invoked with an explicit `--python`
+// option.
 fn get_python_binary(requested_python: &Option<String>) -> Result<PathBuf, Error> {
     if let Some(python) = requested_python {
         return Ok(PathBuf::from(python));

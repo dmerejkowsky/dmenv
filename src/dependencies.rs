@@ -1,11 +1,44 @@
 use crate::error::Error;
+
+/// Home for types that represent dependencies.
+///
+/// * Frozen dependencies come from `pip freeze` output.
+/// * Locked dependencies are read from the lock file and
+///   are either the Simple variant (foo==42), or the Git variant
+///   (git+https://git.local/foo@master#egg=foo)
+///
+/// Locked dependencies can either be *bumped* (when using `dmenv bump-in-lock`,
+/// or *frozen*, when using `dmenv lock` and "merging" output from `pip freeze`
+/// with the contents of the lock file.
+
+#[derive(Debug)]
+/// Represent a parsing error
+// Note: may be returned any from_*() method,,
+// for instance, when parsing `pip freeze` output or parsing
+// a lock file
+pub struct ParseError {
+    pub details: String,
+}
+
+impl ParseError {
+    pub fn new(details: &str) -> Self {
+        ParseError {
+            details: details.to_string(),
+        }
+    }
+}
+
 pub struct FrozenDependency {
     pub name: String,
     pub version: String,
 }
 
 impl FrozenDependency {
+    /// Construct a new FrozenDependency from a line coming from
+    /// `pip freeze` output
     pub fn from_string(string: &str) -> Result<Self, Error> {
+        // Custom error in case we can't parse `pip freeze` output
+        // This really should never happen (tm)
         let err = Error::BrokenPipFreezeLine {
             line: string.to_string(),
         };
@@ -33,98 +66,15 @@ impl FrozenDependency {
 }
 
 #[derive(Debug)]
-pub struct ParseError {
-    pub details: String,
-}
-
-impl ParseError {
-    pub fn new(details: &str) -> Self {
-        ParseError {
-            details: details.to_string(),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct VersionSpec {
-    start: usize,
-    end: usize,
-    pub value: String,
-}
-
-#[derive(Debug)]
-pub struct GitDependency {
-    pub name: String,
-    pub line: String,
-    pub git_ref: VersionSpec,
-}
-
-impl GitDependency {
-    pub fn bump(&mut self, new_ref: &str) -> bool {
-        let VersionSpec { start, end, value } = &self.git_ref;
-        if new_ref == value {
-            return false;
-        }
-        self.line = format!("{}{}{}", &self.line[0..*start], new_ref, &self.line[*end..],);
-        self.git_ref.value = new_ref.to_string();
-        true
-    }
-}
-
-#[derive(Debug)]
-pub struct SimpleDependency {
-    pub name: String,
-    pub version: VersionSpec,
-    pub line: String,
-}
-
-impl SimpleDependency {
-    pub fn from_frozen(frozen: &FrozenDependency) -> Self {
-        let name = &frozen.name;
-        let line = format!("{}=={}", name, frozen.version);
-        let version = LockedDependency::parse_simple_version(&line);
-        SimpleDependency {
-            name: name.to_string(),
-            version,
-            line,
-        }
-    }
-
-    pub fn python_version(&mut self, python_version: &str) {
-        self.line = format!("{} ; python_version {}", self.line, python_version);
-    }
-
-    pub fn sys_platform(&mut self, sys_platform: &str) {
-        self.line = format!("{} ; sys_platform == '{}'", self.line, sys_platform);
-    }
-
-    pub fn bump(&mut self, new_version: &str) -> bool {
-        let VersionSpec { start, end, value } = &self.version;
-        if new_version == value {
-            return false;
-        }
-        self.line = format!(
-            "{}{}{}",
-            &self.line[0..*start],
-            new_version,
-            &self.line[*end..],
-        );
-        self.version.value = new_version.to_string();
-        true
-    }
-
-    pub fn freeze(&mut self, new_version: &str) {
-        self.bump(new_version);
-    }
-}
-
-#[derive(Debug)]
 pub enum LockedDependency {
     Git(GitDependency),
     Simple(SimpleDependency),
 }
 
 impl LockedDependency {
+    /// Serialize a locked dependency to a string
+    //
+    // Used by Lock::to_string()
     pub fn line(&self) -> String {
         match self {
             LockedDependency::Git(x) => x.line.to_string(),
@@ -139,6 +89,8 @@ impl LockedDependency {
         }
     }
 
+    // Parse a line from the lock. Return either a GitDependency or a SimpleDependency
+    // Note that each of them contain a VersionSpec field (either `version` or `git_ref`)
     pub fn from_line(line: &str) -> Result<LockedDependency, ParseError> {
         if line.contains("#egg=") {
             let name = Self::parse_git_name(line);
@@ -216,6 +168,95 @@ impl LockedDependency {
         let start = line.len() - after_at.len();
         let end = start + value.len();
         Ok(VersionSpec { value, start, end })
+    }
+}
+
+#[derive(Debug)]
+// Container for a git ref or a version number.
+// We keep a record of the coordinates of the spec inside
+// the line of the lock.
+// This allows us to have meaningful diffs when calling `dmenv bump-in-lock`
+pub struct VersionSpec {
+    start: usize,
+    end: usize,
+    pub value: String,
+}
+
+#[derive(Debug)]
+pub struct GitDependency {
+    pub name: String,
+    pub line: String,
+    pub git_ref: VersionSpec,
+}
+
+impl GitDependency {
+    pub fn bump(&mut self, new_ref: &str) -> bool {
+        let VersionSpec { start, end, value } = &self.git_ref;
+        if new_ref == value {
+            return false;
+        }
+        self.line = format!("{}{}{}", &self.line[0..*start], new_ref, &self.line[*end..],);
+        self.git_ref.value = new_ref.to_string();
+        true
+    }
+}
+
+#[derive(Debug)]
+pub struct SimpleDependency {
+    pub name: String,
+    pub line: String,
+    pub version: VersionSpec,
+}
+
+impl SimpleDependency {
+    /// Convert a FrozenDependency to a SimpleDependency
+    /// This allows adding a dependency coming from `pip freeze` to the lock.
+    pub fn from_frozen(frozen: &FrozenDependency) -> Self {
+        let name = &frozen.name;
+        let line = format!("{}=={}", name, frozen.version);
+        let version = LockedDependency::parse_simple_version(&line);
+        SimpleDependency {
+            name: name.to_string(),
+            version,
+            line,
+        }
+    }
+
+    /// Make this dependency specific to a Python version
+    pub fn python_version(&mut self, python_version: &str) {
+        self.line = format!("{} ; python_version {}", self.line, python_version);
+    }
+
+    /// Make this dependency specific to a Python platform
+    pub fn sys_platform(&mut self, sys_platform: &str) {
+        self.line = format!("{} ; sys_platform == '{}'", self.line, sys_platform);
+    }
+
+    /// Bump a simple dependency to a new version
+    pub fn bump(&mut self, new_version: &str) -> bool {
+        let VersionSpec { start, end, value } = &self.version;
+        if new_version == value {
+            return false;
+        }
+        self.line = format!(
+            "{}{}{}",
+            &self.line[0..*start],
+            new_version,
+            &self.line[*end..],
+        );
+        self.version.value = new_version.to_string();
+        true
+    }
+
+    /// Freeze a simple dependency to a new version
+    pub fn freeze(&mut self, new_version: &str) {
+        // Note: conceptually this is very different from
+        // self.bump(). Here we are "merging" a version
+        // from the lock with a version from `pip freeze`.
+        // In self.bump() we are *setting* the new version
+        // and want to know if the dependency has changed.
+        // Both implementations just happen to be similar ...
+        self.bump(new_version);
     }
 }
 

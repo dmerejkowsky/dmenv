@@ -1,6 +1,8 @@
 use crate::cmd::Command;
 
 #[derive(Debug, Clone)]
+/// Represent variables that change behavior of
+/// the VenvManager or PathsResolver structs.
 pub struct Settings {
     pub venv_from_stdlib: bool,
     pub venv_outside_project: bool,
@@ -20,6 +22,11 @@ impl Default for Settings {
 }
 
 impl Settings {
+    /// Construct a new Settings instance using
+    /// options fromm the command line (the `cmd` parameter)
+    /// and enviornment variables.
+    //
+    // Note:  Called in `main()` and in test heplers.
     pub fn from_shell(cmd: &Command) -> Settings {
         let mut res = Settings {
             production: cmd.production,
