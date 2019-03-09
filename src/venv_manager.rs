@@ -21,12 +21,16 @@ struct LockMetadata {
 }
 
 #[derive(Default)]
+/// Represents options passed to `dmenv lock`,
+/// see `cmd::SubCommand::Lock`
 pub struct LockOptions {
     pub python_version: Option<String>,
     pub sys_platform: Option<String>,
 }
 
 #[derive(Default)]
+/// Represents options passed to `dmenv install`
+/// see `cmd::SubCommand::Install`
 pub struct InstallOptions {
     pub develop: bool,
 }
@@ -46,6 +50,7 @@ impl VenvManager {
         }
     }
 
+    /// Clean virtualenv. No-op if the virtualenv does not exist
     pub fn clean(&self) -> Result<(), Error> {
         print_info_1(&format!("Cleaning {}", &self.paths.venv.display()));
         if !self.paths.venv.exists() {
@@ -56,6 +61,8 @@ impl VenvManager {
         })
     }
 
+    /// Runs `python setup.py` develop. Also called by `install` (unless InstallOptions.develop is false)
+    // Note: `lock()` will use `pip install --editable .` to achieve the same effect
     pub fn develop(&self) -> Result<(), Error> {
         print_info_2("Running setup_py.py develop");
         if !self.paths.setup_py.exists() {
@@ -65,6 +72,9 @@ impl VenvManager {
         self.run_cmd_in_venv("python", vec!["setup.py", "develop", "--no-deps"])
     }
 
+    /// Install dependencies from lock file (production.lock or requirements.lock), depending
+    /// on how paths were resolved by PathsResolver
+    /// Abort if virtualenv or lock file does not exist
     pub fn install(&self, install_options: &InstallOptions) -> Result<(), Error> {
         print_info_1("Preparing project for development");
         let lock_path = &self.paths.lock;
@@ -110,6 +120,8 @@ impl VenvManager {
     ///   - same as run
     /// On Linux:
     ///   - same as run, but create a new process instead of using execv()
+    // Note: mostly for tests. We want to *check* the return code of
+    // `dmenv run` and so we need a child process
     pub fn run_no_exec(&self, args: &[String]) -> Result<(), Error> {
         self.expect_venv()?;
         let cmd = args[0].clone();
@@ -117,6 +129,21 @@ impl VenvManager {
         self.run_cmd_in_venv(&cmd, args)
     }
 
+    /// (Re)generate the lock file
+    //
+    // Notes:
+    //
+    // * Abort if `setup.py` is not found
+    // * Create the virtualenv if required
+    // * Always upgrade pip :
+    //    * If that fails, we know if the virtualenv is broken
+    //    * Also, we know sure that `pip` can handle all the options
+    //      (such as `--local`, `--exclude-editable`) we use in the other functions
+    // * The path of the lock file is computed by PathsResolver.
+    //     See PathsResolver.paths() for details
+    //
+    // * Delegates the actual work to `write_lock()`
+    //
     pub fn lock(&self, lock_options: &LockOptions) -> Result<(), Error> {
         print_info_1("Locking dependencies");
         if !self.paths.setup_py.exists() {
@@ -132,21 +159,30 @@ impl VenvManager {
         Ok(())
     }
 
+    /// Show the dependencies inside the virtualenv.
+    // Note: Run `pip list` so we get what's *actually* installed, not just
+    // the contents of the lock file
     pub fn show_deps(&self) -> Result<(), Error> {
         self.run_cmd_in_venv("pip", vec!["list"])
     }
 
+    /// Show the resolved virtualenv path.
+    //
+    // See `PathsResolver.paths()` for details
     pub fn show_venv_path(&self) -> Result<(), Error> {
         println!("{}", self.paths.venv.display());
         Ok(())
     }
 
+    /// Same has `show_venv_path`, but add the correct subfolder
+    /// (`bin` on Linux and macOS, `Scripts` on Windows).
     pub fn show_venv_bin_path(&self) -> Result<(), Error> {
         let bin_path = &self.get_venv_bin_path();
         println!("{}", bin_path.display());
         Ok(())
     }
 
+    /// Creates `setup.py` if it does not exist.
     pub fn init(&self, name: &str, version: &str, author: &Option<String>) -> Result<(), Error> {
         let path = &self.paths.setup_py;
         if path.exists() {
@@ -154,6 +190,8 @@ impl VenvManager {
                 path: path.to_path_buf(),
             });
         }
+        // Warning: make sure the source file in `src/setup.in.py` contains all those
+        // placeholders
         let template = include_str!("setup.in.py");
         let with_name = template.replace("<NAME>", name);
         let with_version = with_name.replace("<VERSION>", version);
@@ -170,6 +208,10 @@ impl VenvManager {
         Ok(())
     }
 
+    /// Bump a dependency in the lock file
+    //
+    // Note: most of the work is delegated to the Lock struct. Either `Lock.git_bump()`or
+    // `Lock.bump()` is called, depending on the value of the `git` argument.
     pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
         print_info_1(&format!("Bumping {} to {} ...", name, version));
         let path = &self.paths.lock;
@@ -196,6 +238,11 @@ impl VenvManager {
         Ok(())
     }
 
+    /// Ensure the virtualenv exists
+    //
+    // Note: this is *only* called by `install()` and `lock()`.
+    // All the other methods requires the virtualenv to exist and
+    // won't create it.
     fn ensure_venv(&self) -> Result<(), Error> {
         if self.paths.venv.exists() {
             print_info_2(&format!(
@@ -208,6 +255,12 @@ impl VenvManager {
         Ok(())
     }
 
+    /// Make sure the virtualenv exists, or return an error
+    //
+    // Note: this must be called by any method that requires the
+    // virtualenv to exist, like `show_deps` or `run`:
+    // this ensures that error messages printed when the
+    // virtualenv does not exist are consistent.
     fn expect_venv(&self) -> Result<(), Error> {
         if !self.paths.venv.exists() {
             return Err(Error::MissingVenv {
@@ -217,6 +270,11 @@ impl VenvManager {
         Ok(())
     }
 
+    /// Create a new virtualenv
+    //
+    // Notes:
+    // * The path comes from PathsResolver.paths()
+    // * Called by `ensure_venv()` *if* the path does not exist
     fn create_venv(&self) -> Result<(), Error> {
         let parent_venv_path = &self.paths.venv.parent().ok_or(Error::Other {
             message: "venv_path has no parent".to_string(),
@@ -228,11 +286,15 @@ impl VenvManager {
         std::fs::create_dir_all(&parent_venv_path).map_err(|e| Error::Other {
             message: format!("Could not create {}: {}", parent_venv_path.display(), e),
         })?;
+
+        // Python -m venv should work in most cases (venv is in the stdlib since Python 3.3)
         let venv_path = &self.paths.venv.to_string_lossy();
         let mut args = vec!["-m"];
         if self.settings.venv_from_stdlib {
             args.push("venv")
         } else {
+            // In case we can't or won't use venv from the stdlib, use `virtualenv` instead.
+            // Assume the virtualenv package is present on the system.
             args.push("virtualenv")
         };
         args.push(venv_path);
@@ -254,6 +316,8 @@ impl VenvManager {
         Ok(())
     }
 
+    // Actually write the lock file
+    // Delegates most of the work to the Lock struct.
     fn write_lock(&self, lock_options: &LockOptions) -> Result<(), Error> {
         let metadata = &self.get_metadata()?;
 
@@ -295,6 +359,7 @@ impl VenvManager {
         })
     }
 
+    /// Get the list of the *actual* deps in the virtualenv by calling `pip freeze`.
     fn get_frozen_deps(&self) -> Result<Vec<FrozenDependency>, Error> {
         let freeze_output = self.run_pip_freeze()?;
         let mut res = vec![];

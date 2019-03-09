@@ -11,6 +11,8 @@ fn to_c_string<S: AsRef<OsStr>>(string: S) -> Result<CString, Error> {
 }
 
 /// Wrap execv() C function from libc crate
+// Note: Use by `dmenv run` so that killing the dmenv process
+// does not create an orphan process
 pub fn execv<Cmd, Args>(cmd: Cmd, args: Args) -> Result<(), Error>
 where
     Cmd: AsRef<OsStr>,

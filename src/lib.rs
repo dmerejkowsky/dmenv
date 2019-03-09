@@ -19,7 +19,7 @@ use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
 use crate::paths::PathsResolver;
-pub use crate::paths::{DEV_LOCK_FILENAME,PROD_LOCK_FILENAME};
+pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 use crate::venv_manager::VenvManager;
@@ -34,6 +34,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             message: format!("Could not get current directory: {}", e),
         })?
     };
+    // Perform additional sanity checks when using `dmenv run`
+    // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
         if cmd.is_empty() {
             return Err(Error::Other {
@@ -46,6 +48,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let resolver = PathsResolver::new(project_path, &python_version, &settings);
     let paths = resolver.paths()?;
     let venv_manager = VenvManager::new(paths, python_info, settings);
+    // Note: keep the `match()` here so that we know every variant of the SubCommand
+    // enum is handled.
     match &cmd.sub_cmd {
         SubCommand::Install { no_develop } => {
             let mut install_options = InstallOptions::default();

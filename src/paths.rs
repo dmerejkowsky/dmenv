@@ -12,6 +12,7 @@ pub const DEV_LOCK_FILENAME: &str = "requirements.lock";
 
 use crate::error::*;
 
+// Container for all the PathsBuf used by the venv_manager
 pub struct Paths {
     pub project: PathBuf,
     pub venv: PathBuf,
@@ -26,6 +27,11 @@ pub struct PathsResolver {
     project_path: PathBuf,
 }
 
+/// Compute paths depending on settings and Python version
+//
+// This makes sure that incompatible virtualenv have different paths.
+// (For instance, a "production" virtualenv must be in a different path
+// than the "development" virtualenv). Ditto when the Python version changes
 impl PathsResolver {
     pub fn new(project_path: PathBuf, python_version: &str, settings: &Settings) -> Self {
         PathsResolver {
@@ -71,6 +77,11 @@ impl PathsResolver {
         Ok(res)
     }
 
+    /// Get a suitable virtualenv path in the HOME directory.
+    //
+    // Note: use app_dir UserCache so that we honor XDG spec on Linux,
+    // and use otherwise "expected" paths on macOS and Windows
+    // (`Library/Cachches` and `AppData\Local` respectively)
     fn get_venv_path_outside(&self) -> Result<PathBuf, Error> {
         let data_dir =
             app_dirs::app_dir(AppDataType::UserCache, &APP_INFO, "venv").map_err(|e| {
