@@ -97,6 +97,26 @@ As an alternative, you can also ask `dmenv` to create its virtual environment *o
 by setting the `DMENV_VENV_OUTSIDE_PROJECT` environment variable to a non-empty value like `1`. It will then use
 the [app_dirs crate](https://crates.io/crates/app_dirs) as a location to store the created virtual environments.
 
+## Upgrading dmenv
+
+If you have `wget` installed and used a pre-compiled binary, upgrading `dmenv` can be done in just one command:
+
+```bash
+# Replace <version> and <arch> with their correct value
+$ wget \
+  https://github.com/TankerHQ/dmenv/releases/download/<version>/dmenv-<arch> \
+  -O $(which dmenv)
+```
+
+If you've installed `dmenv` from source:
+
+```bash
+rustup update stable  # dmenv usually requires latest rust stable version
+cargo install --force dmenv
+```
+
+
+
 ## Going further
 
 That's all for the basic usage of `dmenv`, you may proceed to the [goodies section](./goodies.md) or read on about [advanced dmenv usage](./advanced_usage.md)
