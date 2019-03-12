@@ -124,7 +124,6 @@ pub fn print_info_2(message: &str) {
     println!("{} {}", "->".blue(), message);
 }
 
-
 // Make sure the `--python-version` option used in `dmenv lock`
 // can be written as marker in the lock file
 fn parse_python_version(string: &str) -> Result<String, Error> {
@@ -140,7 +139,6 @@ fn parse_python_version(string: &str) -> Result<String, Error> {
     }
     Ok(string.to_string())
 }
-
 
 #[cfg(test)]
 mod tests {
