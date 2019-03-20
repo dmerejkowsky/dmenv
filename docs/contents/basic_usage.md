@@ -116,7 +116,38 @@ cargo install --force dmenv
 ```
 
 
+## Upgrading a top-level dependency
+
+Let's say your project depends on `foolib`. Version `1.3` works fine, but
+`1.4` just came out and even if you don't need any new feature from `1.4`,
+you'd like to check wether your project is compatible. [^1]
+
+Assuming you already have a virtual environment containing `foolib 1.3`, you can can do so by running:
+
+```bash
+$ git status  # check that requirements.lock is clean
+$ dmenv run -- pip install --upgrade foolib
+```
+
+Most of the time, `pip install --upgrade foolib` will do the right thing:
+
+* it will keep other dependencies installed at their current version
+* it will install new dependencies of `foolib 1.4` if they are missing
+* if `foolib 1.4` contains a `bar >= 3.0` constraint and you have `bar == 2.0` in the virtualenv, `bar` will
+  be upgraded too.
+
+Then it's time to register the new dependencies in the lock:
+
+```bash
+$ dmenv lock
+```
+
+You can now inspect the differences in the lock file by hand, and if they are correct, commit and push a new version of the lock file.
 
 ## Going further
 
 That's all for the basic usage of `dmenv`, you may proceed to the [goodies section](./goodies.md) or read on about [advanced dmenv usage](./advanced_usage.md)
+
+
+[^1]: If you *do* need `foolib` in version 1.4 or later, you should express this constraint in the setup.py file instead, as explained in the *[upgrading juste one regular dependency](./advanced_usage.md#upgrading_just_one_development_dependency)*
+section.
