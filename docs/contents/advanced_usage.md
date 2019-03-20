@@ -232,3 +232,10 @@ In this case, prefix your `dmenv` command with a `--production` flag, like so:
 $ dmenv --production lock
 $ dmenv --production install
 ```
+
+Note that both the location of the virtual environment and the lock file will be different.
+
+## Allowing access to Python packages from the system
+
+
+Use `dmenv --system-site-packages install` and/or `dmenv --system-site-packages lock` to create a virtual environment that has access to the system's site packages. In the latter case, dependencies outside the virtual environment are *not* included in the lock file.

@@ -2,7 +2,7 @@
 
 ## Allow access to system site packages
 
-* Use `dmenv --system-site-packages install` and/or `dmenv --system-site-packages lock` to create a virtual environment that has access to the system's site packages. In the latter case, dependencies outside the virtual environment are *not* included in the lock file.
+* `dmenv install` and `dmenv lock` commands learned the `--system-site-packages` option to create virtual environments that have access to packages installed globally on the system.
 
 ## Allow skipping dev dependencies
 

@@ -26,6 +26,7 @@ struct LockMetadata {
 pub struct LockOptions {
     pub python_version: Option<String>,
     pub sys_platform: Option<String>,
+    pub system_site_packages: bool,
 }
 
 #[derive(Default)]
@@ -33,6 +34,7 @@ pub struct LockOptions {
 /// see `cmd::SubCommand::Install`
 pub struct InstallOptions {
     pub develop: bool,
+    pub system_site_packages: bool,
 }
 
 pub struct VenvManager {
@@ -84,7 +86,7 @@ impl VenvManager {
             });
         }
 
-        self.ensure_venv()?;
+        self.ensure_venv(install_options.system_site_packages)?;
         self.install_from_lock()?;
 
         if install_options.develop {
@@ -150,7 +152,7 @@ impl VenvManager {
             return Err(Error::MissingSetupPy {});
         }
 
-        self.ensure_venv()?;
+        self.ensure_venv(lock_options.system_site_packages)?;
         self.upgrade_pip()?;
 
         self.install_editable()?;
@@ -241,16 +243,16 @@ impl VenvManager {
     /// Ensure the virtualenv exists
     //
     // Note: this is *only* called by `install()` and `lock()`.
-    // All the other methods requires the virtualenv to exist and
+    // All the other methods require the virtualenv to exist and
     // won't create it.
-    fn ensure_venv(&self) -> Result<(), Error> {
+    fn ensure_venv(&self, system_site_packages: bool) -> Result<(), Error> {
         if self.paths.venv.exists() {
             print_info_2(&format!(
                 "Using existing virtualenv: {}",
                 self.paths.venv.display()
             ));
         } else {
-            self.create_venv()?;
+            self.create_venv(system_site_packages)?;
         }
         Ok(())
     }
@@ -275,7 +277,7 @@ impl VenvManager {
     // Notes:
     // * The path comes from PathsResolver.paths()
     // * Called by `ensure_venv()` *if* the path does not exist
-    fn create_venv(&self) -> Result<(), Error> {
+    fn create_venv(&self, system_site_packages: bool) -> Result<(), Error> {
         let parent_venv_path = &self.paths.venv.parent().ok_or(Error::Other {
             message: "venv_path has no parent".to_string(),
         })?;
@@ -298,7 +300,7 @@ impl VenvManager {
             args.push("virtualenv")
         };
         args.push(venv_path);
-        if self.settings.system_site_packages {
+        if system_site_packages {
             args.push("--system-site-packages");
         }
         let python_binary = &self.python_info.binary;

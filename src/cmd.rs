@@ -16,12 +16,6 @@ pub struct Command {
     #[structopt(long = "project", help = "path to use as the project directory")]
     pub project_path: Option<String>,
 
-    #[structopt(
-        long = "--system-site-packages",
-        help = "Give the virtual environment access to the system site-packages dir"
-    )]
-    pub system_site_packages: bool,
-
     #[structopt(long = "production", help = "Ignore dev dependencies")]
     pub production: bool,
 
@@ -41,6 +35,11 @@ pub enum SubCommand {
     Install {
         #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]
         no_develop: bool,
+        #[structopt(
+            long = "--system-site-packages",
+            help = "Give the virtual environment access to the system site-packages dir"
+        )]
+        system_site_packages: bool,
     },
 
     #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]
@@ -78,6 +77,12 @@ pub enum SubCommand {
 
         #[structopt(long = "platform", help = "Restrict platform")]
         sys_platform: Option<String>,
+
+        #[structopt(
+            long = "--system-site-packages",
+            help = "Give the virtual environment access to the system site-packages dir"
+        )]
+        system_site_packages: bool,
     },
 
     #[structopt(name = "run", about = "Run the given binary from the virtualenv")]
