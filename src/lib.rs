@@ -51,9 +51,13 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     // Note: keep the `match()` here so that we know every variant of the SubCommand
     // enum is handled.
     match &cmd.sub_cmd {
-        SubCommand::Install { no_develop } => {
+        SubCommand::Install {
+            no_develop,
+            system_site_packages,
+        } => {
             let mut install_options = InstallOptions::default();
             install_options.develop = !no_develop;
+            install_options.system_site_packages = *system_site_packages;
             venv_manager.install(&install_options)
         }
         SubCommand::Clean {} => venv_manager.clean(),
@@ -66,10 +70,12 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::Lock {
             python_version,
             sys_platform,
+            system_site_packages,
         } => {
             let lock_options = LockOptions {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
+                system_site_packages: *system_site_packages,
             };
             venv_manager.lock(&lock_options)
         }
