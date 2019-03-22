@@ -98,6 +98,7 @@ impl Lock {
         // Dependencies are sorted according to their *lowercase* name.
         // This is consistent with how `pip freeze` is implemented.
         // See bottom of pip/_internal/operations/freeze.py:freeze()
+        #![allow(clippy::redundant_closure)]
         let mut lines: Vec<_> = self.dependencies.iter().map(|x| x.line()).collect();
         lines.sort_by(|x, y| x.to_lowercase().cmp(&y.to_lowercase()));
         lines.join("\n") + "\n"
@@ -173,6 +174,7 @@ impl Lock {
 
     /// Add dependencies from `frozen_deps` that were missing in the lock
     fn add_missing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
+        #![allow(clippy::redundant_closure)]
         let known_names: &Vec<_> = &mut self.dependencies.iter().map(|d| d.name()).collect();
         let new_deps: Vec<_> = frozen_deps
             .iter()
