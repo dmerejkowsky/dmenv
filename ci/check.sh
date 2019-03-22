@@ -13,12 +13,13 @@ clippy() {
   cargo clippy --all-targets -- --deny warnings
 }
 
-build_release() {
+build() {
   cargo build --release
 }
 
-test_release() {
+run_tests() {
   export RUST_BACKTRACE=1
+
   case $TRAVIS_OS_NAME in
     windows)
       # Make sure Python installed by choco is first in PATH
@@ -28,19 +29,29 @@ test_release() {
       # Do not use -m venv (buggy on Debian)
       export DMENV_NO_VENV_STDLIB=1
       ;;
-    esac
-    cargo test --release
-}
+  esac
 
-main() {
-  # Run the non-OS specific checks on the fastest platform: linux
-  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      cargo_audit
-      clippy
+  if [[ "${TRAVIS_RUST_VERSION}" == "nightly" ]] && [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    # tarpaulin only works with rust nightly and on Linux for now
+    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin
+    cargo tarpaulin --out Xml
+    bash <(curl -s https://codecov.io/bash)
+  else
+    cargo test --release
   fi
 
-  build_release
-  test_release
+ }
+
+main() {
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    # Run the non-OS specific checks on the fastest platform: linux
+    cargo_audit
+    clippy
+  fi
+
+  build
+
+  run_tests
 }
 
 main
