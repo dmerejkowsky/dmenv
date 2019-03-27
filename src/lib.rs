@@ -7,10 +7,12 @@ mod error;
 #[cfg(unix)]
 mod execv;
 mod lock;
+mod operations;
 mod paths;
+mod project;
 mod python_info;
+mod run;
 mod settings;
-mod venv_manager;
 #[cfg(windows)]
 mod win_job;
 
@@ -18,12 +20,11 @@ pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
-use crate::paths::PathsResolver;
+use crate::operations::LockOptions;
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
+use crate::project::Project;
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
-use crate::venv_manager::VenvManager;
-use crate::venv_manager::{InstallOptions, LockOptions};
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let settings = Settings::from_shell(&cmd);
@@ -44,10 +45,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
-    let python_version = python_info.version.clone();
-    let resolver = PathsResolver::new(project_path, &python_version, &settings);
-    let paths = resolver.paths()?;
-    let venv_manager = VenvManager::new(paths, python_info, settings);
+    let mut project = Project::new(project_path, python_info, settings)?;
+
     // Note: keep the `match()` here so that we know every variant of the SubCommand
     // enum is handled.
     match &cmd.sub_cmd {
@@ -55,18 +54,19 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             no_develop,
             system_site_packages,
         } => {
-            let mut install_options = InstallOptions::default();
-            install_options.develop = !no_develop;
-            install_options.system_site_packages = *system_site_packages;
-            venv_manager.install(&install_options)
+            if *system_site_packages {
+                project.use_system_site_packages()
+            }
+            let develop = !no_develop;
+            project.install(develop)
         }
-        SubCommand::Clean {} => venv_manager.clean(),
-        SubCommand::Develop {} => venv_manager.develop(),
+        SubCommand::Clean {} => project.clean(),
+        SubCommand::Develop {} => project.develop(),
         SubCommand::Init {
             name,
             version,
             author,
-        } => venv_manager.init(&name, &version, author),
+        } => project.init(name, version, author),
         SubCommand::Lock {
             python_version,
             sys_platform,
@@ -75,25 +75,26 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             let lock_options = LockOptions {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
-                system_site_packages: *system_site_packages,
             };
-            venv_manager.lock(&lock_options)
+            if *system_site_packages {
+                project.use_system_site_packages();
+            }
+            project.lock(&lock_options)
         }
-        SubCommand::BumpInLock { name, version, git } => {
-            venv_manager.bump_in_lock(name, version, *git)
-        }
+        SubCommand::BumpInLock { name, version, git } => project.bump_in_lock(name, version, *git),
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
-                venv_manager.run_no_exec(cmd)
+                project.run_no_exec(cmd)
             } else {
-                venv_manager.run(cmd)
+                project.run(cmd)
             }
         }
-        SubCommand::ShowDeps {} => venv_manager.show_deps(),
-        SubCommand::ShowOutDated {} => venv_manager.show_outdated(),
-        SubCommand::ShowVenvPath {} => venv_manager.show_venv_path(),
-        SubCommand::ShowVenvBin {} => venv_manager.show_venv_bin_path(),
-        SubCommand::UpgradePip {} => venv_manager.upgrade_pip(),
+        SubCommand::ShowDeps {} => project.show_deps(),
+        SubCommand::ShowOutDated {} => project.show_outdated(),
+        SubCommand::ShowVenvPath {} => project.show_venv_path(),
+        SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
+
+        SubCommand::UpgradePip {} => project.upgrade_pip(),
     }
 }
 

@@ -2,11 +2,12 @@ use crate::cmd::Command;
 
 #[derive(Debug, Clone)]
 /// Represent variables that change behavior of
-/// the VenvManager or PathsResolver structs.
+/// the Project  or PathsResolver structs.
 pub struct Settings {
     pub venv_from_stdlib: bool,
     pub venv_outside_project: bool,
     pub production: bool,
+    pub system_site_packages: bool,
 }
 
 impl Default for Settings {
@@ -15,6 +16,7 @@ impl Default for Settings {
             venv_from_stdlib: true,
             venv_outside_project: false,
             production: false,
+            system_site_packages: false,
         }
     }
 }
