@@ -108,7 +108,7 @@ impl std::fmt::Display for Error {
                 "could not upgrade pip. Try using `dmenv clean`".to_string()
             }
 
-            Error::FileExists { path } => format!("{} already exist", path.display()),
+            Error::FileExists { path } => format!("{} already exists", path.display()),
 
             Error::MalformedLock { line, details } => {
                 format!("Malformed lock at line {}\n:{}", line, details)
