@@ -13,6 +13,11 @@ clippy() {
   cargo clippy --all-targets -- --deny warnings
 }
 
+fmt_check() {
+  rustup component add rustfmt
+  cargo fmt -- --check
+}
+
 build() {
   cargo build --release
 }
@@ -43,8 +48,9 @@ run_tests() {
  }
 
 main() {
-  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  if [[ "${TRAVIS_OS_NAME}" == "linux" ]] && [[ "${TRAVIS_RUST_VERSION}" == "stable" ]]; then
     # Run the non-OS specific checks on the fastest platform: linux
+    fmt_check
     cargo_audit
     clippy
   fi
