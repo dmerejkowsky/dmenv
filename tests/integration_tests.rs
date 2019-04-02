@@ -71,6 +71,7 @@ fn production_workflow() {
     let lock_contents = test_app.read_prod_lock();
     assert!(!lock_contents.contains("pytest"));
     assert!(lock_contents.contains("path.py"));
+    assert!(lock_contents.contains("gunicorn"));
 
     test_app.assert_run_ok(&["--production", "clean"]);
     test_app.assert_run_ok(&["--production", "install"]);

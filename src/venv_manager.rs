@@ -436,13 +436,15 @@ impl VenvManager {
     fn install_editable(&self) -> Result<(), Error> {
         let mut message = "Installing deps from setup.py".to_string();
         if self.settings.production {
-            message.push_str("(ignoring dev dependencies)");
+            message.push_str(" using 'prod' extra dependencies");
+        } else {
+            message.push_str(" using 'dev' extra dependencies");
         }
         print_info_2(&message);
 
         let mut args = vec!["-m", "pip", "install", "--editable"];
         if self.settings.production {
-            args.push(".")
+            args.push(".[prod]")
         } else {
             args.push(".[dev]")
         }
