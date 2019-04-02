@@ -1,3 +1,7 @@
+# 0.13.0
+
+* Fix [#77](https://github.com/TankerHQ/dmenv/issues/77): Use `prod` extra requirements when `--production` is used. This allows having dependencies _just_ for production environments.
+
 # 0.12.0
 
 ## Show outdated dependencies
