@@ -238,6 +238,18 @@ $ dmenv --production install
 
 Note that both the location of the virtual environment and the lock file will be different.
 
+You can also specify dependencies *just* for production, by using an extra requirement named `prod`:
+
+```python
+setup(
+   ...
+   extras_require={
+      "dev": ["foo", "pytest"],
+      "prod": ["foo-prod"],
+   }
+)
+```
+
 ## Allowing access to Python packages from the system
 
 
