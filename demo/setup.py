@@ -17,6 +17,9 @@ setup(
     extras_require={
         "dev": [
             "pytest",
+        ],
+        "prod": [
+            "gunicorn",
         ]
     },
     classifiers=[
