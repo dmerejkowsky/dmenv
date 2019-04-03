@@ -44,6 +44,10 @@ impl TestApp {
         self.remove_file("setup.py");
     }
 
+    pub fn remove_setup_cfg(&self) {
+        self.remove_file("setup.cfg");
+    }
+
     pub fn remove_dev_lock(&self) {
         self.remove_file(dmenv::DEV_LOCK_FILENAME);
     }
@@ -103,11 +107,6 @@ impl TestApp {
     pub fn remove_file(&self, name: &str) {
         let path = self.path().join(name);
         std::fs::remove_file(path).unwrap();
-    }
-
-    pub fn read_setup_py(&self) -> String {
-        let path = self.path().join("setup.py");
-        std::fs::read_to_string(path).unwrap()
     }
 }
 
