@@ -28,7 +28,7 @@ fn init_generates_setup_py() {
 fn bump_in_lock_simple() {
     let test_app = TestApp::new();
     let lock_contents = "bar==1.3\nfoo==0.42\n";
-    test_app.write_dev_lock(&lock_contents);
+    test_app.write_dev_lock(lock_contents);
 
     test_app.assert_run_ok(&["bump-in-lock", "foo", "0.43"]);
     let actual_contents = test_app.read_dev_lock();
