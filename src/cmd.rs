@@ -64,6 +64,9 @@ pub enum SubCommand {
 
         #[structopt(long = "author", help = "Author name")]
         author: Option<String>,
+
+        #[structopt(long = "no-setup-cfg", help = "Configure setup() with a cfg file")]
+        no_setup_cfg: bool,
     },
 
     #[structopt(name = "lock", about = "(Re)-generate requirements.lock")]

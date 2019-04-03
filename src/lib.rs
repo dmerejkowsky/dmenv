@@ -20,7 +20,7 @@ pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
-use crate::operations::LockOptions;
+use crate::operations::{InitOptions, LockOptions};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::Project;
 use crate::python_info::PythonInfo;
@@ -66,7 +66,14 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             name,
             version,
             author,
-        } => project.init(name, version, author),
+            no_setup_cfg,
+        } => {
+            let mut options = InitOptions::new(name, version, author);
+            if *no_setup_cfg {
+                options.no_setup_cfg()
+            };
+            project.init(&options)
+        }
         SubCommand::Lock {
             python_version,
             sys_platform,

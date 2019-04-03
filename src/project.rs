@@ -52,8 +52,8 @@ impl Project {
     }
 
     /// Create `setup.py` if it does not exist.
-    pub fn init(&self, name: &str, version: &str, author: &Option<String>) -> Result<(), Error> {
-        operations::init(&self.paths.project, name, version, author)
+    pub fn init(&self, options: &operations::InitOptions) -> Result<(), Error> {
+        operations::init(&self.paths.project, options)
     }
 
     /// Clean virtualenv. No-op if the virtualenv does not exist
