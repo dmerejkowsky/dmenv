@@ -106,17 +106,54 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    #[test]
-    fn test_resolving_paths() {
-        let project_path = Path::new("/tmp/foo");
-        let python_version = "3.7.1";
-        let mut settings = Settings::default();
-        settings.venv_outside_project = true;
-        let paths_resolver =
-            PathsResolver::new(project_path.to_path_buf(), python_version, &settings);
+    fn get_venv_path(project_path: PathBuf, settings: Settings, python_version: &str) -> PathBuf {
+        let paths_resolver = PathsResolver::new(project_path, python_version, &settings);
         let paths = paths_resolver.paths().unwrap();
+        paths.venv
+    }
 
-        assert_eq!(paths.project, project_path);
-        assert!(paths.venv.to_string_lossy().contains(python_version));
+    #[test]
+    fn test_resolving_paths_contains_python_version() {
+        let project_path = Path::new("/tmp/foo");
+        let settings = Settings::default();
+        let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
+        assert!(path.to_string_lossy().contains("3.7"));
+    }
+
+    #[test]
+    fn test_resolving_paths_inside_by_default() {
+        let project_path = Path::new("/tmp/foo");
+        let settings = Settings::default();
+        let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
+        assert!(path.to_string_lossy().contains("/tmp/foo"));
+    }
+
+    #[test]
+    fn test_resolving_paths_outside_project() {
+        let project_path = Path::new("/tmp/foo");
+        let settings = Settings {
+            venv_outside_project: true,
+            ..Default::default()
+        };
+        let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
+        assert!(!path.to_string_lossy().contains("/tmp/foo"));
+    }
+
+    #[test]
+    fn test_resolving_paths_prod_differs_from_dev() {
+        let project_path = Path::new("/tmp/foo");
+        let prod_settings = Settings {
+            production: true,
+            ..Default::default()
+        };
+        let prod_path = get_venv_path(project_path.to_path_buf(), prod_settings, "3.7");
+
+        let dev_settings = Settings {
+            production: false,
+            ..Default::default()
+        };
+        let dev_path = get_venv_path(project_path.to_path_buf(), dev_settings, "3.7");
+
+        assert_ne!(prod_path, dev_path);
     }
 }
