@@ -27,7 +27,7 @@ Here's what `dmenv lock` does:
   Note that you may have to [configure other tools](./advanced_usage.md#configuring-other-tools) to ignore this directory.
 
 
-* Then it runs `pip intall --editable .[dev]` so that your dev dependencies are
+* Then it runs `pip install --editable .[dev]` so that your dev dependencies are
   installed, and the scripts listed in `entry_points` are created.
 
 * Finally, it runs `pip freeze` to generate a `requirements.lock` file.
@@ -50,7 +50,7 @@ Hooray reproducible builds!
 
 Depending of your usage, you may need to tell other tools to ignore the `.venv` directory.
 
-* **git**: add a line containing `.venv/` to the `.gitgnore`.
+* **git**: add a line containing `.venv/` to the `.gitignore`.
 
 ```text
 # should be already there if you use
