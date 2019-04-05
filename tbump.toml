@@ -10,7 +10,7 @@ regex = '''
   '''
 
 [git]
-message_template = "Bump to {new_version}"
+message_template = "Bump to {new_version} [ci skip]"
 tag_template = "v{new_version}"
 
 [[file]]
