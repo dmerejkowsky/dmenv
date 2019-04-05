@@ -18,7 +18,4 @@ If does it by:
 * reading information about your project in the `setup.py` file and nothing else
 * using already existing tools such as `python3 -m venv` and `pip`
 
-As the tag line implies, its implementation is as simple as possible and it contains the
-*bare minimum* amount of features.
-
 Want to try it? Proceed to [installation](installation.md) and [usage](./basic_usage.md).
