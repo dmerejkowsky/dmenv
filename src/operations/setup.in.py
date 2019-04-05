@@ -16,20 +16,25 @@ setup(
     # extension:
     # py_modules=["<module>"],
     install_requires=[
-        # Put your dependencies here
-        # "colorama"
+        # Insert common dependencies here:
+        # "colorama",
     ],
     extras_require={
         "dev": [
-            # Put you dev dependencies here
-            # "pytest"
+            # Insert dev dependencies here
+            # "pytest",
+        ]
+        "prod": [
+            # Insert prod dependencies here
+            # "gunicorn",
         ]
     },
     classifiers=[
-        # Put the list of supported Python versions here:
-        # "Programming Language :: Python :: 3.3",
-        # "Programming Language :: Python :: 3.4",
+        # Insert the list of supported Python versions here:
         # ...
+        # "Programming Language :: Python :: 3.5",
+        # "Programming Language :: Python :: 3.6",
+        # "Programming Language :: Python :: 3.7",
     ],
     entry_points={
         "console_scripts":

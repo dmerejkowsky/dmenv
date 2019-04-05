@@ -1,3 +1,12 @@
+# 0.14.0
+
+## Breaking: `dmenv init` now uses a separate setup.cfg file alongside setup.py
+
+This leads to far more readable code.
+
+Note: this may break when using setuptools <= 30.3.0 (roughly Python 3.5). Use `dmenv init --no-setup-cfg` if you
+need compatibility with old Python versions.
+
 # 0.13.0
 
 * Fix [#77](https://github.com/TankerHQ/dmenv/issues/77): Use `prod` extra requirements when `--production` is used. This allows having dependencies _just_ for production environments.

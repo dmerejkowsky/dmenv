@@ -7,34 +7,11 @@ First, `dmenv` needs a Python3 interpreter in PATH, which should be called `pyth
 Second, `dmenv` needs a `setup.py` file to work.
 
 * If you don't have a `setup.py` yet, you can run `dmenv init <project name>`
-  to generate one. In this case, make sure to read the comments inside
+  to generate one, alongside a `setup.cfg` file. In this case, make sure to read the comments inside
   and edit it to fit your needs.
 
-* If you already have one, please note that `dmenv` uses the `extras_require` keyword with a `dev` key
-  to specify development dependencies, which you can use to replace your `dev-requirements.txt`
-  file for instance.
-
-In both cases, here are the contents of `setup.py` file you should end up with:
-
-```python
-from setuptools import setup
-
-setup(
-    name="demo",
-    version="0.6.1",
-    ...
-    install_requires=[
-        "path.py",
-    ],
-    extras_require={
-        "dev": [
-            "pytest",
-        ],
-    },
-    ...
-)
-```
-
+* If you already have a `setup.py` or a `setup.cfg` file that contains info about dependencies, please note that `dmenv` the
+ **extras require** dependencies to specify development dependencies.
 
 You are now ready to use `dmenv`. Keep on reading about the two main commands: `dmenv lock` and `dmenv install`.
 

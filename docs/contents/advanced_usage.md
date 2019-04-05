@@ -2,23 +2,20 @@
 
 ## Some definitions
 
-Let's assume the following `setup.py`:
+Let's assume the following `setup.cfg`:
 
-```python
-# setup.py
-setup(
-    name="demo",
-    version="0.6.1",
-    ...
-    install_requires=[
-      "path.py"
-    ],
-    extras_require={
-        "dev": [
-            "pytest",
-        ]
-    },
-)
+```ini
+[metadata]
+name = foo
+version = 0.1.0
+
+[options]
+install_requires=
+  path.py
+
+[options.extras_require]
+  dev =
+    pytest
 ```
 
 Since `pytest` is only used by the tests, and not the rest of the code,

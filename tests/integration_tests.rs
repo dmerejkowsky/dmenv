@@ -8,9 +8,11 @@ fn show_venv_path() {
 }
 
 #[test]
-fn init_generates_setup_py() {
+fn init_works() {
     let test_app = TestApp::new();
     test_app.remove_setup_py();
+    test_app.remove_setup_cfg();
+
     #[rustfmt::skip]
     test_app.assert_run_ok(&[
         "init", "foo",
@@ -18,10 +20,7 @@ fn init_generates_setup_py() {
         "--author", "jane@corp.com",
     ]);
 
-    let written = test_app.read_setup_py();
-    assert!(written.contains("foo"));
-    assert!(written.contains("0.42"));
-    assert!(written.contains("jane@corp.com"));
+    test_app.assert_run_ok(&["lock"]);
 }
 
 #[test]
