@@ -1,3 +1,11 @@
+# 0.14.1
+
+* Fix incorrect `--help` message
+* Better error handling when virtualenv or binary path do not exist
+* Fix typo in `setup.cfg` template
+
+All reported by @theolderieu. Thanks, man.
+
 # 0.14.0
 
 ## Breaking: `dmenv init` now uses a separate setup.cfg file alongside setup.py
