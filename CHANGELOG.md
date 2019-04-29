@@ -4,7 +4,7 @@
 * Better error handling when virtualenv or binary path do not exist
 * Fix typo in `setup.cfg` template
 
-All reported by @theolderieu. Thanks, man.
+All reported by @theodelrieu. Thanks, man.
 
 # 0.14.0
 
