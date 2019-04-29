@@ -11,6 +11,7 @@ pub struct InitOptions {
 
 impl InitOptions {
     pub fn new(name: &str, version: &str, author: &Option<String>) -> Self {
+        #![allow(clippy::redundant_closure)]
         InitOptions {
             name: name.to_string(),
             version: version.to_string(),

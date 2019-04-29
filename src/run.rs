@@ -20,26 +20,16 @@ impl VenvRunner {
     pub fn run(&self, binary: &str, args: Vec<&str>) -> Result<(), Error> {
         operations::venv::expect(&self.venv_path)?;
 
-        let binary_path = self.resolve_path(binary);
-        if !binary_path.exists() {
-            return Err(Error::Other {
-                message: format!("Cannot run: '{}' does not exist", &binary_path.display()),
-            });
-        };
+        let binary_path = self.resolve_path(binary)?;
         run(&self.project_path, &binary_path, args)
     }
 
     pub fn get_output(&self, binary: &str, args: Vec<&str>) -> Result<String, Error> {
-        let binary_path = self.resolve_path(binary);
-        if !binary_path.exists() {
-            return Err(Error::Other {
-                message: format!("Cannot run: '{}' does not exist", &binary_path.display()),
-            });
-        };
+        let binary_path = self.resolve_path(binary)?;
         get_output(&self.project_path, &binary_path, args)
     }
 
-    pub fn resolve_path(&self, binary: &str) -> PathBuf {
+    pub fn resolve_path(&self, binary: &str) -> Result<PathBuf, Error> {
         #[cfg(windows)]
         let suffix = ".exe";
         #[cfg(not(windows))]
@@ -48,7 +38,13 @@ impl VenvRunner {
         let binary = format!("{}{}", binary, suffix);
 
         let binaries_path = self.binaries_path();
-        self.venv_path.join(binaries_path).join(binary)
+        let res = self.venv_path.join(binaries_path).join(binary);
+        if !res.exists() {
+            return Err(Error::Other {
+                message: format!("Cannot run: '{}' does not exist", &res.display()),
+            });
+        };
+        Ok(res)
     }
 
     pub fn binaries_path(&self) -> PathBuf {

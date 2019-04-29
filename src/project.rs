@@ -208,7 +208,7 @@ impl Project {
 
         #[cfg(unix)]
         {
-            let bin_path = self.venv_runner.resolve_path(&args[0]);
+            let bin_path = self.venv_runner.resolve_path(&args[0])?;
             let bin_path_str = bin_path.to_str().ok_or(Error::Other {
                 message: "Could not convert binary path to String".to_string(),
             })?;
@@ -250,6 +250,7 @@ impl Project {
     /// Same has `show_venv_path`, but add the correct subfolder
     /// (`bin` on Linux and macOS, `Scripts` on Windows).
     pub fn show_venv_bin_path(&self) -> Result<(), Error> {
+        self.expect_venv()?;
         let bin_path = self.venv_runner.binaries_path();
         println!("{}", bin_path.display());
         Ok(())
