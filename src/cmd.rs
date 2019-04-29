@@ -65,7 +65,10 @@ pub enum SubCommand {
         #[structopt(long = "author", help = "Author name")]
         author: Option<String>,
 
-        #[structopt(long = "no-setup-cfg", help = "Configure setup() with a cfg file")]
+        #[structopt(
+            long = "no-setup-cfg",
+            help = "Keep all code in the `setup.py` file, do not use `setup.cfg`"
+        )]
         no_setup_cfg: bool,
     },
 
