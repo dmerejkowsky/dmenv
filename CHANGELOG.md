@@ -1,3 +1,7 @@
+# 0.14.2
+
+* Restore generation of precompiled binaries from travis.
+
 # 0.14.1
 
 * Fix incorrect `--help` message
