@@ -95,15 +95,6 @@ impl TestApp {
         res.unwrap_err().to_string()
     }
 
-    pub fn write_dev_lock(&self, contents: &str) {
-        self.write_file(dmenv::DEV_LOCK_FILENAME, contents);
-    }
-
-    pub fn write_file(&self, name: &str, contents: &str) {
-        let path = self.path().join(name);
-        std::fs::write(path, &contents).unwrap();
-    }
-
     pub fn remove_file(&self, name: &str) {
         let path = self.path().join(name);
         std::fs::remove_file(path).unwrap();

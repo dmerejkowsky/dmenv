@@ -181,7 +181,7 @@ impl Project {
         self.ensure_venv()?;
         self.upgrade_pip()?;
         self.install_editable()?;
-        self.write_lock(&lock_options)
+        self.lock_dependencies(&lock_options)
     }
 
     /// Bump a dependency in the lock file
@@ -190,7 +190,8 @@ impl Project {
     // `Lock.bump()` is called, depending on the value of the `git` argument.
     pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
         print_info_1(&format!("Bumping {} to {} ...", name, version));
-        operations::bump_in_lock(&self.paths.lock, name, version, git)
+        let metadata = self.get_metadata()?;
+        operations::bump_in_lock(&self.paths.lock, name, version, git, &metadata)
     }
 
     /// Run a program from the virtualenv, making sure it dies
@@ -279,13 +280,12 @@ impl Project {
         self.venv_runner.run("python", args)
     }
 
-    // Actually write the lock file
-    // Delegates most of the work to the Lock struct.
-    fn write_lock(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
+    // Lock dependencies
+    fn lock_dependencies(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
         let metadata = &self.get_metadata()?;
         let frozen_deps = self.get_frozen_deps()?;
         let lock_path = &self.paths.lock;
-        operations::write_lock(lock_path, frozen_deps, lock_options, metadata)
+        operations::lock_dependencies(lock_path, frozen_deps, lock_options, &metadata)
     }
 
     fn get_metadata(&self) -> Result<Metadata, Error> {
