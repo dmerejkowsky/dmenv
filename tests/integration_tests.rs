@@ -26,13 +26,9 @@ fn init_works() {
 #[test]
 fn bump_in_lock_simple() {
     let test_app = TestApp::new();
-    let lock_contents = "bar==1.3\nfoo==0.42\n";
-    test_app.write_dev_lock(lock_contents);
-
-    test_app.assert_run_ok(&["bump-in-lock", "foo", "0.43"]);
-    let actual_contents = test_app.read_dev_lock();
-    let expected_contents = lock_contents.replace("0.42", "0.43");
-    assert_eq!(actual_contents, expected_contents);
+    test_app.assert_run_ok(&["bump-in-lock", "attrs", "19.2.0"]);
+    let actual = test_app.read_dev_lock();
+    assert!(actual.contains("attrs==19.2.0"));
 }
 
 #[test]

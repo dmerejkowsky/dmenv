@@ -20,6 +20,7 @@ pub fn bump_in_lock(
     name: &str,
     version: &str,
     git: bool,
+    metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = std::fs::read_to_string(lock_path).map_err(|e| Error::ReadError {
         path: lock_path.to_path_buf(),
@@ -36,19 +37,16 @@ pub fn bump_in_lock(
         return Ok(());
     }
     let new_contents = lock.to_string();
-    std::fs::write(&lock_path, new_contents).map_err(|e| Error::WriteError {
-        path: lock_path.to_path_buf(),
-        io_error: e,
-    })?;
+    write_lock(lock_path, &new_contents, metadata)?;
     println!("{}", "ok!".green());
     Ok(())
 }
 
-pub fn write_lock(
+pub fn lock_dependencies(
     lock_path: &PathBuf,
     frozen_deps: Vec<FrozenDependency>,
     lock_options: &LockOptions,
-    project_metadata: &Metadata,
+    metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = if lock_path.exists() {
         std::fs::read_to_string(lock_path).map_err(|e| Error::ReadError {
@@ -69,19 +67,26 @@ pub fn write_lock(
     lock.freeze(&frozen_deps);
 
     let new_contents = lock.to_string();
+    write_lock(lock_path, &new_contents, metadata)
+}
 
+pub fn write_lock(
+    lock_path: &PathBuf,
+    lock_contents: &str,
+    metadata: &Metadata,
+) -> Result<(), Error> {
     let Metadata {
         dmenv_version,
         python_version,
         python_platform,
-    } = project_metadata;
+    } = metadata;
 
     let top_comment = format!(
         "# Generated with dmenv {}, python {}, on {}\n",
         dmenv_version, &python_version, &python_platform
     );
 
-    let to_write = top_comment + &new_contents;
+    let to_write = top_comment + lock_contents;
     std::fs::write(&lock_path, to_write).map_err(|e| Error::WriteError {
         path: lock_path.to_path_buf(),
         io_error: e,
