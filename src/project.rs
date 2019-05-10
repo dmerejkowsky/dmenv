@@ -28,6 +28,11 @@ pub struct Project {
     venv_runner: VenvRunner,
 }
 
+pub enum PostInstallAction {
+    RunSetupPyDevelop,
+    None,
+}
+
 impl Project {
     pub fn new(
         project_path: PathBuf,
@@ -112,7 +117,7 @@ impl Project {
     /// Install dependencies from the lock file (production.lock or requirements.lock), depending
     /// on how paths were resolved by PathsResolver
     /// Abort if virtualenv or lock file does not exist
-    pub fn install(&self, develop: bool) -> Result<(), Error> {
+    pub fn install(&self, post_install_action: PostInstallAction) -> Result<(), Error> {
         print_info_1("Preparing project for development");
         let lock_path = &self.paths.lock;
         if !lock_path.exists() {
@@ -124,8 +129,9 @@ impl Project {
         self.ensure_venv()?;
         self.install_from_lock()?;
 
-        if develop {
-            self.develop()?;
+        match post_install_action {
+            PostInstallAction::RunSetupPyDevelop => self.develop()?,
+            PostInstallAction::None => (),
         }
         Ok(())
     }
