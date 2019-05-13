@@ -23,7 +23,7 @@ setup(
         "dev": [
             # Insert dev dependencies here
             # "pytest",
-        ]
+        ],
         "prod": [
             # Insert prod dependencies here
             # "gunicorn",
