@@ -22,7 +22,7 @@ pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::Error;
 use crate::operations::{InitOptions, LockOptions};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
-use crate::project::Project;
+use crate::project::{PostInstallAction, Project};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 
@@ -57,8 +57,12 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             if *system_site_packages {
                 project.use_system_site_packages()
             }
-            let develop = !no_develop;
-            project.install(develop)
+            let post_install_action = if *no_develop {
+                PostInstallAction::None
+            } else {
+                PostInstallAction::RunSetupPyDevelop
+            };
+            project.install(post_install_action)
         }
         SubCommand::Clean {} => project.clean(),
         SubCommand::Develop {} => project.develop(),
