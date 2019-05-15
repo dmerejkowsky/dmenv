@@ -1,3 +1,8 @@
+# 0.14.3
+
+* Fix syntax of generated setup.py (#86)
+* Fix regression: keep the top comment when running bump-in-lock
+
 # 0.14.2
 
 * Restore generation of precompiled binaries from travis.
