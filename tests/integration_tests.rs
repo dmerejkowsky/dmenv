@@ -69,32 +69,32 @@ fn production_workflow() {
     assert!(lock_contents.contains("gunicorn"));
 
     test_app.assert_run_ok(&["--production", "clean"]);
-    test_app.assert_run_ok(&["--production", "install"]);
+    test_app.assert_run_ok(&["--production", "setup"]);
     test_app.assert_run_ok(&["--production", "run", "--no-exec", "demo"]);
 }
 
 #[test]
-fn install_workflow_basic() {
+fn setup_workflow_basic() {
     let test_app = TestApp::new();
-    test_app.assert_run_ok(&["install"]);
+    test_app.assert_run_ok(&["setup"]);
     test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
     test_app.assert_run_ok(&["run", "--no-exec", "pytest"]);
 }
 
 #[test]
-fn install_workflow_step_by_step() {
+fn setup_workflow_step_by_step() {
     let test_app = TestApp::new();
-    test_app.assert_run_ok(&["install", "--no-develop"]);
+    test_app.assert_run_ok(&["setup", "--no-develop"]);
     test_app.assert_run_ok(&["develop"]);
     test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
     test_app.assert_run_ok(&["run", "--no-exec", "pytest"]);
 }
 
 #[test]
-fn install_without_lock() {
+fn setup_without_lock() {
     let test_app = TestApp::new();
     test_app.remove_dev_lock();
-    test_app.assert_run_error(&["install"]);
+    test_app.assert_run_error(&["setup"]);
 }
 
 #[test]

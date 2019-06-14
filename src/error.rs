@@ -97,7 +97,7 @@ impl std::fmt::Display for Error {
             ),
             Error::MissingVenv { path } => {
                 let mut message = format!("virtualenv in '{}' does not exist\n", path.display());
-                message.push_str("Please run `dmenv lock` or `dmenv install` to create it");
+                message.push_str("Please run `dmenv lock` or `dmenv setup` to create it");
                 message
             }
 

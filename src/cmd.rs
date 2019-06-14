@@ -31,8 +31,8 @@ pub enum SubCommand {
     #[structopt(name = "develop", about = "Run setup.py develop")]
     Develop {},
 
-    #[structopt(name = "install", about = "Install all dependencies")]
-    Install {
+    #[structopt(name = "setup", about = "Set up the project for development")]
+    Setup {
         #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]
         no_develop: bool,
         #[structopt(
@@ -41,6 +41,9 @@ pub enum SubCommand {
         )]
         system_site_packages: bool,
     },
+
+    #[structopt(name = "process-scripts", help = "Process generated scripts")]
+    ProcessScripts {},
 
     #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]
     BumpInLock {
@@ -175,4 +178,5 @@ mod tests {
     fn test_parse_python_version_not_quoted() {
         parse_python_version("<= 3.6").unwrap_err();
     }
+
 }

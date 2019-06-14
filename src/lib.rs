@@ -50,7 +50,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     // Note: keep the `match()` here so that we know every variant of the SubCommand
     // enum is handled.
     match &cmd.sub_cmd {
-        SubCommand::Install {
+        SubCommand::Setup {
             no_develop,
             system_site_packages,
         } => {
