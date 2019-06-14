@@ -78,6 +78,10 @@ impl Project {
             .run("python", vec!["setup.py", "develop", "--no-deps"])
     }
 
+    pub fn process_scripts(&self) -> Result<(), Error> {
+        operations::scripts::create(&self.paths)
+    }
+
     /// Ensure the virtualenv exists
     //
     // Note: this is *only* called by `install()` and `lock()`.

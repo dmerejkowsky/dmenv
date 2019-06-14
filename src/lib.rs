@@ -64,6 +64,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             };
             project.install(post_install_action)
         }
+        SubCommand::ProcessScripts {} => project.process_scripts(),
         SubCommand::Clean {} => project.clean(),
         SubCommand::Develop {} => project.develop(),
         SubCommand::Init {
