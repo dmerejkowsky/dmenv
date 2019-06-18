@@ -86,9 +86,8 @@ fn find_egg_info(project_path: &PathBuf) -> Result<PathBuf, Error> {
     let glob = glob::glob(&pattern).expect("could not parse glob pattern");
     let mut matches = vec![];
     for entry in glob {
-        match entry {
-            Ok(path) => matches.push(path),
-            Err(_) => (),
+        if let Ok(path) = entry {
+            matches.push(path)
         }
     }
     let num_matches = matches.len();
@@ -108,7 +107,7 @@ struct ConsoleScript {
 
 impl ConsoleScript {
     pub fn from_line(line: &str) -> Result<Self, Error> {
-        let tokens: Vec<_> = line.split("=").collect();
+        let tokens: Vec<_> = line.split('=').collect();
         Ok(ConsoleScript {
             name: tokens[0].trim().to_string(),
             value: tokens[1].trim().to_string(),
@@ -127,7 +126,7 @@ fn read_entry_points(egg_info_path: &PathBuf) -> Result<ConsoleScripts, Error> {
     for line in contents.lines() {
         if line == "[console_scripts]" {
             in_console_scripts = true;
-        } else if line.starts_with("[") {
+        } else if line.starts_with('[') {
             in_console_scripts = false;
         } else if in_console_scripts && !line.is_empty() {
             res.push(ConsoleScript::from_line(line)?);
