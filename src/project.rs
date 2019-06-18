@@ -8,7 +8,7 @@ use crate::win_job;
 
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
-use crate::error::Error;
+use crate::error::*;
 use crate::operations;
 use crate::paths::{Paths, PathsResolver};
 use crate::python_info::PythonInfo;
@@ -216,9 +216,9 @@ impl Project {
         #[cfg(unix)]
         {
             let bin_path = self.venv_runner.resolve_path(&args[0])?;
-            let bin_path_str = bin_path.to_str().ok_or(Error::Other {
-                message: "Could not convert binary path to String".to_string(),
-            })?;
+            let bin_path_str = bin_path
+                .to_str()
+                .ok_or_else(|| new_error(&format!("Could not convert {:?} to String", bin_path)))?;
             let mut fixed_args: Vec<String> = args.to_vec();
             fixed_args[0] = bin_path_str.to_string();
             println!("{} {}", "$".blue(), fixed_args.join(" "));

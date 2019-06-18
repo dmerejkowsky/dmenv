@@ -64,6 +64,26 @@ pub enum Error {
     },
 }
 
+pub fn new_error(message: &str) -> Error {
+    Error::Other {
+        message: message.to_string(),
+    }
+}
+
+pub fn new_read_error(error: std::io::Error, path: &PathBuf) -> Error {
+    Error::ReadError {
+        path: path.to_path_buf(),
+        io_error: error,
+    }
+}
+
+pub fn new_write_error(error: std::io::Error, path: &PathBuf) -> Error {
+    Error::WriteError {
+        path: path.to_path_buf(),
+        io_error: error,
+    }
+}
+
 /// Implement Display for our Error type
 // Note: this is a not-so-bad way to make sure every error message is consistent
 impl std::fmt::Display for Error {

@@ -19,7 +19,7 @@ mod win_job;
 pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
-pub use crate::error::Error;
+pub use crate::error::*;
 use crate::operations::{InitOptions, LockOptions};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::{PostInstallAction, Project};
@@ -31,17 +31,17 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let project_path = if let Some(project_path) = cmd.project_path {
         PathBuf::from(project_path)
     } else {
-        std::env::current_dir().map_err(|e| Error::Other {
-            message: format!("Could not get current directory: {}", e),
-        })?
+        std::env::current_dir()
+            .map_err(|e| new_error(&format!("Could not get current directory: {}", e)))?
     };
     // Perform additional sanity checks when using `dmenv run`
     // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
         if cmd.is_empty() {
-            return Err(Error::Other {
-                message: format!("Missing argument after '{}'", "run".green()),
-            });
+            return Err(new_error(&format!(
+                "Missing argument after '{}'",
+                "run".green()
+            )));
         }
     }
     let python_info = PythonInfo::new(&cmd.python_binary)?;
