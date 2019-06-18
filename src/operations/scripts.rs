@@ -3,14 +3,13 @@ use glob;
 use std::path::{Path, PathBuf};
 
 use crate::cmd;
-use crate::error::Error;
+use crate::error::*;
 use crate::paths::Paths;
 
 pub fn create(paths: &Paths) -> Result<(), Error> {
     let key = "DMENV_SCRIPTS_PATH";
-    let scripts_path = std::env::var_os(key).ok_or_else(|| Error::Other {
-        message: format!("{} environment variable not set", key),
-    })?;
+    let scripts_path = std::env::var_os(key)
+        .ok_or_else(|| new_error(&format!("{} environment variable not set", key)))?;
     let scripts_path = Path::new(&scripts_path);
     let egg_info_path = find_egg_info(&paths.project)?;
     let console_scripts = read_entry_points(&egg_info_path)?;
@@ -32,12 +31,10 @@ fn process(
     let src_path = venv_path.join("bin").join(&console_script.name);
     let dest_path = scripts_path.join(&console_script.name);
     if !src_path.exists() {
-        return Err(Error::Other {
-            message: format!(
-                "{:?} does not exist. You may want to call `dmenv develop` now",
-                dest_path
-            ),
-        });
+        return Err(new_error(&format!(
+            "{:?} does not exist. You may want to call `dmenv develop` now",
+            dest_path
+        )));
     }
     cmd::print_info_2(&format!(
         "Creating script {} calling {}",
@@ -50,11 +47,11 @@ fn process(
         dest_path.to_string_lossy(),
         src_path.to_string_lossy()
     );
-    std::os::unix::fs::symlink(&src_path, &dest_path).map_err(|e| Error::Other {
-        message: format!(
+    std::os::unix::fs::symlink(&src_path, &dest_path).map_err(|e| {
+        new_error(&format!(
             "Could not create link from {:?} to {:?}: {}",
             dest_path, src_path, e
-        ),
+        ))
     })
 }
 
@@ -70,12 +67,16 @@ fn delete_if_link(path: &PathBuf) -> Result<(), Error> {
     };
     let meta = meta.unwrap();
     if !meta.file_type().is_symlink() {
-        return Err(Error::Other {
-            message: format!("{:?} exists and is *not* a symlink", path),
-        });
+        return Err(new_error(&format!(
+            "{:?} exists and is *not* a symlink",
+            path
+        )));
     };
-    std::fs::remove_file(path).map_err(|e| Error::Other {
-        message: format!("Could not remove existing symlink {:?}: {}", path, e),
+    std::fs::remove_file(path).map_err(|e| {
+        new_error(&format!(
+            "Could not remove existing symlink {:?}: {}",
+            path, e
+        ))
     })?;
     Ok(())
 }
@@ -92,9 +93,10 @@ fn find_egg_info(project_path: &PathBuf) -> Result<PathBuf, Error> {
     }
     let num_matches = matches.len();
     if num_matches != 1 {
-        return Err(Error::Other {
-            message: format!("Expecting exactly one .egg-info entry, got {}", num_matches),
-        });
+        return Err(new_error(&format!(
+            "Expecting exactly one .egg-info entry, got {}",
+            num_matches
+        )));
     }
     Ok(matches[0].clone())
 }
@@ -118,11 +120,8 @@ type ConsoleScripts = Vec<ConsoleScript>;
 
 fn read_entry_points(egg_info_path: &PathBuf) -> Result<ConsoleScripts, Error> {
     let entry_points_txt_path = egg_info_path.join("entry_points.txt");
-    let contents =
-        std::fs::read_to_string(&entry_points_txt_path).map_err(|e| Error::ReadError {
-            path: entry_points_txt_path,
-            io_error: e,
-        })?;
+    let contents = std::fs::read_to_string(&entry_points_txt_path)
+        .map_err(|e| new_read_error(e, &entry_points_txt_path))?;
     let mut res = vec![];
     let mut in_console_scripts = false;
     for line in contents.lines() {

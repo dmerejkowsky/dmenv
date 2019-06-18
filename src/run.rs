@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use colored::*;
 
-use crate::error::Error;
+use crate::error::{new_error, Error};
 use crate::operations;
 
 pub struct VenvRunner {
@@ -40,9 +40,10 @@ impl VenvRunner {
         let binaries_path = self.binaries_path();
         let res = self.venv_path.join(binaries_path).join(binary);
         if !res.exists() {
-            return Err(Error::Other {
-                message: format!("Cannot run: '{}' does not exist", &res.display()),
-            });
+            return Err(new_error(&format!(
+                "Cannot run: '{}' does not exist",
+                &res.display()
+            )));
         };
         Ok(res)
     }
@@ -70,9 +71,7 @@ pub fn run(working_path: &PathBuf, binary_path: &PathBuf, args: Vec<&str>) -> Re
         .status();
     let command = command.map_err(|e| Error::ProcessWaitError { io_error: e })?;
     if !command.success() {
-        return Err(Error::Other {
-            message: "command failed".to_string(),
-        });
+        return Err(new_error("command failed"));
     }
     Ok(())
 }
@@ -90,13 +89,11 @@ pub fn get_output(
 
     let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
     if !command.status.success() {
-        return Err(Error::Other {
-            message: format!(
-                "`{}` failed\n: {}",
-                cmd_str,
-                String::from_utf8_lossy(&command.stderr)
-            ),
-        });
+        return Err(new_error(&format!(
+            "`{}` failed\n: {}",
+            cmd_str,
+            String::from_utf8_lossy(&command.stderr)
+        )));
     }
     Ok(String::from_utf8_lossy(&command.stdout).to_string())
 }

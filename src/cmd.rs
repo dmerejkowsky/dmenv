@@ -2,7 +2,7 @@ use colored::*;
 use regex::Regex;
 use structopt::StructOpt;
 
-use crate::error::Error;
+use crate::error::{new_error, Error};
 
 #[derive(StructOpt)]
 #[structopt(
@@ -153,9 +153,9 @@ fn parse_python_version(string: &str) -> Result<String, Error> {
     // instead.
     let re = Regex::new("^(==|<|<=|>|>=) (('.*?')|(\".*?\"))$").unwrap();
     if !re.is_match(string) {
-        return Err(Error::Other {
-            message: "should match something like `<= '3.6'`".to_string(),
-        });
+        return Err(new_error(
+            &"should match something like `<= '3.6'`".to_string(),
+        ));
     }
     Ok(string.to_string())
 }
