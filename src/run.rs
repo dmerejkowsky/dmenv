@@ -114,7 +114,7 @@ impl VenvRunner {
     fn get_binary_name(name: &str) -> String {
         #[cfg(windows)]
         let suffix = ".exe";
-        #[cfg(not(windows))]
+        #[cfg(unix)]
         let suffix = "";
         format!("{}{}", name, suffix)
     }

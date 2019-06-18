@@ -22,7 +22,7 @@ pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::*;
 use crate::operations::{InitOptions, LockOptions};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
-use crate::project::{PostInstallAction, Project};
+use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 
@@ -90,6 +90,14 @@ pub fn run(cmd: Command) -> Result<(), Error> {
                 PostInstallAction::RunSetupPyDevelop
             };
             project.install(post_install_action)
+        }
+        SubCommand::ProcessScripts { force } => {
+            let mode = if *force {
+                ProcessScriptsMode::Override
+            } else {
+                ProcessScriptsMode::Safe
+            };
+            project.process_scripts(mode)
         }
         SubCommand::Clean {} => project.clean(),
         SubCommand::Develop {} => project.develop(),

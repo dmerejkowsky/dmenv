@@ -80,3 +80,25 @@ $ dmenv bump-in-lock --git foo deadbeef
 bar==0.3
 foo==git@gitlab.com/foo/foo@deadbeef#egg=foo
 ```
+
+## dmenv process-scripts
+
+If you set the `DMENV_SCRIPTS_PATH` environment variable to a writeable directory in your $PATH,
+you can run `dmenv process-scripts` in any project, and it will create a script there for all the "console" entry points defined in `setup.cfg`:
+
+```bash
+$ export DMENV_SCRIPTS_PATH=$HOME/.local/bin
+$ cd foo-project
+$ cat foo/main.py
+def main():
+    print("Hello, this is foo")
+$ cat setup.cfg
+
+[options.entry_points]
+console_scripts = foo=foo:main
+
+$ dmenv process-scripts
+$ There is now a file named `foo` in `~/.local/bin`, so this works:
+$ foo
+Hello, this is foo
+```

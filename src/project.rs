@@ -9,6 +9,7 @@ use crate::python_info::PythonInfo;
 use crate::run::VenvRunner;
 use crate::settings::Settings;
 
+#[derive(Debug)]
 pub struct Metadata {
     pub dmenv_version: String,
     pub python_platform: String,
@@ -22,9 +23,16 @@ pub struct Project {
     venv_runner: VenvRunner,
 }
 
+#[derive(Debug)]
 pub enum PostInstallAction {
     RunSetupPyDevelop,
     None,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum ProcessScriptsMode {
+    Safe,
+    Override,
 }
 
 impl Project {
@@ -65,6 +73,10 @@ impl Project {
 
         self.venv_runner
             .run(&["python", "setup.py", "develop", "--no-deps"])
+    }
+
+    pub fn process_scripts(&self, mode: ProcessScriptsMode) -> Result<(), Error> {
+        operations::scripts::process(&self.paths, mode)
     }
 
     /// Ensure the virtualenv exists
