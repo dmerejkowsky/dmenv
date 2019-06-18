@@ -1,5 +1,6 @@
 use colored::Colorize;
 use glob;
+use ini::Ini;
 use std::path::{Path, PathBuf};
 
 use crate::cmd;
@@ -30,17 +31,17 @@ fn process(
 ) -> Result<(), Error> {
     let src_path = venv_path.join("bin").join(&console_script.name);
     let dest_path = scripts_path.join(&console_script.name);
-    if !src_path.exists() {
-        return Err(new_error(&format!(
-            "{:?} does not exist. You may want to call `dmenv develop` now",
-            dest_path
-        )));
-    }
     cmd::print_info_2(&format!(
         "Creating script {} calling {}",
         console_script.name.bold(),
         console_script.value.bold(),
     ));
+    if !src_path.exists() {
+        return Err(new_error(&format!(
+            "{:?} does not exist. You may want to call `dmenv develop` now",
+            src_path
+        )));
+    }
     delete_if_link(&dest_path)?;
     println!(
         "{} -> {}",
@@ -105,36 +106,26 @@ struct ConsoleScript {
     value: String,
 }
 
-impl ConsoleScript {
-    pub fn from_line(line: &str) -> Result<Self, Error> {
-        let tokens: Vec<_> = line.split('=').collect();
-        Ok(ConsoleScript {
-            name: tokens[0].trim().to_string(),
-            value: tokens[1].trim().to_string(),
-        })
-    }
-}
-
 type ConsoleScripts = Vec<ConsoleScript>;
 
 fn read_entry_points(egg_info_path: &PathBuf) -> Result<ConsoleScripts, Error> {
     let entry_points_txt_path = egg_info_path.join("entry_points.txt");
-    let contents = std::fs::read_to_string(&entry_points_txt_path)
-        .map_err(|e| new_read_error(e, &entry_points_txt_path))?;
+    let config = Ini::load_from_file(&entry_points_txt_path).map_err(|e| {
+        new_error(&format!(
+            "Could not read {:?}: {}",
+            &entry_points_txt_path, e
+        ))
+    })?;
     let mut res = vec![];
-    let mut in_console_scripts = false;
-    for line in contents.lines() {
-        if line == "[console_scripts]" {
-            in_console_scripts = true;
-        } else if line.starts_with('[') {
-            in_console_scripts = false;
-        } else if in_console_scripts && !line.is_empty() {
-            res.push(ConsoleScript::from_line(line)?);
+    let section = config.section(Some("console_scripts"));
+    if let Some(section) = section {
+        for (key, value) in section.iter() {
+            let cs = ConsoleScript {
+                name: key.to_string(),
+                value: value.to_string(),
+            };
+            res.push(cs);
         }
     }
     Ok(res)
 }
-
-// Tests:
-// skipping irrelevant sections in entry_points.txt
-// handling invalid lines
