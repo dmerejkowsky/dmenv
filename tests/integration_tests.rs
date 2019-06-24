@@ -117,6 +117,11 @@ fn test_process_scripts() {
     std::env::set_var("DMENV_SCRIPTS_PATH", &scripts_path);
     test_app.assert_run_ok(&["setup"]);
     test_app.assert_run_ok(&["process-scripts"]);
-    assert!(scripts_path.join("demo").exists())
-    // TODO: call the script!
+    #[cfg(unix)]
+    let script_path = scripts_path.join("demo");
+    #[cfg(windows)]
+    let script_path = scripts_path.join("demo.exe");
+    assert!(script_path.exists());
+    let command = std::process::Command::new(script_path).status().unwrap();
+    assert!(command.success())
 }
