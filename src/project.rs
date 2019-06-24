@@ -8,7 +8,7 @@ use crate::win_job;
 
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
-use crate::error::{new_error, Error};
+use crate::error::*;
 use crate::operations;
 use crate::paths::{Paths, PathsResolver};
 use crate::python_info::PythonInfo;

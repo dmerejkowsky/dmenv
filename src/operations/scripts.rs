@@ -42,6 +42,31 @@ fn process(
             src_path
         )));
     }
+    #[cfg(windows)]
+    {
+        safe_copy(&src_path, &dest_path)
+    }
+    #[cfg(unix)]
+    {
+        safe_create_symlink(&src_path, &dest_path)
+    }
+}
+
+#[cfg(windows)]
+fn safe_copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), Error> {
+    if dest_path.exists() {
+        return Err(new_error(&format!("{:?} already exists", &src_path)));
+    }
+    std::fs::copy(src_path, dest_path).map_err(|e| 
+    new_error(&format!(
+    "Could not copy from {:?} to {:?}: {}",
+        src_path, dest_path, e
+    )))?;
+    Ok(())
+}
+
+#[cfg(unix)]
+fn safe_create_symlink(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), Error> {
     delete_if_link(&dest_path)?;
     println!(
         "{} -> {}",
