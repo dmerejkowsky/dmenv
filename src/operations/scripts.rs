@@ -34,8 +34,8 @@ fn process(
 
     #[cfg(windows)]
     let names = vec![
-        &console_script.name + ".exe",
-        &console_script.name + "-script.py",
+        format!("{}.exe", console_script.name),
+        format!("{}-script.py", console_script.name),
     ];
 
     for name in names.iter() {
@@ -49,7 +49,13 @@ fn process_script_with_name(
     scripts_path: &PathBuf,
     name: &str,
 ) -> Result<(), Error> {
-    let src_path = venv_path.join("bin").join(name);
+    #[cfg(not(windows))]
+    let subdir = "bin";
+
+    #[cfg(windows)]
+    let subdir = "Scripts";
+        
+    let src_path = venv_path.join(subdir).join(name);
     let dest_path = scripts_path.join(name);
     cmd::print_info_2(&format!("Creating script: {}", name.bold()));
     if !src_path.exists() {
