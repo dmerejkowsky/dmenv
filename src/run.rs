@@ -4,6 +4,7 @@ use colored::*;
 
 use crate::error::{new_error, Error};
 use crate::operations;
+use crate::paths::SCRIPTS_SUBDIR;
 
 pub struct VenvRunner {
     project_path: PathBuf,
@@ -49,12 +50,7 @@ impl VenvRunner {
     }
 
     pub fn binaries_path(&self) -> PathBuf {
-        #[cfg(not(windows))]
-        let subdir = "bin";
-
-        #[cfg(windows)]
-        let subdir = "Scripts";
-        self.venv_path.join(subdir)
+        self.venv_path.join(SCRIPTS_SUBDIR)
     }
 }
 

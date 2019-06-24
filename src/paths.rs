@@ -10,6 +10,11 @@ const APP_INFO: AppInfo = AppInfo {
 pub const PROD_LOCK_FILENAME: &str = "production.lock";
 pub const DEV_LOCK_FILENAME: &str = "requirements.lock";
 
+#[cfg(unix)]
+pub const SCRIPTS_SUBDIR: &str = "bin";
+#[cfg(windows)]
+pub const SCRIPTS_SUBDIR: &str = "Scripts";
+
 use crate::error::*;
 
 // Container for all the PathsBuf used by the venv_manager

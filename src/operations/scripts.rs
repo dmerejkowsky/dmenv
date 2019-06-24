@@ -19,7 +19,7 @@ pub fn create(paths: &Paths) -> Result<(), Error> {
         console_scripts.len()
     ));
     for console_script in console_scripts {
-        process(&paths.venv, &scripts_path.to_path_buf(), console_script)?;
+        process(&paths.venv, &scripts_path.to_path_buf(), &console_script)?;
     }
     Ok(())
 }
@@ -27,15 +27,15 @@ pub fn create(paths: &Paths) -> Result<(), Error> {
 fn process(
     venv_path: &PathBuf,
     scripts_path: &PathBuf,
-    console_script: ConsoleScript,
+    entry_point_name: &str,
 ) -> Result<(), Error> {
     #[cfg(unix)]
-    let names = vec![&console_script.name];
+    let names = vec![entry_point_name];
 
     #[cfg(windows)]
     let names = vec![
-        format!("{}.exe", console_script.name),
-        format!("{}-script.py", console_script.name),
+        format!("{}.exe", entry_point_name),
+        format!("{}-script.py", entry_point_name),
     ];
 
     for name in names.iter() {
@@ -54,7 +54,7 @@ fn process_script_with_name(
 
     #[cfg(windows)]
     let subdir = "Scripts";
-        
+
     let src_path = venv_path.join(subdir).join(name);
     let dest_path = scripts_path.join(name);
     cmd::print_info_2(&format!("Creating script: {}", name.bold()));
@@ -149,15 +149,7 @@ fn find_egg_info(project_path: &PathBuf) -> Result<PathBuf, Error> {
     Ok(matches[0].clone())
 }
 
-// TODO: remove me
-struct ConsoleScript {
-    name: String,
-    value: String,
-}
-
-type ConsoleScripts = Vec<ConsoleScript>;
-
-fn read_entry_points(egg_info_path: &PathBuf) -> Result<ConsoleScripts, Error> {
+fn read_entry_points(egg_info_path: &PathBuf) -> Result<Vec<String>, Error> {
     let entry_points_txt_path = egg_info_path.join("entry_points.txt");
     let config = Ini::load_from_file(&entry_points_txt_path).map_err(|e| {
         new_error(&format!(
@@ -168,12 +160,8 @@ fn read_entry_points(egg_info_path: &PathBuf) -> Result<ConsoleScripts, Error> {
     let mut res = vec![];
     let section = config.section(Some("console_scripts"));
     if let Some(section) = section {
-        for (key, value) in section.iter() {
-            let cs = ConsoleScript {
-                name: key.to_string(),
-                value: value.to_string(),
-            };
-            res.push(cs);
+        for (key, _value) in section.iter() {
+            res.push(key.to_string());
         }
     }
     Ok(res)
