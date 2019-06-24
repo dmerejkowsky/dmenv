@@ -29,13 +29,29 @@ fn process(
     scripts_path: &PathBuf,
     console_script: ConsoleScript,
 ) -> Result<(), Error> {
-    let src_path = venv_path.join("bin").join(&console_script.name);
-    let dest_path = scripts_path.join(&console_script.name);
-    cmd::print_info_2(&format!(
-        "Creating script {} calling {}",
-        console_script.name.bold(),
-        console_script.value.bold(),
-    ));
+    #[cfg(unix)]
+    let names = vec![&console_script.name];
+
+    #[cfg(windows)]
+    let names = vec![
+        &console_script.name + ".exe",
+        &console_script.name + "-script.py",
+    ];
+
+    for name in names.iter() {
+        process_script_with_name(venv_path, scripts_path, &name)?;
+    }
+    Ok(())
+}
+
+fn process_script_with_name(
+    venv_path: &PathBuf,
+    scripts_path: &PathBuf,
+    name: &str,
+) -> Result<(), Error> {
+    let src_path = venv_path.join("bin").join(name);
+    let dest_path = scripts_path.join(name);
+    cmd::print_info_2(&format!("Creating script: {}", name.bold()));
     if !src_path.exists() {
         return Err(new_error(&format!(
             "{:?} does not exist. You may want to call `dmenv develop` now",
@@ -57,11 +73,12 @@ fn safe_copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), Error> {
     if dest_path.exists() {
         return Err(new_error(&format!("{:?} already exists", &src_path)));
     }
-    std::fs::copy(src_path, dest_path).map_err(|e| 
-    new_error(&format!(
-    "Could not copy from {:?} to {:?}: {}",
-        src_path, dest_path, e
-    )))?;
+    std::fs::copy(src_path, dest_path).map_err(|e| {
+        new_error(&format!(
+            "Could not copy from {:?} to {:?}: {}",
+            src_path, dest_path, e
+        ))
+    })?;
     Ok(())
 }
 
@@ -126,6 +143,7 @@ fn find_egg_info(project_path: &PathBuf) -> Result<PathBuf, Error> {
     Ok(matches[0].clone())
 }
 
+// TODO: remove me
 struct ConsoleScript {
     name: String,
     value: String,
