@@ -1,10 +1,4 @@
-use colored::*;
 use std::path::PathBuf;
-
-#[cfg(unix)]
-use crate::execv::execv;
-#[cfg(windows)]
-use crate::win_job;
 
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
@@ -75,7 +69,7 @@ impl Project {
         }
 
         self.venv_runner
-            .run("python", vec!["setup.py", "develop", "--no-deps"])
+            .run(&["python", "setup.py", "develop", "--no-deps"])
     }
 
     /// Ensure the virtualenv exists
@@ -152,15 +146,15 @@ impl Project {
             .unwrap_or_else(|| panic!("self.path.lock has no filename component"));
 
         let as_str = lock_name.to_string_lossy();
-        let args = vec!["-m", "pip", "install", "--requirement", &as_str];
-        self.venv_runner.run("python", args)
+        let cmd = &["python", "-m", "pip", "install", "--requirement", &as_str];
+        self.venv_runner.run(cmd)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {
         print_info_2("Upgrading pip");
-        let args = vec!["-m", "pip", "install", "pip", "--upgrade"];
+        let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
         self.venv_runner
-            .run("python", args)
+            .run(cmd)
             .map_err(|_| Error::PipUpgradeFailed {})
     }
 
@@ -202,28 +196,9 @@ impl Project {
 
     /// Run a program from the virtualenv, making sure it dies
     /// when we get killed and that the exit code is forwarded
-    pub fn run(&self, args: &[String]) -> Result<(), Error> {
+    pub fn run_and_die<T: AsRef<str>>(&self, cmd: &[T]) -> Result<(), Error> {
         self.expect_venv()?;
-
-        #[cfg(windows)]
-        {
-            unsafe {
-                win_job::setup();
-            }
-            self.run_no_exec(args)
-        }
-
-        #[cfg(unix)]
-        {
-            let bin_path = self.venv_runner.resolve_path(&args[0])?;
-            let bin_path_str = bin_path
-                .to_str()
-                .ok_or_else(|| new_error(&format!("Could not convert {:?} to String", bin_path)))?;
-            let mut fixed_args: Vec<String> = args.to_vec();
-            fixed_args[0] = bin_path_str.to_string();
-            println!("{} {}", "$".blue(), fixed_args.join(" "));
-            execv(bin_path_str, fixed_args)
-        }
+        self.venv_runner.run_and_die(cmd)
     }
 
     /// On Windows:
@@ -232,18 +207,16 @@ impl Project {
     ///   - same as run, but create a new process instead of using execv()
     // Note: mostly for tests. We want to *check* the return code of
     // `dmenv run` and so we need a child process
-    pub fn run_no_exec(&self, args: &[String]) -> Result<(), Error> {
+    pub fn run<T: AsRef<str>>(&self, cmd: &[T]) -> Result<(), Error> {
         self.expect_venv()?;
-        let cmd = args[0].clone();
-        let args: Vec<&str> = args.iter().skip(1).map(String::as_str).collect();
-        self.venv_runner.run(&cmd, args)
+        self.venv_runner.run(cmd)
     }
 
     /// Show the dependencies inside the virtualenv.
     // Note: Run `pip list` so we get what's *actually* installed, not just
     // the contents of the lock file
     pub fn show_deps(&self) -> Result<(), Error> {
-        self.venv_runner.run("pip", vec!["list"])
+        self.venv_runner.run(&["python", "-m", "pip", "list"])
     }
 
     /// Show the resolved virtualenv path.
@@ -264,8 +237,13 @@ impl Project {
     }
 
     pub fn show_outdated(&self) -> Result<(), Error> {
-        self.venv_runner
-            .run("pip", vec!["list", "--outdated", "--format", "columns"])
+        #[rustfmt::skip]
+        let cmd = &[
+            "python", "-m", "pip",
+            "list", "--outdated",
+            "--format", "columns",
+        ];
+        self.venv_runner.run(cmd)
     }
 
     fn install_editable(&self) -> Result<(), Error> {
@@ -277,13 +255,13 @@ impl Project {
         }
         print_info_2(&message);
 
-        let mut args = vec!["-m", "pip", "install", "--editable"];
-        if self.settings.production {
-            args.push(".[prod]")
+        let extra = if self.settings.production {
+            ".[prod]"
         } else {
-            args.push(".[dev]")
-        }
-        self.venv_runner.run("python", args)
+            ".[dev]"
+        };
+        let cmd = &["python", "-m", "pip", "install", "--editable", extra];
+        self.venv_runner.run(cmd)
     }
 
     // Lock dependencies
@@ -326,9 +304,13 @@ impl Project {
     fn run_pip_freeze(&self) -> Result<String, Error> {
         let lock_path = &self.paths.lock;
         print_info_2(&format!("Generating {}", lock_path.display()));
-        self.venv_runner.get_output(
-            "pip",
-            vec!["freeze", "--exclude-editable", "--all", "--local"],
-        )
+        #[rustfmt::skip]
+        let cmd = &[
+            "python", "-m", "pip", "freeze",
+            "--exclude-editable",
+            "--all",
+            "--local",
+        ];
+        self.venv_runner.get_output(cmd)
     }
 }

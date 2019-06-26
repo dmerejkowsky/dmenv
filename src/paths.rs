@@ -7,6 +7,11 @@ const APP_INFO: AppInfo = AppInfo {
     author: "Tanker",
 };
 
+#[cfg(unix)]
+pub const SCRIPTS_SUBDIR: &str = "bin";
+#[cfg(windows)]
+pub const SCRIPTS_SUBDIR: &str = "Scripts";
+
 pub const PROD_LOCK_FILENAME: &str = "production.lock";
 pub const DEV_LOCK_FILENAME: &str = "requirements.lock";
 
