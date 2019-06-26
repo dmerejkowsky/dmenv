@@ -91,6 +91,13 @@ fn install_workflow_step_by_step() {
 }
 
 #[test]
+fn run_project_script() {
+    let test_app = TestApp::new();
+    test_app.assert_run_ok(&["install"]);
+    test_app.assert_run_ok(&["run", "--no-exec", "demo.py"]);
+}
+
+#[test]
 fn install_without_lock() {
     let test_app = TestApp::new();
     test_app.remove_dev_lock();

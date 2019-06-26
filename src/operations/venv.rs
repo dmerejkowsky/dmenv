@@ -48,7 +48,7 @@ pub fn create(
         args.push("--system-site-packages");
     }
     let python_binary = &python_info.binary;
-    run(&parent_venv_path.to_path_buf(), &python_binary, args)
+    run(&parent_venv_path.to_path_buf(), &python_binary, &args)
 }
 
 pub fn expect(venv_path: &PathBuf) -> Result<(), Error> {

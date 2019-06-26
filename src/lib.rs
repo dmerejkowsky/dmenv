@@ -95,9 +95,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::BumpInLock { name, version, git } => project.bump_in_lock(name, version, *git),
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
-                project.run_no_exec(cmd)
+                project.run(&cmd)
             } else {
-                project.run(cmd)
+                project.run_and_die(&cmd)
             }
         }
         SubCommand::ShowDeps {} => project.show_deps(),

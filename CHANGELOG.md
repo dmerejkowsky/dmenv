@@ -1,3 +1,8 @@
+# 0.15
+
+* When `foo.py` is present at the root of the project, you can us `dmenv run foo.py` directly instead of
+  the more awkward `dmenv run -- python foo.py`
+
 # 0.14.3
 
 * Fix syntax of generated setup.py (#86)
