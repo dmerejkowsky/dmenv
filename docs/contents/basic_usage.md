@@ -46,6 +46,26 @@ dependencies and get exactly the same versions you got when you ran `dmenv lock`
 Hooray reproducible builds!
 
 
+## dmenv run
+
+One the virtual environment has been created, you can run any binary from the venv with the command
+`dmenv run`.
+
+For instance, assuming `pytest` is declared as a dependency:
+
+```bash
+$ dmenv run pytest
+```
+
+Note that you can also use `dmenv run` to run scripts from your project:
+
+```bash
+$ dmenv run foo.py
+# Equivalent to:
+$ dmenv run python foo.py
+```
+
+
 ## Configuring other tools
 
 Depending of your usage, you may need to tell other tools to ignore the `.venv` directory.
