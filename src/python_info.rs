@@ -1,4 +1,4 @@
-use crate::error::Error;
+use crate::error::*;
 use std::path::PathBuf;
 
 /// Represent output of the info.py script
@@ -21,24 +21,20 @@ impl PythonInfo {
             .output();
         let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
         if !command.status.success() {
-            return Err(Error::Other {
-                message: format!(
-                    "Failed to run info script: {}",
-                    String::from_utf8_lossy(&command.stderr)
-                ),
-            });
+            return Err(new_error(&format!(
+                "Failed to run info script: {}",
+                String::from_utf8_lossy(&command.stderr)
+            )));
         }
         let info_out = String::from_utf8_lossy(&command.stdout);
         let lines: Vec<_> = info_out.split('\n').collect();
         let expected_lines = 3; // Keep this in sync with src/info.py
         if lines.len() != 3 {
-            return Err(Error::Other {
-                message: format!(
-                    "Expected {} lines in info_out, got: {}",
-                    expected_lines,
-                    lines.len()
-                ),
-            });
+            return Err(new_error(&format!(
+                "Expected {} lines in info_out, got: {}",
+                expected_lines,
+                lines.len()
+            )));
         }
         let version = lines[0].trim().to_string();
         let platform = lines[1].trim().to_string();
@@ -62,7 +58,5 @@ fn get_python_binary(requested_python: &Option<String>) -> Result<PathBuf, Error
         return Ok(python3);
     }
 
-    which::which("python").map_err(|_| Error::Other {
-        message: "Neither `python3` nor `python` found in PATH".to_string(),
-    })
+    which::which("python").map_err(|_| new_error("Neither `python3` nor `python` found in PATH"))
 }

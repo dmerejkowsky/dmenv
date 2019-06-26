@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::cmd::*;
-use crate::error::Error;
+use crate::error::*;
 use crate::python_info::PythonInfo;
 use crate::run::run;
 use crate::settings::Settings;
@@ -11,9 +11,8 @@ pub fn clean(venv_path: PathBuf) -> Result<(), Error> {
     if !venv_path.exists() {
         return Ok(());
     }
-    std::fs::remove_dir_all(&venv_path).map_err(|e| Error::Other {
-        message: format!("could not remove {}: {}", venv_path.display(), e),
-    })?;
+    std::fs::remove_dir_all(&venv_path)
+        .map_err(|e| new_error(&format!("could not remove {}: {}", venv_path.display(), e)))?;
     Ok(())
 }
 
@@ -22,12 +21,16 @@ pub fn create(
     python_info: &PythonInfo,
     settings: &Settings,
 ) -> Result<(), Error> {
-    let parent_venv_path = venv_path.parent().ok_or(Error::Other {
-        message: "venv_path has no parent".to_string(),
-    })?;
+    let parent_venv_path = venv_path
+        .parent()
+        .ok_or_else(|| new_error("venv_path has no parent"))?;
     print_info_2(&format!("Creating virtualenv in: {}", venv_path.display()));
-    std::fs::create_dir_all(&parent_venv_path).map_err(|e| Error::Other {
-        message: format!("Could not create {}: {}", parent_venv_path.display(), e),
+    std::fs::create_dir_all(&parent_venv_path).map_err(|e| {
+        new_error(&format!(
+            "Could not create {}: {}",
+            parent_venv_path.display(),
+            e
+        ))
     })?;
 
     // Python -m venv should work in most cases (venv is in the stdlib since Python 3.3)

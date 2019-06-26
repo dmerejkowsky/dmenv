@@ -1,5 +1,5 @@
 use crate::cmd::*;
-use crate::error::Error;
+use crate::error::*;
 use std::path::PathBuf;
 
 pub struct InitOptions {
@@ -35,10 +35,7 @@ fn ensure_path_does_not_exist(path: &PathBuf) -> Result<(), Error> {
 }
 
 fn write_to_path(path: &PathBuf, contents: &str) -> Result<(), Error> {
-    std::fs::write(path, contents).map_err(|e| Error::WriteError {
-        path: path.to_path_buf(),
-        io_error: e,
-    })
+    std::fs::write(path, contents).map_err(|e| new_write_error(e, path))
 }
 
 pub fn init(project_path: &PathBuf, options: &InitOptions) -> Result<(), Error> {

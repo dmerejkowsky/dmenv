@@ -22,10 +22,8 @@ pub fn bump_in_lock(
     git: bool,
     metadata: &Metadata,
 ) -> Result<(), Error> {
-    let lock_contents = std::fs::read_to_string(lock_path).map_err(|e| Error::ReadError {
-        path: lock_path.to_path_buf(),
-        io_error: e,
-    })?;
+    let lock_contents =
+        std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?;
     let mut lock = Lock::from_string(&lock_contents)?;
     let changed = if git {
         lock.git_bump(name, version)
@@ -49,10 +47,7 @@ pub fn lock_dependencies(
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = if lock_path.exists() {
-        std::fs::read_to_string(lock_path).map_err(|e| Error::ReadError {
-            path: lock_path.to_owned(),
-            io_error: e,
-        })?
+        std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?
     } else {
         String::new()
     };
@@ -87,8 +82,5 @@ pub fn write_lock(
     );
 
     let to_write = top_comment + lock_contents;
-    std::fs::write(&lock_path, to_write).map_err(|e| Error::WriteError {
-        path: lock_path.to_path_buf(),
-        io_error: e,
-    })
+    std::fs::write(&lock_path, to_write).map_err(|e| new_write_error(e, lock_path))
 }
