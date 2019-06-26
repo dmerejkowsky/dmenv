@@ -1,4 +1,4 @@
-# 0.15
+# 0.15.0
 
 * When `foo.py` is present at the root of the project, you can us `dmenv run foo.py` directly instead of
   the more awkward `dmenv run -- python foo.py`
