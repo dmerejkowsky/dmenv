@@ -31,9 +31,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let project_path = if let Some(project_path) = cmd.project_path {
         PathBuf::from(project_path)
     } else {
-        std::env::current_dir()
-            .map_err(|e| new_error(&format!("Could not get current directory: {}", e)))?
+        look_up_for_project_path()?
     };
+    print_info_1(&format!("Using {:?} as project path", project_path));
     // Perform additional sanity checks when using `dmenv run`
     // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
@@ -109,10 +109,38 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     }
 }
 
+fn look_up_for_project_path() -> Result<PathBuf, Error> {
+    let mut candidate = std::env::current_dir()
+        .map_err(|e| new_error(&format!("Could not get current directory: {}", e)))?;
+    loop {
+        let setup_py_path = candidate.join("setup.py");
+        if setup_py_path.exists() {
+            return Ok(candidate);
+        } else {
+            let parent = candidate.parent();
+            match parent {
+                None => {
+                    return Err(new_error(
+                        "Could not find setup.py in any of the parent directories",
+                    ))
+                }
+                Some(p) => candidate = p.to_path_buf(),
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
     fn test_not_in_venv() {
+        // If we run `cargo test` from an existing virtualenv, it will get
+        // shared by all the tests and most of the integration tests will fail.
+        //
+        // The goal of _this_ test is to prevent integration tests from running
+        // *at all* if we are inside a virtualenv. It works because `cargo test`
+        // is clever and does not try to run integration tests when unit tests
+        // fail.
         if std::env::var("VIRTUAL_ENV").is_ok() {
             panic!("Please exit virtualenv before running tests");
         }
