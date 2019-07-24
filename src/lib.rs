@@ -31,9 +31,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     let project_path = if let Some(project_path) = cmd.project_path {
         PathBuf::from(project_path)
     } else {
-        std::env::current_dir()
-            .map_err(|e| new_error(&format!("Could not get current directory: {}", e)))?
+        look_up_for_project_path()?
     };
+    print_info_1(&format!("Using {:?} as project path", project_path));
     // Perform additional sanity checks when using `dmenv run`
     // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
@@ -106,6 +106,27 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
 
         SubCommand::UpgradePip {} => project.upgrade_pip(),
+    }
+}
+
+fn look_up_for_project_path() -> Result<PathBuf, Error> {
+    let mut candidate = std::env::current_dir()
+        .map_err(|e| new_error(&format!("Could not get current directory: {}", e)))?;
+    loop {
+        let setup_py_path = candidate.join("setup.py");
+        if setup_py_path.exists() {
+            return Ok(candidate);
+        } else {
+            let parent = candidate.parent();
+            match parent {
+                None => {
+                    return Err(new_error(
+                        "Could not find setup.py in any of the parent directories",
+                    ))
+                }
+                Some(p) => candidate = p.to_path_buf(),
+            }
+        }
     }
 }
 

@@ -1,3 +1,7 @@
+# 0.16.0 (2019-07-24)
+
+* Fix #94: Look for `setup.py` in the parent directories when trying to resolve the project path.
+
 # 0.15.0 (2019-06-26)
 
 * When `foo.py` is present at the root of the project, you can us `dmenv run foo.py` directly instead of
