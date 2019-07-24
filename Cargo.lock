@@ -130,7 +130,7 @@ dependencies = [
 
 [[package]]
 name = "dmenv"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "colored 1.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
