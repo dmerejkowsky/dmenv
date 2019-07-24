@@ -101,7 +101,7 @@ If you have `wget` installed and used a pre-compiled binary, upgrading `dmenv` c
 ```bash
 # Replace <version> and <arch> with their correct value
 $ wget \
-  https://github.com/TankerHQ/dmenv/releases/download/<version>/dmenv-<arch> \
+  https://github.com/TankerHQ/dmenv/releases/download/v<version>/dmenv-<arch> \
   -O $(which dmenv)
 ```
 
