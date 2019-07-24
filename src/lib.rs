@@ -33,7 +33,6 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     } else {
         look_up_for_project_path()?
     };
-    print_info_1(&format!("Using {:?} as project path", project_path));
     // Perform additional sanity checks when using `dmenv run`
     // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {

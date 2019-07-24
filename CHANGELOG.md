@@ -1,3 +1,7 @@
+# 0.16.1 (2019-07-24)
+
+* Fix regression that caused parsing output of `dmenv show` commands to stop working
+
 # 0.16.0 (2019-07-24)
 
 * Fix #94: Look for `setup.py` in the parent directories when trying to resolve the project path.
