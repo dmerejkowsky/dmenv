@@ -113,6 +113,13 @@ pub fn run(cmd: Command) -> Result<(), Error> {
 mod tests {
     #[test]
     fn test_not_in_venv() {
+        // If we run `cargo test` from an existing virtualenv, it will get
+        // shared by all the tests and most of the integration tests will fail.
+        //
+        // The goal of _this_ test is to prevent integration tests from running
+        // *at all* if we are inside a virtualenv. It works because `cargo test`
+        // is clever and does not try to run integration tests when unit tests
+        // fail.
         if std::env::var("VIRTUAL_ENV").is_ok() {
             panic!("Please exit virtualenv before running tests");
         }
