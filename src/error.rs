@@ -51,7 +51,6 @@ pub enum Error {
     },
 
     MalformedLock {
-        line: usize,
         details: String,
     },
 
@@ -61,6 +60,10 @@ pub enum Error {
 
     MultipleBumps {
         name: String,
+    },
+    IncorrectLockedType {
+        name: String,
+        expected_type: String,
     },
 }
 
@@ -130,13 +133,16 @@ impl std::fmt::Display for Error {
 
             Error::FileExists { path } => format!("{} already exists", path.display()),
 
-            Error::MalformedLock { line, details } => {
-                format!("Malformed lock at line {}\n:{}", line, details)
-            }
+            Error::MalformedLock { details } => format!("Malformed lock:\n{}", details),
+
             Error::NothingToBump { name } => format!("'{}' not found in lock", name),
             Error::MultipleBumps { name } => {
                 format!("multiple matches found for '{}' in lock", name)
             }
+            Error::IncorrectLockedType {
+                name,
+                expected_type,
+            } => format!("{} is not a {} dependency", name, expected_type),
         };
         write!(f, "{}", message)
     }

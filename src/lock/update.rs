@@ -1,7 +1,18 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
-use crate::lock::Lock;
 
-impl Lock {
+pub struct Updater {
+    python_version: Option<String>,
+    sys_platform: Option<String>,
+}
+
+impl Updater {
+    pub fn new() -> Self {
+        Updater {
+            python_version: None,
+            sys_platform: None,
+        }
+    }
+
     /// Set the python version
     // Note: This cause the behavior of `freeze()` to change.
     // See `add_missing_deps` for details
@@ -21,15 +32,23 @@ impl Lock {
     // make sure no existing information in the lock is lost
     // This in not an actual merge because we only modify existing lines
     // or add new ones (no deletion ocurrs).
-    pub fn update(&mut self, deps: &[FrozenDependency]) {
-        self.patch_existing_deps(deps);
-        self.add_missing_deps(deps);
+    pub fn update(
+        &self,
+        locked_dependencies: &mut Vec<LockedDependency>,
+        frozen_dependencies: &[FrozenDependency],
+    ) {
+        self.patch_existing_deps(locked_dependencies, frozen_dependencies);
+        self.add_missing_deps(locked_dependencies, frozen_dependencies);
     }
 
     /// Add dependencies from `frozen_deps` that were missing in the lock
-    fn add_missing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
+    fn add_missing_deps(
+        &self,
+        locked_dependencies: &mut Vec<LockedDependency>,
+        frozen_deps: &[FrozenDependency],
+    ) {
         #![allow(clippy::redundant_closure)]
-        let known_names: &Vec<_> = &mut self.dependencies.iter().map(|d| d.name()).collect();
+        let known_names: Vec<_> = locked_dependencies.iter().map(|d| d.name()).collect();
         let new_deps: Vec<_> = frozen_deps
             .iter()
             .filter(|x| !known_names.contains(&&x.name))
@@ -49,14 +68,18 @@ impl Lock {
             if let Some(sys_platform) = &self.sys_platform {
                 locked_dep.sys_platform(sys_platform);
             }
-            println!("+ {}", locked_dep.line);
-            self.dependencies.push(LockedDependency::Simple(locked_dep));
+            print!("+ {}", locked_dep.line);
+            locked_dependencies.push(LockedDependency::Simple(locked_dep));
         }
     }
 
     /// Modify dependencies that were in the lock to match those passed in `frozen_deps`
-    fn patch_existing_deps(&mut self, frozen_deps: &[FrozenDependency]) {
-        for dep in &mut self.dependencies {
+    fn patch_existing_deps(
+        &self,
+        locked_dependencies: &mut Vec<LockedDependency>,
+        frozen_deps: &[FrozenDependency],
+    ) {
+        for dep in locked_dependencies.iter_mut() {
             match dep {
                 // frozen deps *never* contain git information (because `pip freeze`
                 // only returns names and versions), so always keep those in the lock.
@@ -80,13 +103,14 @@ impl Lock {
         }
 
         println!("{}: {} -> {}", dep.name, dep.version.value, &frozen_version);
-        dep.freeze(&frozen_version)
+        dep.update(&frozen_version)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lock::{dump, parse};
 
     impl FrozenDependency {
         pub fn new(name: &str, version: &str) -> Self {
@@ -97,25 +121,34 @@ mod tests {
         }
     }
 
-    fn assert_update(contents: &str, frozen: &[FrozenDependency], expected: &str) {
-        let mut lock = Lock::from_string(contents).unwrap();
-        lock.update(frozen);
-        let actual = lock.to_string();
-        assert_eq!(actual, expected);
+    fn assert_update(
+        updater: Updater,
+        initial_contents: &str,
+        frozen: &[FrozenDependency],
+        final_contents: &str,
+    ) {
+        let mut locked = parse(initial_contents).unwrap();
+        updater.update(&mut locked, frozen);
+        let actual = dump(&locked);
+        assert_eq!(actual, final_contents);
     }
 
     #[test]
     fn simple_dependency_upgraded() {
+        let updater = Updater::new();
         assert_update(
+            updater,
             "foo==0.42\n",
             &[FrozenDependency::new("foo", "0.43")],
             "foo==0.43\n",
-        );
+        )
     }
 
     #[test]
     fn keep_old_deps() {
+        let updater = Updater::new();
         assert_update(
+            updater,
             "bar==1.3\nfoo==0.42\n",
             &[FrozenDependency::new("foo", "0.43")],
             "bar==1.3\nfoo==0.43\n",
@@ -123,8 +156,21 @@ mod tests {
     }
 
     #[test]
+    fn from_scratch() {
+        let frozen_deps = vec![
+            FrozenDependency::new("bar", "1.3"),
+            FrozenDependency::new("foo", "0.42"),
+        ];
+
+        let updater = Updater::new();
+        assert_update(updater, "", &frozen_deps, "bar==1.3\nfoo==0.42\n");
+    }
+
+    #[test]
     fn keep_git_deps() {
+        let updater = Updater::new();
         assert_update(
+            updater,
             "git@example.com:bar/foo.git@master#egg=foo\n",
             &[FrozenDependency::new("foo", "0.42")],
             "git@example.com:bar/foo.git@master#egg=foo\n",
@@ -133,7 +179,9 @@ mod tests {
 
     #[test]
     fn keep_specifications() {
+        let updater = Updater::new();
         assert_update(
+            updater,
             "foo == 1.3 ; python_version >= '3.6'\n",
             &[FrozenDependency::new("foo", "1.4")],
             "foo == 1.4 ; python_version >= '3.6'\n",
@@ -142,30 +190,42 @@ mod tests {
 
     #[test]
     fn add_new_deps() {
-        assert_update("", &[FrozenDependency::new("foo", "0.42")], "foo==0.42\n");
+        let updater = Updater::new();
+        assert_update(
+            updater,
+            "bar==6.2\n",
+            &[FrozenDependency::new("foo", "0.42")],
+            "bar==6.2\nfoo==0.42\n",
+        );
     }
 
     #[test]
     fn different_python_version() {
-        let mut lock = Lock::from_string("foo==0.42\n").unwrap();
-        lock.python_version("< '3.6'");
-        lock.update(&[
-            FrozenDependency::new("foo", "0.42"),
-            FrozenDependency::new("bar", "1.3"),
-        ]);
-        let actual = lock.to_string();
-        assert_eq!(actual, "bar==1.3 ; python_version < '3.6'\nfoo==0.42\n");
+        let mut updater = Updater::new();
+        updater.python_version("< '3.6'");
+        assert_update(
+            updater,
+            "foo==0.42\n",
+            &[
+                FrozenDependency::new("bar", "1.3"),
+                FrozenDependency::new("foo", "0.42"),
+            ],
+            "bar==1.3 ; python_version < '3.6'\nfoo==0.42\n",
+        );
     }
 
     #[test]
     fn different_platform() {
-        let mut lock = Lock::from_string("foo==0.42\n").unwrap();
-        lock.sys_platform("win32");
-        lock.update(&[
-            FrozenDependency::new("foo", "0.42"),
-            FrozenDependency::new("winapi", "1.3"),
-        ]);
-        let actual = lock.to_string();
-        assert_eq!(actual, "foo==0.42\nwinapi==1.3 ; sys_platform == 'win32'\n");
+        let mut updater = Updater::new();
+        updater.sys_platform("win32");
+        assert_update(
+            updater,
+            "foo==0.42\n",
+            &[
+                FrozenDependency::new("foo", "0.42"),
+                FrozenDependency::new("winapi", "1.3"),
+            ],
+            "foo==0.42\nwinapi==1.3 ; sys_platform == 'win32'\n",
+        );
     }
 }
