@@ -17,5 +17,5 @@ pub struct Lock {
 }
 
 mod bump;
-mod freeze;
 mod parse;
+mod update;

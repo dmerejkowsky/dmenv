@@ -106,7 +106,6 @@ impl Lock {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lock::parse;
 
     #[test]
     fn simple_bump() {

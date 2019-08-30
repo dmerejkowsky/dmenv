@@ -59,7 +59,7 @@ pub fn lock_dependencies(
     if let Some(ref sys_platform) = lock_options.sys_platform {
         lock.sys_platform(&sys_platform);
     }
-    lock.freeze(&frozen_deps);
+    lock.update(&frozen_deps);
 
     let new_contents = lock.to_string();
     write_lock(lock_path, &new_contents, metadata)

@@ -21,7 +21,7 @@ impl Lock {
     // make sure no existing information in the lock is lost
     // This in not an actual merge because we only modify existing lines
     // or add new ones (no deletion ocurrs).
-    pub fn freeze(&mut self, deps: &[FrozenDependency]) {
+    pub fn update(&mut self, deps: &[FrozenDependency]) {
         self.patch_existing_deps(deps);
         self.add_missing_deps(deps);
     }
@@ -97,16 +97,16 @@ mod tests {
         }
     }
 
-    fn assert_freeze(contents: &str, frozen: &[FrozenDependency], expected: &str) {
+    fn assert_update(contents: &str, frozen: &[FrozenDependency], expected: &str) {
         let mut lock = Lock::from_string(contents).unwrap();
-        lock.freeze(frozen);
+        lock.update(frozen);
         let actual = lock.to_string();
         assert_eq!(actual, expected);
     }
 
     #[test]
-    fn freeze_simple_bump() {
-        assert_freeze(
+    fn simple_dependency_upgraded() {
+        assert_update(
             "foo==0.42\n",
             &[FrozenDependency::new("foo", "0.43")],
             "foo==0.43\n",
@@ -114,8 +114,8 @@ mod tests {
     }
 
     #[test]
-    fn freeze_keep_old_deps() {
-        assert_freeze(
+    fn keep_old_deps() {
+        assert_update(
             "bar==1.3\nfoo==0.42\n",
             &[FrozenDependency::new("foo", "0.43")],
             "bar==1.3\nfoo==0.43\n",
@@ -123,8 +123,8 @@ mod tests {
     }
 
     #[test]
-    fn freeze_keep_git_deps() {
-        assert_freeze(
+    fn keep_git_deps() {
+        assert_update(
             "git@example.com:bar/foo.git@master#egg=foo\n",
             &[FrozenDependency::new("foo", "0.42")],
             "git@example.com:bar/foo.git@master#egg=foo\n",
@@ -132,8 +132,8 @@ mod tests {
     }
 
     #[test]
-    fn freeze_keep_specifications() {
-        assert_freeze(
+    fn keep_specifications() {
+        assert_update(
             "foo == 1.3 ; python_version >= '3.6'\n",
             &[FrozenDependency::new("foo", "1.4")],
             "foo == 1.4 ; python_version >= '3.6'\n",
@@ -141,15 +141,15 @@ mod tests {
     }
 
     #[test]
-    fn freeze_add_new_deps() {
-        assert_freeze("", &[FrozenDependency::new("foo", "0.42")], "foo==0.42\n");
+    fn add_new_deps() {
+        assert_update("", &[FrozenDependency::new("foo", "0.42")], "foo==0.42\n");
     }
 
     #[test]
-    fn freeze_different_version() {
+    fn different_python_version() {
         let mut lock = Lock::from_string("foo==0.42\n").unwrap();
         lock.python_version("< '3.6'");
-        lock.freeze(&[
+        lock.update(&[
             FrozenDependency::new("foo", "0.42"),
             FrozenDependency::new("bar", "1.3"),
         ]);
@@ -158,10 +158,10 @@ mod tests {
     }
 
     #[test]
-    fn freeze_different_platform() {
+    fn different_platform() {
         let mut lock = Lock::from_string("foo==0.42\n").unwrap();
         lock.sys_platform("win32");
-        lock.freeze(&[
+        lock.update(&[
             FrozenDependency::new("foo", "0.42"),
             FrozenDependency::new("winapi", "1.3"),
         ]);
