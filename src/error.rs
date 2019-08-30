@@ -59,7 +59,6 @@ pub enum Error {
     },
 
     MalformedLock {
-        line: usize,
         details: String,
     },
 
@@ -148,9 +147,8 @@ impl std::fmt::Display for Error {
 
             Error::FileExists { path } => format!("{} already exists", path.display()),
 
-            Error::MalformedLock { line, details } => {
-                format!("Malformed lock at line {}\n:{}", line, details)
-            }
+            Error::MalformedLock { details } => format!("Malformed lock: {}", details),
+
             Error::NothingToBump { name } => format!("'{}' not found in lock", name),
             Error::MultipleBumps { name } => {
                 format!("multiple matches found for '{}' in lock", name)
