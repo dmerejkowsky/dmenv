@@ -3,7 +3,7 @@ use crate::error::Error;
 use crate::lock::Lock;
 
 // Common trait used by any struct able to bump a dependency
-trait Bumper {
+trait Bump {
     /// Modify the dep passed as argument.
     /// Returns true if the dependency actually changed
     fn bump(&self, dep: &mut LockedDependency) -> bool;
@@ -23,7 +23,7 @@ impl SimpleBumper {
     }
 }
 
-impl Bumper for SimpleBumper {
+impl Bump for SimpleBumper {
     fn bump(&self, dep: &mut LockedDependency) -> bool {
         if let LockedDependency::Simple(s) = dep {
             s.bump(&self.version)
@@ -47,7 +47,7 @@ impl GitBumper {
     }
 }
 
-impl Bumper for GitBumper {
+impl Bump for GitBumper {
     fn bump(&self, dep: &mut LockedDependency) -> bool {
         if let LockedDependency::Git(g) = dep {
             g.bump(&self.git_ref)
@@ -79,7 +79,7 @@ impl Lock {
     // Implement common behavior for any Bumper (regular or git)
     fn bump_impl<T>(&mut self, bumper: &T, name: &str) -> Result<bool, Error>
     where
-        T: Bumper,
+        T: Bump,
     {
         let mut changed = true;
         let mut num_matches = 0;
