@@ -5,6 +5,7 @@ use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock;
+use crate::lock::BumpType;
 use crate::lock::Updater;
 use crate::lock::{git_bump, simple_bump};
 use crate::project::Metadata;
@@ -21,16 +22,15 @@ pub fn bump(
     lock_path: &PathBuf,
     name: &str,
     version: &str,
-    git: bool,
+    bump_type: BumpType,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents =
         std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?;
     let mut deps = lock::parse(&lock_contents)?;
-    let changed = if git {
-        git_bump(&mut deps, name, version)
-    } else {
-        simple_bump(&mut deps, name, version)
+    let changed = match bump_type {
+        BumpType::Git => git_bump(&mut deps, name, version),
+        BumpType::Simple => simple_bump(&mut deps, name, version),
     }?;
     if !changed {
         print_warning(&format!("Dependency {} already up-to-date", name.bold()));

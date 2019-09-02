@@ -1,7 +1,7 @@
 use crate::dependencies::LockedDependency;
 use crate::error::Error;
 
-enum BumpType {
+pub enum BumpType {
     Git,
     Simple,
 }

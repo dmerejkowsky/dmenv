@@ -20,6 +20,7 @@ pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::*;
+use crate::lock::BumpType;
 use crate::operations::{InitOptions, UpdateOptions};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::{PostInstallAction, Project};
@@ -91,7 +92,14 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             }
             project.update_lock(&update_options)
         }
-        SubCommand::BumpInLock { name, version, git } => project.bump_in_lock(name, version, *git),
+        SubCommand::BumpInLock { name, version, git } => {
+            let bump_type = if *git {
+                BumpType::Git
+            } else {
+                BumpType::Simple
+            };
+            project.bump_in_lock(name, version, bump_type)
+        }
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
                 project.run(&cmd)
