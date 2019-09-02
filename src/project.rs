@@ -173,15 +173,18 @@ impl Project {
     //
     // * Delegates the actual work to `write_lock()`
     //
-    pub fn lock(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
-        print_info_1("Locking dependencies");
+    pub fn update_lock(&self, update_options: &operations::UpdateOptions) -> Result<(), Error> {
+        print_info_1("Updating lock");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});
         }
         self.ensure_venv()?;
         self.upgrade_pip()?;
         self.install_editable()?;
-        self.lock_dependencies(&lock_options)
+        let metadata = &self.get_metadata()?;
+        let frozen_deps = self.get_frozen_deps()?;
+        let lock_path = &self.paths.lock;
+        operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
     }
 
     /// Bump a dependency in the lock file
@@ -191,7 +194,7 @@ impl Project {
     pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
         print_info_1(&format!("Bumping {} to {} ...", name, version));
         let metadata = self.get_metadata()?;
-        operations::bump_in_lock(&self.paths.lock, name, version, git, &metadata)
+        operations::lock::bump(&self.paths.lock, name, version, git, &metadata)
     }
 
     /// Run a program from the virtualenv, making sure it dies
@@ -262,14 +265,6 @@ impl Project {
         };
         let cmd = &["python", "-m", "pip", "install", "--editable", extra];
         self.venv_runner.run(cmd)
-    }
-
-    // Lock dependencies
-    fn lock_dependencies(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
-        let metadata = &self.get_metadata()?;
-        let frozen_deps = self.get_frozen_deps()?;
-        let lock_path = &self.paths.lock;
-        operations::lock_dependencies(lock_path, frozen_deps, lock_options, &metadata)
     }
 
     fn get_metadata(&self) -> Result<Metadata, Error> {

@@ -12,12 +12,12 @@ use crate::project::Metadata;
 #[derive(Default)]
 /// Represents options passed to `dmenv lock`,
 /// see `cmd::SubCommand::Lock`
-pub struct LockOptions {
+pub struct UpdateOptions {
     pub python_version: Option<String>,
     pub sys_platform: Option<String>,
 }
 
-pub fn bump_in_lock(
+pub fn bump(
     lock_path: &PathBuf,
     name: &str,
     version: &str,
@@ -42,11 +42,10 @@ pub fn bump_in_lock(
     Ok(())
 }
 
-// TODO: update_dependencies
-pub fn lock_dependencies(
+pub fn update(
     lock_path: &PathBuf,
     frozen_deps: Vec<FrozenDependency>,
-    lock_options: &LockOptions,
+    update_options: &UpdateOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = if lock_path.exists() {
@@ -56,10 +55,10 @@ pub fn lock_dependencies(
     };
 
     let mut updater = Updater::new();
-    if let Some(python_version) = &lock_options.python_version {
+    if let Some(python_version) = &update_options.python_version {
         updater.python_version(&python_version);
     }
-    if let Some(ref sys_platform) = lock_options.sys_platform {
+    if let Some(ref sys_platform) = update_options.sys_platform {
         updater.sys_platform(&sys_platform);
     }
     let mut locked_deps = lock::parse(&lock_contents)?;

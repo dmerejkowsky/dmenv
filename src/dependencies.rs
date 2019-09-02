@@ -9,8 +9,8 @@ use crate::lock::parse_simple_line;
 ///   (git+https://git.local/foo@master#egg=foo)
 ///
 /// Locked dependencies can either be *bumped* (when using `dmenv bump-in-lock`,
-/// or *frozen*, when using `dmenv lock` and "merging" output from `pip freeze`
-/// with the contents of the lock file.
+/// or *updated*, when using `dmenv lock` and updating the contents of the lock file
+/// with the output from `pip freeze`
 
 pub struct FrozenDependency {
     pub name: String,

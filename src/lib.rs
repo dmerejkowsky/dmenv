@@ -20,7 +20,7 @@ pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::*;
-use crate::operations::{InitOptions, LockOptions};
+use crate::operations::{InitOptions, UpdateOptions};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::{PostInstallAction, Project};
 use crate::python_info::PythonInfo;
@@ -82,14 +82,14 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             sys_platform,
             system_site_packages,
         } => {
-            let lock_options = LockOptions {
+            let update_options = UpdateOptions {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
             };
             if *system_site_packages {
                 project.use_system_site_packages();
             }
-            project.lock(&lock_options)
+            project.update_lock(&update_options)
         }
         SubCommand::BumpInLock { name, version, git } => project.bump_in_lock(name, version, *git),
         SubCommand::Run { ref cmd, no_exec } => {
