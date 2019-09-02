@@ -109,10 +109,10 @@ impl std::fmt::Display for Error {
             }
 
             Error::MissingSetupPy {} => {
-                "setup.py not found.\n You may want to run `dmenv init` now".to_string()
+                "setup.py not found.\nYou may want to run `dmenv init` now".to_string()
             }
             Error::MissingLock { expected_path } => format!(
-                "{} not found.\n You may want to run `dmenv lock` now",
+                "{} not found.\nYou may want to run `dmenv lock` now",
                 expected_path.display()
             ),
             Error::MissingVenv { path } => {
