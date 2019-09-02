@@ -14,24 +14,20 @@ impl Updater {
     }
 
     /// Set the python version
-    // Note: This cause the behavior of `freeze()` to change.
-    // See `add_missing_deps` for details
     pub fn python_version(&mut self, python_version: &str) {
         self.python_version = Some(python_version.to_string())
     }
 
     /// Set the python platform
-    // Note: This cause the behavior of `freeze()` to change.
-    // See `add_missing_deps` for details
     pub fn sys_platform(&mut self, sys_platform: &str) {
         self.sys_platform = Some(sys_platform.to_string())
     }
 
     /// Applies a set of new FrozenDependency to the lock
-    // Basically, "merge" `self.dependencies` with some new frozen deps and
-    // make sure no existing information in the lock is lost
-    // This in not an actual merge because we only modify existing lines
-    // or add new ones (no deletion ocurrs).
+    // Basically, update `self.dependencies` using the new frozen deps,
+    // making sure no existing information in the lock is lost.
+    // Note that we only modify existing lines or add new ones
+    // (no deletion occurs).
     pub fn update(
         &self,
         locked_dependencies: &mut Vec<LockedDependency>,
@@ -58,7 +54,7 @@ impl Updater {
             // make sure to append that data.
             // For instance, if we generated the lock on Linux and we see a
             // new dependency `foo==42` while running `lock --platform=win32`,
-            // we know `foo` *must* be Windows-specify.
+            // we know `foo` *must* be Windows-specific.
             // Thus we want to write `foo==42; sys_platform = "win32"` in the lock
             // so that `foo` is *not* installed when running `pip install` on Linux.
             let mut locked_dep = SimpleDependency::from_frozen(dep);

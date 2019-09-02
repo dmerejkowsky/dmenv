@@ -173,8 +173,8 @@ impl SimpleDependency {
     /// Freeze a simple dependency to a new version
     pub fn update(&mut self, new_version: &str) {
         // Note: conceptually this is very different from
-        // self.bump(). Here we are "merging" a version
-        // from the lock with a version from `pip freeze`.
+        // self.bump(). Here we are updating a version
+        // from the lock using a version coming from `pip freeze`.
         // In self.bump() we are *setting* the new version
         // and want to know if the dependency has changed.
         // Both implementations just happen to be similar ...
