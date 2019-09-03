@@ -89,6 +89,9 @@ pub enum SubCommand {
             help = "Give the virtual environment access to the system site-packages dir"
         )]
         system_site_packages: bool,
+
+        #[structopt(long = "--hashes", help = "Use hashes in the lock file")]
+        use_hashes: bool,
     },
 
     #[structopt(name = "run", about = "Run the given binary from the virtualenv")]

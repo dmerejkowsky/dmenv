@@ -82,6 +82,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             python_version,
             sys_platform,
             system_site_packages,
+            use_hashes,
         } => {
             let update_options = UpdateOptions {
                 python_version: python_version.clone(),
@@ -89,6 +90,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             };
             if *system_site_packages {
                 project.use_system_site_packages();
+            }
+            if *use_hashes {
+                project.use_hashes();
             }
             project.update_lock(&update_options)
         }

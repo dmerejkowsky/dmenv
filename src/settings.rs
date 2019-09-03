@@ -8,6 +8,7 @@ pub struct Settings {
     pub venv_outside_project: bool,
     pub production: bool,
     pub system_site_packages: bool,
+    pub use_hashes: bool,
 }
 
 impl Default for Settings {
@@ -17,6 +18,7 @@ impl Default for Settings {
             venv_outside_project: false,
             production: false,
             system_site_packages: false,
+            use_hashes: false,
         }
     }
 }

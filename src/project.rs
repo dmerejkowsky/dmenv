@@ -51,6 +51,11 @@ impl Project {
         self.settings.system_site_packages = true;
     }
 
+    /// Use hashes in the lock file
+    pub fn use_hashes(&mut self) {
+        self.settings.use_hashes = true;
+    }
+
     /// Create `setup.py` if it does not exist.
     pub fn init(&self, options: &operations::InitOptions) -> Result<(), Error> {
         operations::init(&self.paths.project, options)
@@ -178,11 +183,38 @@ impl Project {
         }
         self.ensure_venv()?;
         self.upgrade_pip()?;
+        if self.settings.use_hashes {
+            self.install_hashin()?;
+        }
         self.install_editable()?;
         let metadata = &self.get_metadata()?;
         let frozen_deps = self.get_frozen_deps()?;
         let lock_path = &self.paths.lock;
-        operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
+        operations::lock::update(lock_path, frozen_deps, update_options, &metadata)?;
+        if self.settings.use_hashes {
+            self.compute_hashes()?;
+        }
+        Ok(())
+    }
+
+    fn install_hashin(&self) -> Result<(), Error> {
+        let cmd = &["python", "-m", "pip", "install", "hashin"];
+        self.venv_runner.run(cmd)
+    }
+
+    fn compute_hashes(&self) -> Result<(), Error> {
+        let frozen_deps = self.get_frozen_deps()?;
+        let names: Vec<String> = frozen_deps.into_iter().map(|x| x.name).collect();
+        let lock_path = &self.paths.lock;
+        let as_str = &lock_path.to_string_lossy();
+        let mut cmd = vec![
+            "hashin".to_string(),
+            "--include-prereleases".to_string(),
+            "-r".to_string(),
+            as_str.to_string(),
+        ];
+        cmd.extend(names);
+        self.venv_runner.run(&cmd)
     }
 
     /// Bump a dependency in the lock file
