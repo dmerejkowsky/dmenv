@@ -21,20 +21,25 @@ impl PythonInfo {
             .output();
         let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
         if !command.status.success() {
-            return Err(new_error(&format!(
-                "Failed to run info script: {}",
-                String::from_utf8_lossy(&command.stderr)
-            )));
+            let return_code = command.status.code().unwrap();
+            return Err(Error::InfoPyError {
+                message: format!(
+                    "command returned with exit code: {}\n{}",
+                    return_code,
+                    String::from_utf8_lossy(&command.stderr)
+                ),
+            });
         }
         let info_out = String::from_utf8_lossy(&command.stdout);
-        let lines: Vec<_> = info_out.split('\n').collect();
-        let expected_lines = 3; // Keep this in sync with src/info.py
-        if lines.len() != 3 {
-            return Err(new_error(&format!(
-                "Expected {} lines in info_out, got: {}",
-                expected_lines,
-                lines.len()
-            )));
+        let lines: Vec<_> = info_out.split_terminator('\n').collect();
+        let expected_lines = 2; // Keep this in sync with src/info.py
+        if lines.len() != expected_lines {
+            return Err(Error::InfoPyError {
+                message: format!(
+                    "could not parse output:\n{}\n(expected exactly {} lines)",
+                    info_out, expected_lines,
+                ),
+            });
         }
         let version = lines[0].trim().to_string();
         let platform = lines[1].trim().to_string();

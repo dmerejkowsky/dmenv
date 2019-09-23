@@ -29,6 +29,10 @@ pub enum Error {
         io_error: std::io::Error,
     },
 
+    InfoPyError {
+        message: String,
+    },
+
     PipUpgradeFailed {},
     BrokenPipFreezeLine {
         line: String,
@@ -107,6 +111,11 @@ impl std::fmt::Display for Error {
             Error::ProcessOutError { io_error } => {
                 format!("could not get process output: {}", io_error)
             }
+
+            Error::InfoPyError { message } => {
+                format!("could not determine Python version and platform while running the `info.py` script: {}",
+                      message)
+            },
 
             Error::MissingSetupPy {} => {
                 "setup.py not found.\nYou may want to run `dmenv init` now".to_string()
