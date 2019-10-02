@@ -112,7 +112,11 @@ impl Project {
     /// on how paths were resolved by PathsResolver
     /// Abort if virtualenv or lock file does not exist
     pub fn install(&self, post_install_action: PostInstallAction) -> Result<(), Error> {
-        print_info_1("Preparing project for development");
+        if self.settings.production {
+            print_info_1("Preparing project for production")
+        } else {
+            print_info_1("Preparing project for development")
+        };
         let lock_path = &self.paths.lock;
         if !lock_path.exists() {
             return Err(Error::MissingLock {
