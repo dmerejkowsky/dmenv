@@ -1,3 +1,10 @@
+# 0.16.2
+
+* Fix regression: `dmenv init` could only be used with the `--project` option
+* Improve error messages when setup.py or requirements.lock is not found
+* Improve error handling when parsing output from `info.py`
+* Fix message when using `dmenv --production install`
+
 # 0.16.1 (2019-07-24)
 
 * Fix regression that caused parsing output of `dmenv show` commands to stop working
