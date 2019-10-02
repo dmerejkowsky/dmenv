@@ -94,6 +94,7 @@ impl Lock {
     }
 
     /// Serialize the lock to a string
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         // Dependencies are sorted according to their *lowercase* name.
         // This is consistent with how `pip freeze` is implemented.
