@@ -23,7 +23,7 @@ pub struct Command {
     pub sub_cmd: SubCommand,
 }
 
-#[derive(StructOpt)]
+#[derive(StructOpt, Debug)]
 pub enum SubCommand {
     #[structopt(name = "clean", about = "Clean existing virtualenv")]
     Clean {},

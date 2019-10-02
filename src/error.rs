@@ -16,6 +16,10 @@ pub enum Error {
         io_error: std::io::Error,
     },
 
+    NoWorkingDirectory {
+        io_error: std::io::Error,
+    },
+
     NulByteFound {
         arg: String,
     },
@@ -103,6 +107,11 @@ impl std::fmt::Display for Error {
             Error::WriteError { path, io_error } => {
                 format!("could not write {}: {}", path.to_string_lossy(), io_error)
             }
+
+            Error::NoWorkingDirectory { io_error } => {
+                format!("could not get current working directory: {}", io_error)
+            }
+
 
             Error::ProcessStartError { message } => format!("could not start process: {}", message),
             Error::ProcessWaitError { io_error } => {
