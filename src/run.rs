@@ -253,5 +253,4 @@ mod tests {
         runnable.assert_binary(&docutils_script);
         runnable.assert_args(&[]);
     }
-
 }

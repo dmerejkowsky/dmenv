@@ -178,7 +178,7 @@ specifying the `pytest` version in a more precise manner, so it will keep the `g
 in the lock and ignore the non-precise `4.0b1` version.
 
 
-## Using different system platforms
+## Using dependencies only for a given platform
 
 Sometimes a concrete dependency will only be available on a specify platform.
 
@@ -200,7 +200,7 @@ foo==0.2
 pywin2==0.42 ; platform == "windows"
 ```
 
-## Using different Python versions
+## Using dependencies only for a given Python version
 
 If you want your code to be run across different Python versions, you may encounter similar issues.
 
@@ -251,3 +251,35 @@ setup(
 
 
 Use `dmenv --system-site-packages install` and/or `dmenv --system-site-packages lock` to create a virtual environment that has access to the system's site packages. In the latter case, dependencies outside the virtual environment are *not* included in the lock file.
+
+
+## Specifying the interpreter binary
+
+By default, `dmenv` uses the following algorithm to find the Python binary:
+
+* Look for a program named `python3` in the `PATH` environment variable
+* If nothing is found, look for a program named `python`
+* Otherwise, fail
+
+You can use `dmenv --python /path/to/other/binary` to specify the full path to the Python binary.
+
+### Combining pyenv and dmenv
+
+[pyenv](https://github.com/pyenv/pyenv) is a generic tool to manage several Python installations on the same machine.
+
+Here's how you can combine the too, for instance to check if your project is compatible with both Python3.7 and Python3.8,
+and assuming the "system" python is 3.7:
+
+```console
+$ pyenv install 3.8
+$ pyenv local system 3.8
+
+# Use the first `python3` program found in $PATH
+$ dmenv --python install
+# Create a Python3.7 compatible virtualenv in .venv/dev/3.7.4
+
+# Use the `python3.8` binary from pyenv installation
+$ dmenv --python $(pyenv which python3.8) install
+# Create a Python3.8 compatible virtualenv in .venv/dev/3.8.0
+```
+
