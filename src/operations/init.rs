@@ -172,5 +172,4 @@ mod tests {
         init_options.no_setup_cfg();
         init(tmp_path, &init_options)
     }
-
 }

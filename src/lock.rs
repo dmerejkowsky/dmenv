@@ -371,5 +371,4 @@ mod tests {
         let actual = lock.to_string();
         assert_eq!(actual, "foo==0.42\nwinapi==1.3 ; sys_platform == 'win32'\n");
     }
-
 }
