@@ -50,11 +50,6 @@ impl Project {
         self.settings.system_site_packages = true;
     }
 
-    /// Create `setup.py` if it does not exist.
-    pub fn init(&self, options: &operations::InitOptions) -> Result<(), Error> {
-        operations::init(&self.paths.project, options)
-    }
-
     /// Clean virtualenv. No-op if the virtualenv does not exist
     pub fn clean(&self) -> Result<(), Error> {
         operations::venv::clean(self.paths.venv.clone())

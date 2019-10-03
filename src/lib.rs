@@ -26,14 +26,42 @@ use crate::project::{PostInstallAction, Project};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 
+fn get_project_path_for_init(cmd: &Command) -> Result<PathBuf, Error> {
+    if let Some(project_path) = &cmd.project_path {
+        Ok(PathBuf::from(project_path))
+    } else {
+        std::env::current_dir().map_err(|e| Error::NoWorkingDirectory { io_error: e })
+    }
+}
+
+fn get_project_path(cmd: &Command) -> Result<PathBuf, Error> {
+    if let Some(project_path) = &cmd.project_path {
+        Ok(PathBuf::from(project_path))
+    } else {
+        look_up_for_project_path()
+    }
+}
+
 pub fn run(cmd: Command) -> Result<(), Error> {
     let settings = Settings::from_shell(&cmd);
-    let project_path = if let Some(project_path) = cmd.project_path {
-        PathBuf::from(project_path)
-    } else {
-        look_up_for_project_path()?
-    };
-    // Perform additional sanity checks when using `dmenv run`
+
+    // Init does not need an existing project
+    if let SubCommand::Init {
+        name,
+        version,
+        author,
+        no_setup_cfg,
+    } = &cmd.sub_cmd
+    {
+        let project_path = get_project_path_for_init(&cmd)?;
+        let mut options = InitOptions::new(name, version, author);
+        if *no_setup_cfg {
+            options.no_setup_cfg()
+        };
+        return operations::init(&project_path, &options);
+    }
+
+    // Run needs additional sanity checks when using `dmenv run`
     // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
         if cmd.is_empty() {
@@ -43,11 +71,11 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             )));
         }
     }
+
+    let project_path = get_project_path(&cmd)?;
     let python_info = PythonInfo::new(&cmd.python_binary)?;
     let mut project = Project::new(project_path, python_info, settings)?;
 
-    // Note: keep the `match()` here so that we know every variant of the SubCommand
-    // enum is handled.
     match &cmd.sub_cmd {
         SubCommand::Install {
             no_develop,
@@ -65,18 +93,6 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
         SubCommand::Clean {} => project.clean(),
         SubCommand::Develop {} => project.develop(),
-        SubCommand::Init {
-            name,
-            version,
-            author,
-            no_setup_cfg,
-        } => {
-            let mut options = InitOptions::new(name, version, author);
-            if *no_setup_cfg {
-                options.no_setup_cfg()
-            };
-            project.init(&options)
-        }
         SubCommand::Lock {
             python_version,
             sys_platform,
@@ -105,6 +121,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
 
         SubCommand::UpgradePip {} => project.upgrade_pip(),
+        _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
     }
 }
 
