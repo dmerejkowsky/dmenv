@@ -1,4 +1,4 @@
-# 0.17
+# 0.17.0 (2019-10-08)
 
 * Add a `process-scripts` command, to generate scripts in `DMENV_SCRIPTS_PATH`.
 
