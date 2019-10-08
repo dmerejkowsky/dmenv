@@ -1,5 +1,5 @@
 use colored::*;
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
@@ -16,7 +16,7 @@ pub struct LockOptions {
 }
 
 pub fn bump_in_lock(
-    lock_path: &PathBuf,
+    lock_path: &Path,
     name: &str,
     version: &str,
     git: bool,
@@ -41,7 +41,7 @@ pub fn bump_in_lock(
 }
 
 pub fn lock_dependencies(
-    lock_path: &PathBuf,
+    lock_path: &Path,
     frozen_deps: Vec<FrozenDependency>,
     lock_options: &LockOptions,
     metadata: &Metadata,
@@ -65,11 +65,7 @@ pub fn lock_dependencies(
     write_lock(lock_path, &new_contents, metadata)
 }
 
-pub fn write_lock(
-    lock_path: &PathBuf,
-    lock_contents: &str,
-    metadata: &Metadata,
-) -> Result<(), Error> {
+pub fn write_lock(lock_path: &Path, lock_contents: &str, metadata: &Metadata) -> Result<(), Error> {
     let Metadata {
         dmenv_version,
         python_version,

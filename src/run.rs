@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use colored::*;
 
@@ -22,7 +22,7 @@ struct RunnableCommand {
 }
 
 impl RunnableCommand {
-    pub fn new<T: AsRef<str>>(binary_path: &PathBuf, args: &[T]) -> Result<Self, Error> {
+    pub fn new<T: AsRef<str>>(binary_path: &Path, args: &[T]) -> Result<Self, Error> {
         if !binary_path.exists() {
             return Err(Error::Other {
                 message: format!("Cannot run: {:?} does not exist", binary_path),
@@ -46,7 +46,7 @@ impl RunnableCommand {
 }
 
 impl VenvRunner {
-    pub fn new(project_path: &PathBuf, venv_path: &PathBuf) -> Self {
+    pub fn new(project_path: &Path, venv_path: &Path) -> Self {
         VenvRunner {
             project_path: project_path.to_path_buf(),
             venv_path: venv_path.to_path_buf(),
@@ -121,8 +121,8 @@ impl VenvRunner {
 }
 
 pub fn run<T: AsRef<str>>(
-    working_path: &PathBuf,
-    binary_path: &PathBuf,
+    working_path: &Path,
+    binary_path: &Path,
     args: &[T],
 ) -> Result<(), Error> {
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
@@ -138,8 +138,8 @@ pub fn run<T: AsRef<str>>(
 }
 
 fn get_output<T: AsRef<str>>(
-    working_path: &PathBuf,
-    binary_path: &PathBuf,
+    working_path: &Path,
+    binary_path: &Path,
     args: &[T],
 ) -> Result<String, Error> {
     let args: Vec<&str> = args.iter().map(AsRef::as_ref).collect();
@@ -213,7 +213,7 @@ mod tests {
     }
 
     impl RunnableCommand {
-        fn assert_binary(&self, path: &PathBuf) {
+        fn assert_binary(&self, path: &Path) {
             assert_eq!(&self.binary_path, path);
         }
 

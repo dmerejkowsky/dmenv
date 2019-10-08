@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Every variant matches a type of error we
 /// want the end-use to see.
@@ -78,14 +78,14 @@ pub fn new_error(message: &str) -> Error {
     }
 }
 
-pub fn new_read_error(error: std::io::Error, path: &PathBuf) -> Error {
+pub fn new_read_error(error: std::io::Error, path: &Path) -> Error {
     Error::ReadError {
         path: path.to_path_buf(),
         io_error: error,
     }
 }
 
-pub fn new_write_error(error: std::io::Error, path: &PathBuf) -> Error {
+pub fn new_write_error(error: std::io::Error, path: &Path) -> Error {
     Error::WriteError {
         path: path.to_path_buf(),
         io_error: error,
