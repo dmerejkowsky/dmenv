@@ -25,7 +25,7 @@ impl RunnableCommand {
     pub fn new<T: AsRef<str>>(binary_path: &Path, args: &[T]) -> Result<Self, Error> {
         if !binary_path.exists() {
             return Err(Error::Other {
-                message: format!("Cannot run: {:?} does not exist", binary_path),
+                message: format!("Cannot run: {} does not exist", binary_path.display()),
             });
         }
         let res = RunnableCommand {

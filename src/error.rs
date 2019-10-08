@@ -102,10 +102,10 @@ impl std::fmt::Display for Error {
             Error::NulByteFound { arg } => format!("nul byte found in arg: {:?}", arg),
 
             Error::ReadError { path, io_error } => {
-                format!("could not read {}: {}", path.to_string_lossy(), io_error)
+                format!("could not read {}: {}", path.display(), io_error)
             }
             Error::WriteError { path, io_error } => {
-                format!("could not write {}: {}", path.to_string_lossy(), io_error)
+                format!("could not write {}: {}", path.display(), io_error)
             }
 
             Error::NoWorkingDirectory { io_error } => {
