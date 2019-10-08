@@ -1,4 +1,8 @@
-# 0.16.2
+# 0.17
+
+* Add a `process-scripts` command, to generate scripts in `DMENV_SCRIPTS_PATH`.
+
+# 0.16.2 (2019-10-03)
 
 * Fix regression: `dmenv init` could only be used with the `--project` option
 * Improve error messages when setup.py or requirements.lock is not found

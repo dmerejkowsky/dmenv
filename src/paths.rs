@@ -98,8 +98,8 @@ impl PathsResolver {
         let subdir = if self.production { "prod" } else { "dev" };
         let project_name = self.project_path.file_name().ok_or_else(|| {
             new_error(&format!(
-                "project path: {:?} has no file name",
-                self.project_path
+                "project path: {} has no file name",
+                self.project_path.display()
             ))
         })?;
         let res = data_dir

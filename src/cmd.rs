@@ -103,6 +103,12 @@ pub enum SubCommand {
         cmd: Vec<String>,
     },
 
+    #[structopt(name = "process-scripts", help = "Process generated scripts")]
+    ProcessScripts {
+        #[structopt(long = "--force", help = "force override of existing files")]
+        force: bool,
+    },
+
     #[structopt(name = "show:deps", about = "Show installed dependencies information")]
     ShowDeps {},
 

@@ -22,7 +22,7 @@ impl TestApp {
         test_app
     }
 
-    fn path(&self) -> PathBuf {
+    pub fn path(&self) -> PathBuf {
         self.tmp_dir.path().to_path_buf()
     }
 

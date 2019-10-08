@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::cmd::*;
 use crate::error::*;
@@ -17,7 +17,7 @@ pub fn clean(venv_path: PathBuf) -> Result<(), Error> {
 }
 
 pub fn create(
-    venv_path: &PathBuf,
+    venv_path: &Path,
     python_info: &PythonInfo,
     settings: &Settings,
 ) -> Result<(), Error> {
@@ -51,10 +51,10 @@ pub fn create(
     run(&parent_venv_path.to_path_buf(), &python_binary, &args)
 }
 
-pub fn expect(venv_path: &PathBuf) -> Result<(), Error> {
+pub fn expect(venv_path: &Path) -> Result<(), Error> {
     if !venv_path.exists() {
         return Err(Error::MissingVenv {
-            path: venv_path.clone(),
+            path: venv_path.to_path_buf(),
         });
     }
     Ok(())

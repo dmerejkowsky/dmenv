@@ -115,3 +115,20 @@ fn run_without_virtualenv() {
     let test_app = TestApp::new();
     test_app.assert_run_error(&["run", "python"]);
 }
+
+#[test]
+fn test_process_scripts() {
+    let test_app = TestApp::new();
+    let scripts_path = test_app.path().join("scripts");
+    std::fs::create_dir_all(&scripts_path).unwrap();
+    std::env::set_var("DMENV_SCRIPTS_PATH", &scripts_path);
+    test_app.assert_run_ok(&["install"]);
+    test_app.assert_run_ok(&["process-scripts"]);
+    #[cfg(unix)]
+    let script_path = scripts_path.join("demo");
+    #[cfg(windows)]
+    let script_path = scripts_path.join("demo.exe");
+    assert!(script_path.exists());
+    let command = std::process::Command::new(script_path).status().unwrap();
+    assert!(command.success())
+}

@@ -1,6 +1,6 @@
 use crate::cmd::*;
 use crate::error::*;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub struct InitOptions {
     name: String,
@@ -25,7 +25,7 @@ impl InitOptions {
     }
 }
 
-fn ensure_path_does_not_exist(path: &PathBuf) -> Result<(), Error> {
+fn ensure_path_does_not_exist(path: &Path) -> Result<(), Error> {
     if path.exists() {
         return Err(Error::FileExists {
             path: path.to_path_buf(),
@@ -34,11 +34,11 @@ fn ensure_path_does_not_exist(path: &PathBuf) -> Result<(), Error> {
     Ok(())
 }
 
-fn write_to_path(path: &PathBuf, contents: &str) -> Result<(), Error> {
+fn write_to_path(path: &Path, contents: &str) -> Result<(), Error> {
     std::fs::write(path, contents).map_err(|e| new_write_error(e, path))
 }
 
-pub fn init(project_path: &PathBuf, options: &InitOptions) -> Result<(), Error> {
+pub fn init(project_path: &Path, options: &InitOptions) -> Result<(), Error> {
     let setup_cfg_path = project_path.join("setup.cfg");
     let setup_py_path = project_path.join("setup.py");
 
@@ -66,7 +66,7 @@ pub fn init(project_path: &PathBuf, options: &InitOptions) -> Result<(), Error> 
 
 fn write_from_template(
     template: &str,
-    dest_path: &PathBuf,
+    dest_path: &Path,
     options: &InitOptions,
 ) -> Result<(), Error> {
     // Warning: make sure the template files in `src/operations/` contain all those
@@ -151,23 +151,23 @@ mod tests {
         }
     }
 
-    fn assert_file_exists_error(err: Error, expected_path: &PathBuf) {
+    fn assert_file_exists_error(err: Error, expected_path: &Path) {
         match err {
             Error::FileExists { path } => assert_eq!(&path, expected_path),
             _ => panic!("Expecting FileExists, got: {}", err),
         }
     }
 
-    fn touch(path: &PathBuf) {
+    fn touch(path: &Path) {
         std::fs::write(&path, "# don't overwrite me").unwrap()
     }
 
-    fn run_init(tmp_path: &PathBuf) -> Result<(), Error> {
+    fn run_init(tmp_path: &Path) -> Result<(), Error> {
         let init_options = InitOptions::new("foo", "0.42", &None);
         init(tmp_path, &init_options)
     }
 
-    fn run_init_no_setup_cfg(tmp_path: &PathBuf) -> Result<(), Error> {
+    fn run_init_no_setup_cfg(tmp_path: &Path) -> Result<(), Error> {
         let mut init_options = InitOptions::new("foo", "0.42", &None);
         init_options.no_setup_cfg();
         init(tmp_path, &init_options)

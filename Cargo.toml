@@ -20,6 +20,7 @@ libc = "0.2.46"
 regex = "1.1.0"
 app_dirs = "1.2.1"
 smallvec = "0.6.10"
+rust-ini = "0.13.0"
 
 [dev-dependencies]
 tempdir = "0.3"
