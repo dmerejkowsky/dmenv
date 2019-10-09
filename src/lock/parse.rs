@@ -1,6 +1,5 @@
 use crate::dependencies::{GitDependency, LockedDependency, SimpleDependency, VersionSpec};
 use crate::error::Error;
-use crate::lock::Lock;
 
 pub fn parse(text: &str) -> Result<Vec<LockedDependency>, Error> {
     let mut res = vec![];

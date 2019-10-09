@@ -99,5 +99,4 @@ mod tests {
         let expected = "git@example.com/bar.git@cda431#egg=bar\n";
         assert_eq!(actual, expected);
     }
-
 }
