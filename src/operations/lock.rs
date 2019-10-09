@@ -11,7 +11,7 @@ use crate::project::Metadata;
 #[derive(Default)]
 /// Represents options passed to `dmenv lock`,
 /// see `cmd::SubCommand::Lock`
-pub struct LockOptions {
+pub struct UpdateOptions {
     pub python_version: Option<String>,
     pub sys_platform: Option<String>,
 }
@@ -40,10 +40,10 @@ pub fn bump(
     Ok(())
 }
 
-pub fn lock_dependencies(
+pub fn update(
     lock_path: &Path,
     frozen_deps: Vec<FrozenDependency>,
-    lock_options: &LockOptions,
+    update_options: &UpdateOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = if lock_path.exists() {
@@ -52,16 +52,17 @@ pub fn lock_dependencies(
         String::new()
     };
 
-    let mut lock = Lock::from_string(&lock_contents)?;
-    if let Some(python_version) = &lock_options.python_version {
-        lock.python_version(&python_version);
+    let mut updater = Updater::new();
+    if let Some(python_version) = &update_options.python_version {
+        updater.python_version(&python_version);
     }
-    if let Some(ref sys_platform) = lock_options.sys_platform {
-        lock.sys_platform(&sys_platform);
+    if let Some(ref sys_platform) = update_options.sys_platform {
+        updater.sys_platform(&sys_platform);
     }
-    lock.freeze(&frozen_deps);
+    let mut locked_deps = lock::parse(&lock_contents)?;
+    updater.update(&mut locked_deps, &frozen_deps);
 
-    let new_contents = lock.to_string();
+    let new_contents = lock::dump(&locked_deps);
     write_lock(lock_path, &new_contents, metadata)
 }
 

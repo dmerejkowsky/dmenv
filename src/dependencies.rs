@@ -9,9 +9,8 @@ use crate::lock::parse_simple_line;
 ///   (git+https://git.local/foo@master#egg=foo)
 ///
 /// Locked dependencies can either be *bumped* (when using `dmenv bump-in-lock`,
-/// or *frozen*, when using `dmenv lock` and "merging" output from `pip freeze`
-/// with the contents of the lock file.
-
+/// or *updated*, when using `dmenv lock` and updating the contents of the lock file
+/// with the output from `pip freeze`
 
 pub struct FrozenDependency {
     pub name: String,
@@ -172,10 +171,10 @@ impl SimpleDependency {
     }
 
     /// Freeze a simple dependency to a new version
-    pub fn freeze(&mut self, new_version: &str) {
+    pub fn update(&mut self, new_version: &str) {
         // Note: conceptually this is very different from
-        // self.bump(). Here we are "merging" a version
-        // from the lock with a version from `pip freeze`.
+        // self.bump(). Here we are updating a version
+        // from the lock using a version coming from `pip freeze`.
         // In self.bump() we are *setting* the new version
         // and want to know if the dependency has changed.
         // Both implementations just happen to be similar ...
@@ -193,13 +192,6 @@ mod tests {
         let mut dep = parse_git_line("git@master.com:foo@master#egg=foo").unwrap();
         dep.git_bump("deadbeef");
         assert_eq!(dep.line, "git@master.com:foo@deadbeef#egg=foo");
-
-    #[test]
-    fn test_simple_freeze() {
-        let dep = LockedDependency::from_line("foo==0.42").unwrap();
-        let mut dep = unwrap_simple(dep);
-        dep.freeze("0.43");
-        assert_eq!(dep.line, "foo==0.43");
     }
 
     #[test]
@@ -207,28 +199,5 @@ mod tests {
         let mut dep = parse_simple_line("foo == 0.42").unwrap();
         dep.simple_bump("0.43");
         assert_eq!(dep.line, "foo == 0.43");
-    fn test_simple_keep_spec() {
-        let dep = LockedDependency::from_line("foo==0.42 ; python_version >= '3.6'").unwrap();
-        let mut dep = unwrap_simple(dep);
-        dep.freeze("0.43");
-        assert_eq!(dep.line, "foo==0.43 ; python_version >= '3.6'");
-    }
-
-    #[test]
-    fn test_simple_keep_spec_with_padding() {
-        let dep = LockedDependency::from_line("foo == 0.42 ; python_version >= '3.6'").unwrap();
-        let mut dep = unwrap_simple(dep);
-        dep.freeze("0.43");
-        assert_eq!(dep.line, "foo == 0.43 ; python_version >= '3.6'");
-    }
-
-    #[test]
-    fn test_freeze_version() {
-        let dep = LockedDependency::from_line("foo2==2").unwrap();
-        let mut dep = unwrap_simple(dep);
-        dep.freeze("3");
-        assert_eq!(dep.line, "foo2==3");
-    }
-
     }
 }

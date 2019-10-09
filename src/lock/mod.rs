@@ -18,5 +18,5 @@ pub struct Lock {
 
 mod bump;
 mod parse;
-pub use bump::{git_bump, simple_bump, BumpType};
+mod update;
 pub use dump::dump;

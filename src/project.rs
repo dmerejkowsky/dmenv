@@ -182,24 +182,21 @@ impl Project {
     //      (such as `--local`, `--exclude-editable`) we use in the other functions
     // * The path of the lock file is computed by PathsResolver.
     //     See PathsResolver.paths() for details
-    //
-    // * Delegates the actual work to `write_lock()`
-    //
-    pub fn lock(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
-        print_info_1("Locking dependencies");
+    pub fn update_lock(&self, update_options: &operations::UpdateOptions) -> Result<(), Error> {
+        print_info_1("Updating lock");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});
         }
         self.ensure_venv()?;
         self.upgrade_pip()?;
         self.install_editable()?;
-        self.lock_dependencies(&lock_options)
+        let metadata = &self.get_metadata()?;
+        let frozen_deps = self.get_frozen_deps()?;
+        let lock_path = &self.paths.lock;
+        operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
     }
 
     /// Bump a dependency in the lock file
-    //
-    // Note: most of the work is delegated to the Lock struct. Either `Lock.git_bump()`or
-    // `Lock.bump()` is called, depending on the value of the `git` argument.
     pub fn bump_in_lock(
         &self,
         name: &str,
@@ -279,14 +276,6 @@ impl Project {
         };
         let cmd = &["python", "-m", "pip", "install", "--editable", extra];
         self.venv_runner.run(cmd)
-    }
-
-    // Lock dependencies
-    fn lock_dependencies(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
-        let metadata = &self.get_metadata()?;
-        let frozen_deps = self.get_frozen_deps()?;
-        let lock_path = &self.paths.lock;
-        operations::lock_dependencies(lock_path, frozen_deps, lock_options, &metadata)
     }
 
     fn get_metadata(&self) -> Result<Metadata, Error> {
