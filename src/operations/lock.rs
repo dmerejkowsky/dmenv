@@ -34,7 +34,7 @@ pub fn bump(
         print_warning(&format!("Dependency {} already up-to-date", name.bold()));
         return Ok(());
     }
-    let new_contents = lock.to_string();
+    let new_contents = lock::dump(&deps);
     write_lock(lock_path, &new_contents, metadata)?;
     println!("{}", "ok!".green());
     Ok(())

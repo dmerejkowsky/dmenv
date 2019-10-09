@@ -57,9 +57,6 @@ pub enum LockedDependency {
 }
 
 impl LockedDependency {
-    /// Serialize a locked dependency to a string
-    //
-    // Used by Lock::to_string()
     pub fn line(&self) -> String {
         match self {
             LockedDependency::Git(x) => x.line.to_string(),

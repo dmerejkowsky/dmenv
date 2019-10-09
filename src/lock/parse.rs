@@ -2,19 +2,6 @@ use crate::dependencies::{GitDependency, LockedDependency, SimpleDependency, Ver
 use crate::error::Error;
 use crate::lock::Lock;
 
-impl Lock {
-    pub fn from_string(string: &str) -> Result<Self, Error> {
-        let mut dependencies = vec![];
-        for (i, line) in string.lines().enumerate() {
-            let line = line.trim();
-            if line.is_empty() || line.starts_with('#') {
-                continue;
-            }
-            let dep = LockedDependency::from_line(&line).map_err(|e| Error::MalformedLock {
-                line: i + 1,
-                details: e.details,
-            })?;
-            dependencies.push(dep);
 pub fn parse(text: &str) -> Result<Vec<LockedDependency>, Error> {
     let mut res = vec![];
     let lines = split_logical_lines(&text);
