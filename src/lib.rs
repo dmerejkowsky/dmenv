@@ -66,7 +66,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     // TODO: try and handle this using StructOpt instead
     if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
         if cmd.is_empty() {
-            return Err(new_error(&format!(
+            return Err(new_error(format!(
                 "Missing argument after '{}'",
                 "run".green()
             )));
@@ -143,7 +143,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
 
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
     let mut candidate = std::env::current_dir()
-        .map_err(|e| new_error(&format!("Could not get current directory: {}", e)))?;
+        .map_err(|e| new_error(format!("Could not get current directory: {}", e)))?;
     loop {
         let setup_py_path = candidate.join("setup.py");
         if setup_py_path.exists() {
@@ -153,7 +153,7 @@ fn look_up_for_project_path() -> Result<PathBuf, Error> {
             match parent {
                 None => {
                     return Err(new_error(
-                        "Could not find setup.py in any of the parent directories",
+                        "Could not find setup.py in any of the parent directories".to_string(),
                     ))
                 }
                 Some(p) => candidate = p.to_path_buf(),

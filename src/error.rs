@@ -75,10 +75,8 @@ pub enum Error {
     },
 }
 
-pub fn new_error(message: &str) -> Error {
-    Error::Other {
-        message: message.to_string(),
-    }
+pub fn new_error(message: String) -> Error {
+    Error::Other { message }
 }
 
 pub fn new_read_error(error: std::io::Error, path: &Path) -> Error {

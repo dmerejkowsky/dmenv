@@ -90,14 +90,14 @@ impl PathsResolver {
     fn get_venv_path_outside(&self) -> Result<PathBuf, Error> {
         let data_dir =
             app_dirs::app_dir(AppDataType::UserCache, &APP_INFO, "venv").map_err(|e| {
-                new_error(&format!(
+                new_error(format!(
                     "Could not create dmenv cache path: {}",
                     e.to_string()
                 ))
             })?;
         let subdir = if self.production { "prod" } else { "dev" };
         let project_name = self.project_path.file_name().ok_or_else(|| {
-            new_error(&format!(
+            new_error(format!(
                 "project path: {} has no file name",
                 self.project_path.display()
             ))

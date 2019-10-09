@@ -63,5 +63,6 @@ fn get_python_binary(requested_python: &Option<String>) -> Result<PathBuf, Error
         return Ok(python3);
     }
 
-    which::which("python").map_err(|_| new_error("Neither `python3` nor `python` found in PATH"))
+    which::which("python")
+        .map_err(|_| new_error("Neither `python3` nor `python` found in PATH".to_string()))
 }

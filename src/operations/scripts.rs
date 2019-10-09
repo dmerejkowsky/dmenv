@@ -10,7 +10,7 @@ use crate::project::ProcessScriptsMode::{self, Override, Safe};
 pub fn process(paths: &Paths, mode: ProcessScriptsMode) -> Result<(), Error> {
     let key = "DMENV_SCRIPTS_PATH";
     let scripts_path = std::env::var_os(key)
-        .ok_or_else(|| new_error(&format!("{} environment variable not set", key)))?;
+        .ok_or_else(|| new_error(format!("{} environment variable not set", key)))?;
     let scripts_path = Path::new(&scripts_path);
     let egg_info_path = find_egg_info(&paths.project)?;
     let console_scripts = read_entry_points(&egg_info_path)?;
@@ -60,7 +60,7 @@ fn process_script_with_name(
     let dest_path = scripts_path.join(name);
     cmd::print_info_2(&format!("Creating script: {}", name.bold()));
     if !src_path.exists() {
-        return Err(new_error(&format!(
+        return Err(new_error(format!(
             "{} does not exist. You may want to call `dmenv develop` now",
             src_path.display()
         )));
@@ -81,7 +81,7 @@ fn process_script_with_name(
 #[cfg(windows)]
 fn safe_copy(src_path: &Path, dest_path: &Path) -> Result<(), Error> {
     if dest_path.exists() {
-        return Err(new_error(&format!("{} already exists", src_path.display())));
+        return Err(new_error(format!("{} already exists", src_path.display())));
     }
     copy(src_path, dest_path)
 }
@@ -89,7 +89,7 @@ fn safe_copy(src_path: &Path, dest_path: &Path) -> Result<(), Error> {
 #[cfg(windows)]
 fn copy(src_path: &Path, dest_path: &Path) -> Result<(), Error> {
     std::fs::copy(src_path, dest_path).map_err(|e| {
-        new_error(&format!(
+        new_error(format!(
             "Could not copy from {} to {}: {}",
             src_path.display(),
             dest_path.display(),
@@ -111,7 +111,7 @@ fn symlink(src_path: &Path, dest_path: &Path, mode: ProcessScriptsMode) -> Resul
     }?;
     println!("{} -> {}", dest_path.display(), src_path.display());
     std::os::unix::fs::symlink(src_path, dest_path).map_err(|e| {
-        new_error(&format!(
+        new_error(format!(
             "Could not create link from {} to {}: {}",
             dest_path.display(),
             src_path.display(),
@@ -133,13 +133,13 @@ fn delete_if_link(path: &Path) -> Result<(), Error> {
     };
     let meta = meta.unwrap();
     if !meta.file_type().is_symlink() {
-        return Err(new_error(&format!(
+        return Err(new_error(format!(
             "{} exists and is *not* a symlink",
             path.display()
         )));
     };
     std::fs::remove_file(path).map_err(|e| {
-        new_error(&format!(
+        new_error(format!(
             "Could not remove existing symlink {}: {}",
             path.display(),
             e
@@ -152,7 +152,7 @@ fn delete_if_link(path: &Path) -> Result<(), Error> {
 fn delete_if_exists(path: &Path) -> Result<(), Error> {
     if path.exists() {
         std::fs::remove_file(path).map_err(|e| {
-            new_error(&format!(
+            new_error(format!(
                 "Could not remove existing file {}: {}",
                 path.display(),
                 e
@@ -182,10 +182,10 @@ fn list_egg_info_dirs(project_path: &Path) -> Result<Vec<PathBuf>, std::io::Erro
 
 fn find_egg_info(project_path: &Path) -> Result<PathBuf, Error> {
     let matches = list_egg_info_dirs(project_path)
-        .map_err(|e| new_error(&format!("While listing project path: {}", e)))?;
+        .map_err(|e| new_error(format!("While listing project path: {}", e)))?;
     let num_matches = matches.len();
     if num_matches != 1 {
-        return Err(new_error(&format!(
+        return Err(new_error(format!(
             "Expecting exactly one .egg-info entry, got {}",
             num_matches
         )));
@@ -196,7 +196,7 @@ fn find_egg_info(project_path: &Path) -> Result<PathBuf, Error> {
 fn read_entry_points(egg_info_path: &Path) -> Result<Vec<String>, Error> {
     let entry_points_txt_path = egg_info_path.join("entry_points.txt");
     let config = Ini::load_from_file(&entry_points_txt_path).map_err(|e| {
-        new_error(&format!(
+        new_error(format!(
             "Could not read {}: {}",
             &entry_points_txt_path.display(),
             e
