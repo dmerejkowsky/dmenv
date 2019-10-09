@@ -182,7 +182,7 @@ impl Project {
     //      (such as `--local`, `--exclude-editable`) we use in the other functions
     // * The path of the lock file is computed by PathsResolver.
     //     See PathsResolver.paths() for details
-    pub fn update_lock(&self, update_options: &operations::UpdateOptions) -> Result<(), Error> {
+    pub fn update_lock(&self, update_options: operations::UpdateOptions) -> Result<(), Error> {
         print_info_1("Updating lock");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});

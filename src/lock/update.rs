@@ -1,4 +1,5 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
+use crate::operations::UpdateOptions;
 
 pub struct Updater {
     python_version: Option<String>,
@@ -13,14 +14,15 @@ impl Updater {
         }
     }
 
-    /// Set the python version
-    pub fn python_version(&mut self, python_version: &str) {
-        self.python_version = Some(python_version.to_string())
-    }
-
-    /// Set the python platform
-    pub fn sys_platform(&mut self, sys_platform: &str) {
-        self.sys_platform = Some(sys_platform.to_string())
+    pub fn set_options(
+        &mut self,
+        UpdateOptions {
+            python_version,
+            sys_platform,
+        }: UpdateOptions,
+    ) {
+        self.python_version = python_version;
+        self.sys_platform = sys_platform;
     }
 
     /// Applies a set of new FrozenDependency to the lock
@@ -43,7 +45,6 @@ impl Updater {
         locked_dependencies: &mut Vec<LockedDependency>,
         frozen_deps: &[FrozenDependency],
     ) {
-        #![allow(clippy::redundant_closure)]
         let known_names: Vec<_> = locked_dependencies.iter().map(|d| d.name()).collect();
         let new_deps: Vec<_> = frozen_deps
             .iter()
@@ -198,7 +199,10 @@ mod tests {
     #[test]
     fn different_python_version() {
         let mut updater = Updater::new();
-        updater.python_version("< '3.6'");
+        updater.set_options(UpdateOptions {
+            python_version: Some("< '3.6'".to_string()),
+            sys_platform: None,
+        });
         assert_update(
             updater,
             "foo==0.42\n",
@@ -213,7 +217,10 @@ mod tests {
     #[test]
     fn different_platform() {
         let mut updater = Updater::new();
-        updater.sys_platform("win32");
+        updater.set_options(UpdateOptions {
+            python_version: None,
+            sys_platform: Some("win32".to_string()),
+        });
         assert_update(
             updater,
             "foo==0.42\n",

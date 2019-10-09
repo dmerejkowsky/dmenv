@@ -114,7 +114,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             if *system_site_packages {
                 project.use_system_site_packages();
             }
-            project.update_lock(&update_options)
+            project.update_lock(update_options)
         }
         SubCommand::BumpInLock { name, version, git } => {
             let bump_type = if *git {

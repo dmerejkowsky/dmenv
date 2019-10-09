@@ -45,7 +45,7 @@ pub fn bump(
 pub fn update(
     lock_path: &Path,
     frozen_deps: Vec<FrozenDependency>,
-    update_options: &UpdateOptions,
+    update_options: UpdateOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = if lock_path.exists() {
@@ -55,12 +55,7 @@ pub fn update(
     };
 
     let mut updater = Updater::new();
-    if let Some(python_version) = &update_options.python_version {
-        updater.python_version(&python_version);
-    }
-    if let Some(ref sys_platform) = update_options.sys_platform {
-        updater.sys_platform(&sys_platform);
-    }
+    updater.set_options(update_options);
     let mut locked_deps = lock::parse(&lock_contents)?;
     updater.update(&mut locked_deps, &frozen_deps);
 
