@@ -74,15 +74,36 @@ impl LockedDependency {
         }
     }
 
-        }
-        Err(ParseError::new("neither a simple dep nor a git dep"))
-    }
-
-    }
-
+    pub fn version(&self) -> String {
+        match self {
+            LockedDependency::Git(x) => x.git_ref.value.to_string(),
+            LockedDependency::Simple(x) => x.version.value.to_string(),
         }
     }
 
+    pub fn git_bump(&mut self, new_ref: &str) -> Result<(), Error> {
+        match self {
+            LockedDependency::Git(x) => {
+                x.git_bump(new_ref);
+                Ok(())
+            }
+            _ => Err(Error::IncorrectLockedType {
+                name: self.name(),
+                expected_type: "git".to_string(),
+            }),
+        }
+    }
+
+    pub fn simple_bump(&mut self, new_version: &str) -> Result<(), Error> {
+        match self {
+            LockedDependency::Simple(x) => {
+                x.simple_bump(new_version);
+                Ok(())
+            }
+            _ => Err(Error::IncorrectLockedType {
+                name: self.name(),
+                expected_type: "simple".to_string(),
+            }),
         }
     }
 }
@@ -93,8 +114,8 @@ impl LockedDependency {
 // the line of the lock.
 // This allows us to have meaningful diffs when calling `dmenv bump-in-lock`
 pub struct VersionSpec {
-    start: usize,
-    end: usize,
+    pub start: usize,
+    pub end: usize,
     pub value: String,
 }
 
@@ -106,14 +127,10 @@ pub struct GitDependency {
 }
 
 impl GitDependency {
-    pub fn bump(&mut self, new_ref: &str) -> bool {
-        let VersionSpec { start, end, value } = &self.git_ref;
-        if new_ref == value {
-            return false;
-        }
+    pub fn git_bump(&mut self, new_ref: &str) {
+        let VersionSpec { start, end, .. } = &self.git_ref;
         self.line = format!("{}{}{}", &self.line[0..*start], new_ref, &self.line[*end..],);
-        self.git_ref.value = new_ref.to_string();
-        true
+        self.git_ref.value = new_ref.to_string()
     }
 }
 
@@ -146,11 +163,8 @@ impl SimpleDependency {
     }
 
     /// Bump a simple dependency to a new version
-    pub fn bump(&mut self, new_version: &str) -> bool {
-        let VersionSpec { start, end, value } = &self.version;
-        if new_version == value {
-            return false;
-        }
+    pub fn simple_bump(&mut self, new_version: &str) {
+        let VersionSpec { start, end, .. } = &self.version;
         self.line = format!(
             "{}{}{}",
             &self.line[0..*start],
@@ -158,7 +172,6 @@ impl SimpleDependency {
             &self.line[*end..],
         );
         self.version.value = new_version.to_string();
-        true
     }
 
     /// Freeze a simple dependency to a new version
@@ -169,7 +182,7 @@ impl SimpleDependency {
         // In self.bump() we are *setting* the new version
         // and want to know if the dependency has changed.
         // Both implementations just happen to be similar ...
-        self.bump(new_version);
+        self.simple_bump(new_version);
     }
 }
 
@@ -179,6 +192,10 @@ mod tests {
     use crate::lock::parse_git_line;
 
     #[test]
+    fn git_bump() {
+        let mut dep = parse_git_line("git@master.com:foo@master#egg=foo").unwrap();
+        dep.git_bump("deadbeef");
+        assert_eq!(dep.line, "git@master.com:foo@deadbeef#egg=foo");
 
     #[test]
     fn test_simple_freeze() {
@@ -189,6 +206,10 @@ mod tests {
     }
 
     #[test]
+    fn simple_bump() {
+        let mut dep = parse_simple_line("foo == 0.42").unwrap();
+        dep.simple_bump("0.43");
+        assert_eq!(dep.line, "foo == 0.43");
     fn test_simple_keep_spec() {
         let dep = LockedDependency::from_line("foo==0.42 ; python_version >= '3.6'").unwrap();
         let mut dep = unwrap_simple(dep);
@@ -212,11 +233,5 @@ mod tests {
         assert_eq!(dep.line, "foo2==3");
     }
 
-    #[test]
-    fn test_bump_git() {
-        let dep = LockedDependency::from_line("git@master.com:foo@master#egg=foo").unwrap();
-        let mut dep = unwrap_git(dep);
-        dep.bump("deadbeef");
-        assert_eq!(dep.line, "git@master.com:foo@deadbeef#egg=foo");
     }
 }

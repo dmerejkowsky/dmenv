@@ -69,6 +69,10 @@ pub enum Error {
     MultipleBumps {
         name: String,
     },
+    IncorrectLockedType {
+        name: String,
+        expected_type: String,
+    },
 }
 
 pub fn new_error(message: &str) -> Error {
@@ -153,6 +157,10 @@ impl std::fmt::Display for Error {
             Error::MultipleBumps { name } => {
                 format!("multiple matches found for '{}' in lock", name)
             }
+            Error::IncorrectLockedType {
+                name,
+                expected_type,
+            } => format!("{} is not a {} dependency", name, expected_type),
         };
         write!(f, "{}", message)
     }

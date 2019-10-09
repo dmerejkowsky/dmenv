@@ -19,4 +19,4 @@ pub struct Lock {
 mod bump;
 mod freeze;
 mod parse;
-pub use parse::{parse, parse_git_line, parse_line, parse_simple_line};
+pub use bump::{git_bump, simple_bump, BumpType};

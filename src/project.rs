@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
+use crate::lock::BumpType;
 use crate::operations;
 use crate::paths::{Paths, PathsResolver};
 use crate::python_info::PythonInfo;
@@ -199,10 +200,15 @@ impl Project {
     //
     // Note: most of the work is delegated to the Lock struct. Either `Lock.git_bump()`or
     // `Lock.bump()` is called, depending on the value of the `git` argument.
-    pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
+    pub fn bump_in_lock(
+        &self,
+        name: &str,
+        version: &str,
+        bump_type: BumpType,
+    ) -> Result<(), Error> {
         print_info_1(&format!("Bumping {} to {} ...", name, version));
         let metadata = self.get_metadata()?;
-        operations::bump_in_lock(&self.paths.lock, name, version, git, &metadata)
+        operations::lock::bump(&self.paths.lock, name, version, bump_type, &metadata)
     }
 
     /// Run a program from the virtualenv, making sure it dies
