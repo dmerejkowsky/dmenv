@@ -20,7 +20,7 @@ pub struct FrozenDependency {
 impl FrozenDependency {
     /// Construct a new FrozenDependency from a line coming from
     /// `pip freeze` output
-    pub fn from_string(string: &str) -> Result<Self, Error> {
+    pub fn from_string(string: String) -> Result<Self, Error> {
         // Custom error in case we can't parse `pip freeze` output
         // This really should never happen (tm)
         let err = Error::BrokenPipFreezeLine {

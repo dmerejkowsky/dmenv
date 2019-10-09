@@ -295,7 +295,7 @@ impl Project {
         // First, collect all the `pip freeze` lines into frozen dependencies
         let deps: Result<Vec<_>, _> = freeze_output
             .lines()
-            .map(FrozenDependency::from_string)
+            .map(|x| FrozenDependency::from_string(x.into()))
             .collect();
         let deps = deps?;
         // Then filter out pkg-resources: this works around a Debian bug in pip:
