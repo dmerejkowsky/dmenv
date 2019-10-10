@@ -20,25 +20,25 @@ pub enum Error {
         io_error: std::io::Error,
     },
 
-    NulByteFound {
+    NulByteError {
         arg: String,
     },
-    ProcessStartError {
+    StartProcessError {
         message: String,
     },
-    ProcessWaitError {
+    WaitProcessError {
         io_error: std::io::Error,
     },
-    ProcessOutError {
+    GetProcessOutputError {
         io_error: std::io::Error,
     },
 
-    InfoPyError {
+    RunInfoPyError {
         message: String,
     },
 
-    PipUpgradeFailed {},
-    BrokenPipFreezeLine {
+    UpgradePipError {},
+    ParsePipFreezeError {
         line: String,
     },
 
@@ -100,7 +100,7 @@ impl std::fmt::Display for Error {
         let message = match self {
             Error::Other { message } => message.to_string(),
 
-            Error::NulByteFound { arg } => format!("nul byte found in arg: {:?}", arg),
+            Error::NulByteError { arg } => format!("nul byte found in arg: {:?}", arg),
 
             Error::ReadError { path, io_error } => {
                 format!("could not read {}: {}", path.display(), io_error)
@@ -114,15 +114,15 @@ impl std::fmt::Display for Error {
             }
 
 
-            Error::ProcessStartError { message } => format!("could not start process: {}", message),
-            Error::ProcessWaitError { io_error } => {
+            Error::StartProcessError { message } => format!("could not start process: {}", message),
+            Error::WaitProcessError { io_error } => {
                 format!("could not wait for process: {}", io_error)
             }
-            Error::ProcessOutError { io_error } => {
+            Error::GetProcessOutputError { io_error } => {
                 format!("could not get process output: {}", io_error)
             }
 
-            Error::InfoPyError { message } => {
+            Error::RunInfoPyError { message } => {
                 format!("could not determine Python version and platform while running the `info.py` script: {}",
                       message)
             },
@@ -140,10 +140,10 @@ impl std::fmt::Display for Error {
                 message
             }
 
-            Error::BrokenPipFreezeLine { line } => {
+            Error::ParsePipFreezeError { line } => {
                 format!("could not parse `pip freeze` output at line: '{}'", line)
             }
-            Error::PipUpgradeFailed {} => {
+            Error::UpgradePipError {} => {
                 "could not upgrade pip. Try using `dmenv clean`".to_string()
             }
 

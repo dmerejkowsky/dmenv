@@ -130,7 +130,7 @@ pub fn run<T: AsRef<str>>(
         .args(args)
         .current_dir(working_path)
         .status();
-    let command = command.map_err(|e| Error::ProcessWaitError { io_error: e })?;
+    let command = command.map_err(|e| Error::WaitProcessError { io_error: e })?;
     if !command.success() {
         return Err(new_error("command failed".to_string()));
     }
@@ -149,7 +149,7 @@ fn get_output<T: AsRef<str>>(
         .current_dir(working_path)
         .output();
 
-    let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
+    let command = command.map_err(|e| Error::GetProcessOutputError { io_error: e })?;
     if !command.status.success() {
         return Err(new_error(format!(
             "`{}` failed\n: {}",

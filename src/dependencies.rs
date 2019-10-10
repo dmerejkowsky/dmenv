@@ -23,7 +23,7 @@ impl FrozenDependency {
     pub fn from_string(string: String) -> Result<Self, Error> {
         // Custom error in case we can't parse `pip freeze` output
         // This really should never happen (tm)
-        let err = Error::BrokenPipFreezeLine {
+        let err = Error::ParsePipFreezeError {
             line: string.to_string(),
         };
 

@@ -167,7 +167,7 @@ impl Project {
         let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
         self.venv_runner
             .run(cmd)
-            .map_err(|_| Error::PipUpgradeFailed {})
+            .map_err(|_| Error::UpgradePipError {})
     }
 
     /// (Re)generate the lock file

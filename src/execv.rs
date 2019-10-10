@@ -5,7 +5,7 @@ use std::ffi::OsStr;
 use std::{ffi::CString, os::unix::ffi::OsStrExt};
 
 fn to_c_string<S: AsRef<OsStr>>(string: S) -> Result<CString, Error> {
-    CString::new(string.as_ref().as_bytes()).map_err(|_| Error::NulByteFound {
+    CString::new(string.as_ref().as_bytes()).map_err(|_| Error::NulByteError {
         arg: string.as_ref().to_string_lossy().to_string(),
     })
 }
@@ -33,7 +33,7 @@ where
         }
     }
 
-    Err(Error::ProcessStartError {
+    Err(Error::StartProcessError {
         message: format!("execv() failed: {}", std::io::Error::last_os_error()),
     })
 }

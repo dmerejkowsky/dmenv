@@ -19,10 +19,10 @@ impl PythonInfo {
         let command = std::process::Command::new(&binary)
             .args(&["-c", info_script])
             .output();
-        let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
+        let command = command.map_err(|e| Error::GetProcessOutputError { io_error: e })?;
         if !command.status.success() {
             let return_code = command.status.code().unwrap();
-            return Err(Error::InfoPyError {
+            return Err(Error::RunInfoPyError {
                 message: format!(
                     "command returned with exit code: {}\n{}",
                     return_code,
@@ -34,7 +34,7 @@ impl PythonInfo {
         let lines: Vec<_> = info_out.split_terminator('\n').collect();
         let expected_lines = 2; // Keep this in sync with src/info.py
         if lines.len() != expected_lines {
-            return Err(Error::InfoPyError {
+            return Err(Error::RunInfoPyError {
                 message: format!(
                     "could not parse output:\n{}\n(expected exactly {} lines)",
                     info_out, expected_lines,
