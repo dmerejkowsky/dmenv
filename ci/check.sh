@@ -36,9 +36,9 @@ run_tests() {
       ;;
   esac
 
-  if [[ "${TRAVIS_RUST_VERSION}" == "nightly" ]] && [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-    # tarpaulin only works with rust nightly and on Linux for now
-    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin
+
+  if [[ "${TRAVIS_RUST_VERSION}" == "stable" ]] && [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    cargo install cargo-tarpaulin --force
     cargo tarpaulin --ignore-tests --out Xml
     bash <(curl -s https://codecov.io/bash)
   else
