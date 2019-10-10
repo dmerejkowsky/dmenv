@@ -163,3 +163,25 @@ impl std::fmt::Display for Error {
         write!(f, "{}", message)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Those tests check that our Error type
+    // can be sent across threads safely.
+    //
+    // They contain no assertions because we
+    // just need them to compile
+    #[test]
+    fn errors_are_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<Error>();
+    }
+
+    #[test]
+    fn errors_are_sync() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<Error>();
+    }
+}
