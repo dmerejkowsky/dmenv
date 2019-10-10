@@ -190,7 +190,7 @@ impl Project {
         self.ensure_venv()?;
         self.upgrade_pip()?;
         self.install_editable()?;
-        let metadata = &self.get_metadata()?;
+        let metadata = self.metadata();
         let frozen_deps = self.get_frozen_deps()?;
         let lock_path = &self.paths.lock;
         operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
@@ -204,7 +204,7 @@ impl Project {
         bump_type: BumpType,
     ) -> Result<(), Error> {
         print_info_1(&format!("Bumping {} to {} ...", name, version));
-        let metadata = self.get_metadata()?;
+        let metadata = self.metadata();
         operations::lock::bump(&self.paths.lock, name, version, bump_type, &metadata)
     }
 
@@ -278,15 +278,15 @@ impl Project {
         self.venv_runner.run(cmd)
     }
 
-    fn get_metadata(&self) -> Result<Metadata, Error> {
+    fn metadata(&self) -> Metadata {
         let dmenv_version = env!("CARGO_PKG_VERSION");
         let python_platform = &self.python_info.platform;
         let python_version = &self.python_info.version;
-        Ok(Metadata {
+        Metadata {
             dmenv_version: dmenv_version.to_string(),
             python_platform: python_platform.to_string(),
             python_version: python_version.to_string(),
-        })
+        }
     }
 
     /// Get the list of the *actual* deps in the virtualenv by calling `pip freeze`.
