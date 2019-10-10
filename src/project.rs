@@ -43,7 +43,7 @@ impl Project {
         settings: Settings,
     ) -> Result<Self, Error> {
         let python_version = python_info.version.clone();
-        let paths_resolver = PathsResolver::new(project_path.clone(), &python_version, &settings);
+        let paths_resolver = PathsResolver::new(project_path.clone(), python_version, &settings);
         let paths = paths_resolver.paths()?;
         let venv_runner = VenvRunner::new(&project_path, &paths.venv);
         Ok(Project {

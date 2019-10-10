@@ -38,11 +38,11 @@ pub struct PathsResolver {
 // (For instance, a "production" virtualenv must be in a different path
 // than the "development" virtualenv). Ditto when the Python version changes
 impl PathsResolver {
-    pub fn new(project_path: PathBuf, python_version: &str, settings: &Settings) -> Self {
+    pub fn new(project_path: PathBuf, python_version: String, settings: &Settings) -> Self {
         PathsResolver {
             venv_outside_project: settings.venv_outside_project,
             project_path,
-            python_version: python_version.into(),
+            python_version,
             production: settings.production,
         }
     }
@@ -116,7 +116,8 @@ mod tests {
     use std::path::Path;
 
     fn get_venv_path(project_path: PathBuf, settings: Settings, python_version: &str) -> PathBuf {
-        let paths_resolver = PathsResolver::new(project_path, python_version, &settings);
+        let paths_resolver =
+            PathsResolver::new(project_path, python_version.to_string(), &settings);
         let paths = paths_resolver.paths().unwrap();
         paths.venv
     }
