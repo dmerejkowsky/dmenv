@@ -36,7 +36,7 @@ pub fn bump(
         print_warning(&format!("Dependency {} already up-to-date", name.bold()));
         return Ok(());
     }
-    let new_contents = lock::dump(&deps);
+    let new_contents = lock::dump(deps);
     write_lock(lock_path, &new_contents, metadata)?;
     println!("{}", "ok!".green());
     Ok(())
@@ -59,7 +59,7 @@ pub fn update(
     let mut locked_deps = lock::parse(&lock_contents)?;
     updater.update(&mut locked_deps, &frozen_deps);
 
-    let new_contents = lock::dump(&locked_deps);
+    let new_contents = lock::dump(locked_deps);
     write_lock(lock_path, &new_contents, metadata)
 }
 

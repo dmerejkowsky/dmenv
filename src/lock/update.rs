@@ -126,7 +126,7 @@ mod tests {
     ) {
         let mut locked = parse(initial_contents).unwrap();
         updater.update(&mut locked, frozen);
-        let actual = dump(&locked);
+        let actual = dump(locked);
         assert_eq!(actual, final_contents);
     }
 

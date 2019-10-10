@@ -64,7 +64,7 @@ mod tests {
         let mut deps = parse(&lock_contents).unwrap();
         let changed = simple_bump(&mut deps, "foo", "0.43").unwrap();
         assert!(changed);
-        let actual = dump(&deps);
+        let actual = dump(deps);
         assert_eq!(actual, "bar==0.3\nfoo==0.43\n");
     }
 
@@ -74,7 +74,7 @@ mod tests {
         let mut deps = parse(&lock_contents).unwrap();
         let changed = simple_bump(&mut deps, "foo", "0.42").unwrap();
         assert!(!changed);
-        let actual = dump(&deps);
+        let actual = dump(deps);
         assert_eq!(actual, "bar==0.3\nfoo==0.42\n");
     }
 
@@ -95,7 +95,7 @@ mod tests {
         let mut deps = parse(&lock_contents).unwrap();
         let changed = git_bump(&mut deps, "bar", "cda431").unwrap();
         assert!(changed);
-        let actual = dump(&deps);
+        let actual = dump(deps);
         let expected = "git@example.com/bar.git@cda431#egg=bar\n";
         assert_eq!(actual, expected);
     }
