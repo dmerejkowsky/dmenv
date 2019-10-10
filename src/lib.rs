@@ -55,10 +55,13 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     } = &cmd.sub_cmd
     {
         let project_path = get_project_path_for_init(&cmd)?;
-        let mut options = InitOptions::new(name, version, author);
+        let mut options = InitOptions::new(name.to_string(), version.to_string());
         if *no_setup_cfg {
-            options.no_setup_cfg()
+            options.no_setup_cfg();
         };
+        if let Some(author) = author {
+            options.author(author);
+        }
         return operations::init(&project_path, &options);
     }
 

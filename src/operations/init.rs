@@ -10,18 +10,23 @@ pub struct InitOptions {
 }
 
 impl InitOptions {
-    pub fn new(name: &str, version: &str, author: &Option<String>) -> Self {
-        #![allow(clippy::redundant_closure)]
+    pub fn new(name: String, version: String) -> Self {
         InitOptions {
-            name: name.to_string(),
-            version: version.to_string(),
-            author: author.as_ref().map(|x| x.to_string()),
+            name,
+            version,
+            author: None,
             setup_cfg: true,
         }
     }
 
-    pub fn no_setup_cfg(&mut self) {
-        self.setup_cfg = false
+    pub fn author(&mut self, author: &str) -> &mut Self {
+        self.author = Some(author.to_string());
+        self
+    }
+
+    pub fn no_setup_cfg(&mut self) -> &mut Self {
+        self.setup_cfg = false;
+        self
     }
 }
 
@@ -163,12 +168,12 @@ mod tests {
     }
 
     fn run_init(tmp_path: &Path) -> Result<(), Error> {
-        let init_options = InitOptions::new("foo", "0.42", &None);
+        let init_options = InitOptions::new("foo".to_string(), "0.42".to_string());
         init(tmp_path, &init_options)
     }
 
     fn run_init_no_setup_cfg(tmp_path: &Path) -> Result<(), Error> {
-        let mut init_options = InitOptions::new("foo", "0.42", &None);
+        let mut init_options = InitOptions::new("foo".to_string(), "0.42".to_string());
         init_options.no_setup_cfg();
         init(tmp_path, &init_options)
     }
