@@ -4,6 +4,7 @@ use std::path::PathBuf;
 /// Represent output of the info.py script
 /// This allows dmenv to know details about
 /// the Python intrepreter it is using.
+#[derive(Debug)]
 pub struct PythonInfo {
     pub binary: PathBuf,
     pub version: String,

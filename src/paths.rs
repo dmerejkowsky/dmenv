@@ -18,6 +18,7 @@ pub const DEV_LOCK_FILENAME: &str = "requirements.lock";
 use crate::error::*;
 
 // Container for all the PathsBuf used by the venv_manager
+#[derive(Debug)]
 pub struct Paths {
     pub project: PathBuf,
     pub venv: PathBuf,
@@ -25,6 +26,7 @@ pub struct Paths {
     pub setup_py: PathBuf,
 }
 
+#[derive(Debug)]
 pub struct PathsResolver {
     venv_outside_project: bool,
     production: bool,

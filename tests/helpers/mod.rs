@@ -5,6 +5,7 @@ use structopt::StructOpt;
 
 use dmenv;
 
+#[derive(Debug)]
 pub struct TestApp {
     tmp_dir: tempdir::TempDir,
 }

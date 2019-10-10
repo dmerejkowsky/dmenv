@@ -1,6 +1,7 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
 use crate::operations::UpdateOptions;
 
+#[derive(Debug)]
 pub struct Updater {
     python_version: Option<String>,
     sys_platform: Option<String>,

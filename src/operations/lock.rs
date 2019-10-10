@@ -10,7 +10,7 @@ use crate::lock::Updater;
 use crate::lock::{git_bump, simple_bump};
 use crate::project::Metadata;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 /// Represents options passed to `dmenv lock`,
 /// see `cmd::SubCommand::Lock`
 pub struct UpdateOptions {

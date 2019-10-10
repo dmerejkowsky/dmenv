@@ -12,6 +12,7 @@ use crate::lock::parse_simple_line;
 /// or *updated*, when using `dmenv lock` and updating the contents of the lock file
 /// with the output from `pip freeze`
 
+#[derive(Debug)]
 pub struct FrozenDependency {
     pub name: String,
     pub version: String,

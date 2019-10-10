@@ -2,6 +2,7 @@ use crate::cmd::*;
 use crate::error::*;
 use std::path::Path;
 
+#[derive(Debug)]
 pub struct InitOptions {
     name: String,
     version: String,

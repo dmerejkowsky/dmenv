@@ -17,6 +17,7 @@ pub struct Metadata {
     pub python_version: String,
 }
 
+#[derive(Debug)]
 pub struct Project {
     python_info: PythonInfo,
     settings: Settings,

@@ -10,6 +10,7 @@ use crate::win_job;
 
 use crate::paths::SCRIPTS_SUBDIR;
 
+#[derive(Debug)]
 pub struct VenvRunner {
     project_path: PathBuf,
     venv_path: PathBuf,

@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 use crate::error::*;
 
-#[derive(StructOpt)]
+#[derive(StructOpt, Debug)]
 #[structopt(
     name = "dmenv",
     about = "Simple and practical virtualenv manager for Python"
