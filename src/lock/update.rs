@@ -49,7 +49,7 @@ impl Updater {
         let known_names: Vec<_> = locked_dependencies.iter().map(|d| d.name()).collect();
         let new_deps: Vec<_> = frozen_deps
             .iter()
-            .filter(|x| !known_names.contains(&&x.name))
+            .filter(|x| !known_names.contains(&x.name))
             .collect();
         for dep in new_deps {
             // If self.python_version or self.sys_platform is not None,
