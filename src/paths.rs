@@ -18,6 +18,7 @@ pub const DEV_LOCK_FILENAME: &str = "requirements.lock";
 use crate::error::*;
 
 // Container for all the PathsBuf used by the venv_manager
+#[derive(Debug)]
 pub struct Paths {
     pub project: PathBuf,
     pub venv: PathBuf,
@@ -25,6 +26,7 @@ pub struct Paths {
     pub setup_py: PathBuf,
 }
 
+#[derive(Debug)]
 pub struct PathsResolver {
     venv_outside_project: bool,
     production: bool,
@@ -38,11 +40,11 @@ pub struct PathsResolver {
 // (For instance, a "production" virtualenv must be in a different path
 // than the "development" virtualenv). Ditto when the Python version changes
 impl PathsResolver {
-    pub fn new(project_path: PathBuf, python_version: &str, settings: &Settings) -> Self {
+    pub fn new(project_path: PathBuf, python_version: String, settings: &Settings) -> Self {
         PathsResolver {
             venv_outside_project: settings.venv_outside_project,
             project_path,
-            python_version: python_version.into(),
+            python_version,
             production: settings.production,
         }
     }
@@ -90,14 +92,14 @@ impl PathsResolver {
     fn get_venv_path_outside(&self) -> Result<PathBuf, Error> {
         let data_dir =
             app_dirs::app_dir(AppDataType::UserCache, &APP_INFO, "venv").map_err(|e| {
-                new_error(&format!(
+                new_error(format!(
                     "Could not create dmenv cache path: {}",
                     e.to_string()
                 ))
             })?;
         let subdir = if self.production { "prod" } else { "dev" };
         let project_name = self.project_path.file_name().ok_or_else(|| {
-            new_error(&format!(
+            new_error(format!(
                 "project path: {} has no file name",
                 self.project_path.display()
             ))
@@ -116,7 +118,8 @@ mod tests {
     use std::path::Path;
 
     fn get_venv_path(project_path: PathBuf, settings: Settings, python_version: &str) -> PathBuf {
-        let paths_resolver = PathsResolver::new(project_path, python_version, &settings);
+        let paths_resolver =
+            PathsResolver::new(project_path, python_version.to_string(), &settings);
         let paths = paths_resolver.paths().unwrap();
         paths.venv
     }

@@ -12,7 +12,7 @@ pub fn clean(venv_path: PathBuf) -> Result<(), Error> {
         return Ok(());
     }
     std::fs::remove_dir_all(&venv_path)
-        .map_err(|e| new_error(&format!("could not remove {}: {}", venv_path.display(), e)))?;
+        .map_err(|e| new_error(format!("could not remove {}: {}", venv_path.display(), e)))?;
     Ok(())
 }
 
@@ -23,10 +23,10 @@ pub fn create(
 ) -> Result<(), Error> {
     let parent_venv_path = venv_path
         .parent()
-        .ok_or_else(|| new_error("venv_path has no parent"))?;
+        .ok_or_else(|| new_error("venv_path has no parent".to_string()))?;
     print_info_2(&format!("Creating virtualenv in: {}", venv_path.display()));
     std::fs::create_dir_all(&parent_venv_path).map_err(|e| {
-        new_error(&format!(
+        new_error(format!(
             "Could not create {}: {}",
             parent_venv_path.display(),
             e

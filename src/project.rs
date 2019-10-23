@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
+use crate::lock::BumpType;
 use crate::operations;
 use crate::paths::{Paths, PathsResolver};
 use crate::python_info::PythonInfo;
@@ -16,6 +17,7 @@ pub struct Metadata {
     pub python_version: String,
 }
 
+#[derive(Debug)]
 pub struct Project {
     python_info: PythonInfo,
     settings: Settings,
@@ -42,7 +44,7 @@ impl Project {
         settings: Settings,
     ) -> Result<Self, Error> {
         let python_version = python_info.version.clone();
-        let paths_resolver = PathsResolver::new(project_path.clone(), &python_version, &settings);
+        let paths_resolver = PathsResolver::new(project_path.clone(), python_version, &settings);
         let paths = paths_resolver.paths()?;
         let venv_runner = VenvRunner::new(&project_path, &paths.venv);
         Ok(Project {
@@ -166,7 +168,7 @@ impl Project {
         let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
         self.venv_runner
             .run(cmd)
-            .map_err(|_| Error::PipUpgradeFailed {})
+            .map_err(|_| Error::UpgradePipError {})
     }
 
     /// (Re)generate the lock file
@@ -181,28 +183,30 @@ impl Project {
     //      (such as `--local`, `--exclude-editable`) we use in the other functions
     // * The path of the lock file is computed by PathsResolver.
     //     See PathsResolver.paths() for details
-    //
-    // * Delegates the actual work to `write_lock()`
-    //
-    pub fn lock(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
-        print_info_1("Locking dependencies");
+    pub fn update_lock(&self, update_options: operations::UpdateOptions) -> Result<(), Error> {
+        print_info_1("Updating lock");
         if !self.paths.setup_py.exists() {
             return Err(Error::MissingSetupPy {});
         }
         self.ensure_venv()?;
         self.upgrade_pip()?;
         self.install_editable()?;
-        self.lock_dependencies(&lock_options)
+        let metadata = self.metadata();
+        let frozen_deps = self.get_frozen_deps()?;
+        let lock_path = &self.paths.lock;
+        operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
     }
 
     /// Bump a dependency in the lock file
-    //
-    // Note: most of the work is delegated to the Lock struct. Either `Lock.git_bump()`or
-    // `Lock.bump()` is called, depending on the value of the `git` argument.
-    pub fn bump_in_lock(&self, name: &str, version: &str, git: bool) -> Result<(), Error> {
+    pub fn bump_in_lock(
+        &self,
+        name: &str,
+        version: &str,
+        bump_type: BumpType,
+    ) -> Result<(), Error> {
         print_info_1(&format!("Bumping {} to {} ...", name, version));
-        let metadata = self.get_metadata()?;
-        operations::bump_in_lock(&self.paths.lock, name, version, git, &metadata)
+        let metadata = self.metadata();
+        operations::lock::bump(&self.paths.lock, name, version, bump_type, &metadata)
     }
 
     /// Run a program from the virtualenv, making sure it dies
@@ -275,23 +279,15 @@ impl Project {
         self.venv_runner.run(cmd)
     }
 
-    // Lock dependencies
-    fn lock_dependencies(&self, lock_options: &operations::LockOptions) -> Result<(), Error> {
-        let metadata = &self.get_metadata()?;
-        let frozen_deps = self.get_frozen_deps()?;
-        let lock_path = &self.paths.lock;
-        operations::lock_dependencies(lock_path, frozen_deps, lock_options, &metadata)
-    }
-
-    fn get_metadata(&self) -> Result<Metadata, Error> {
+    fn metadata(&self) -> Metadata {
         let dmenv_version = env!("CARGO_PKG_VERSION");
         let python_platform = &self.python_info.platform;
         let python_version = &self.python_info.version;
-        Ok(Metadata {
+        Metadata {
             dmenv_version: dmenv_version.to_string(),
             python_platform: python_platform.to_string(),
             python_version: python_version.to_string(),
-        })
+        }
     }
 
     /// Get the list of the *actual* deps in the virtualenv by calling `pip freeze`.
@@ -300,7 +296,7 @@ impl Project {
         // First, collect all the `pip freeze` lines into frozen dependencies
         let deps: Result<Vec<_>, _> = freeze_output
             .lines()
-            .map(FrozenDependency::from_string)
+            .map(|x| FrozenDependency::from_string(x.into()))
             .collect();
         let deps = deps?;
         // Then filter out pkg-resources: this works around a Debian bug in pip:

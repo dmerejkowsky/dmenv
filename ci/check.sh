@@ -28,7 +28,7 @@ run_tests() {
   case $TRAVIS_OS_NAME in
     windows)
       # Make sure Python installed by choco is first in PATH
-      export PATH=/c/Python37:${PATH}
+      export PATH=/c/Python38:${PATH}
       ;;
     linux)
       # Do not use -m venv (buggy on Debian)
@@ -36,9 +36,9 @@ run_tests() {
       ;;
   esac
 
-  if [[ "${TRAVIS_RUST_VERSION}" == "nightly" ]] && [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-    # tarpaulin only works with rust nightly and on Linux for now
-    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin
+
+  if [[ "${TRAVIS_RUST_VERSION}" == "stable" ]] && [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    cargo install cargo-tarpaulin --force
     cargo tarpaulin --ignore-tests --out Xml
     bash <(curl -s https://codecov.io/bash)
   else

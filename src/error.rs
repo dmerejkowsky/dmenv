@@ -20,25 +20,25 @@ pub enum Error {
         io_error: std::io::Error,
     },
 
-    NulByteFound {
+    NulByteError {
         arg: String,
     },
-    ProcessStartError {
+    StartProcessError {
         message: String,
     },
-    ProcessWaitError {
+    WaitProcessError {
         io_error: std::io::Error,
     },
-    ProcessOutError {
+    GetProcessOutputError {
         io_error: std::io::Error,
     },
 
-    InfoPyError {
+    RunInfoPyError {
         message: String,
     },
 
-    PipUpgradeFailed {},
-    BrokenPipFreezeLine {
+    UpgradePipError {},
+    ParsePipFreezeError {
         line: String,
     },
 
@@ -59,7 +59,6 @@ pub enum Error {
     },
 
     MalformedLock {
-        line: usize,
         details: String,
     },
 
@@ -70,12 +69,14 @@ pub enum Error {
     MultipleBumps {
         name: String,
     },
+    IncorrectLockedType {
+        name: String,
+        expected_type: String,
+    },
 }
 
-pub fn new_error(message: &str) -> Error {
-    Error::Other {
-        message: message.to_string(),
-    }
+pub fn new_error(message: String) -> Error {
+    Error::Other { message }
 }
 
 pub fn new_read_error(error: std::io::Error, path: &Path) -> Error {
@@ -99,7 +100,7 @@ impl std::fmt::Display for Error {
         let message = match self {
             Error::Other { message } => message.to_string(),
 
-            Error::NulByteFound { arg } => format!("nul byte found in arg: {:?}", arg),
+            Error::NulByteError { arg } => format!("nul byte found in arg: {:?}", arg),
 
             Error::ReadError { path, io_error } => {
                 format!("could not read {}: {}", path.display(), io_error)
@@ -113,15 +114,15 @@ impl std::fmt::Display for Error {
             }
 
 
-            Error::ProcessStartError { message } => format!("could not start process: {}", message),
-            Error::ProcessWaitError { io_error } => {
+            Error::StartProcessError { message } => format!("could not start process: {}", message),
+            Error::WaitProcessError { io_error } => {
                 format!("could not wait for process: {}", io_error)
             }
-            Error::ProcessOutError { io_error } => {
+            Error::GetProcessOutputError { io_error } => {
                 format!("could not get process output: {}", io_error)
             }
 
-            Error::InfoPyError { message } => {
+            Error::RunInfoPyError { message } => {
                 format!("could not determine Python version and platform while running the `info.py` script: {}",
                       message)
             },
@@ -139,23 +140,48 @@ impl std::fmt::Display for Error {
                 message
             }
 
-            Error::BrokenPipFreezeLine { line } => {
+            Error::ParsePipFreezeError { line } => {
                 format!("could not parse `pip freeze` output at line: '{}'", line)
             }
-            Error::PipUpgradeFailed {} => {
+            Error::UpgradePipError {} => {
                 "could not upgrade pip. Try using `dmenv clean`".to_string()
             }
 
             Error::FileExists { path } => format!("{} already exists", path.display()),
 
-            Error::MalformedLock { line, details } => {
-                format!("Malformed lock at line {}\n:{}", line, details)
-            }
+            Error::MalformedLock { details } => format!("Malformed lock: {}", details),
+
             Error::NothingToBump { name } => format!("'{}' not found in lock", name),
             Error::MultipleBumps { name } => {
                 format!("multiple matches found for '{}' in lock", name)
             }
+            Error::IncorrectLockedType {
+                name,
+                expected_type,
+            } => format!("{} is not a {} dependency", name, expected_type),
         };
         write!(f, "{}", message)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Those tests check that our Error type
+    // can be sent across threads safely.
+    //
+    // They contain no assertions because we
+    // just need them to compile
+    #[test]
+    fn errors_are_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<Error>();
+    }
+
+    #[test]
+    fn errors_are_sync() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<Error>();
     }
 }

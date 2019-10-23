@@ -10,6 +10,7 @@ use crate::win_job;
 
 use crate::paths::SCRIPTS_SUBDIR;
 
+#[derive(Debug)]
 pub struct VenvRunner {
     project_path: PathBuf,
     venv_path: PathBuf,
@@ -70,7 +71,7 @@ impl VenvRunner {
             let arg0 = &runnable.binary_path;
             let arg0 = arg0
                 .to_str()
-                .ok_or_else(|| new_error(&format!("Could not convert {:?} to string", arg0)))?;
+                .ok_or_else(|| new_error(format!("Could not convert {:?} to string", arg0)))?;
             cmd.insert(0, &arg0);
             execv(arg0, &cmd)
         }
@@ -130,9 +131,9 @@ pub fn run<T: AsRef<str>>(
         .args(args)
         .current_dir(working_path)
         .status();
-    let command = command.map_err(|e| Error::ProcessWaitError { io_error: e })?;
+    let command = command.map_err(|e| Error::WaitProcessError { io_error: e })?;
     if !command.success() {
-        return Err(new_error("command failed"));
+        return Err(new_error("command failed".to_string()));
     }
     Ok(())
 }
@@ -149,9 +150,9 @@ fn get_output<T: AsRef<str>>(
         .current_dir(working_path)
         .output();
 
-    let command = command.map_err(|e| Error::ProcessOutError { io_error: e })?;
+    let command = command.map_err(|e| Error::GetProcessOutputError { io_error: e })?;
     if !command.status.success() {
-        return Err(new_error(&format!(
+        return Err(new_error(format!(
             "`{}` failed\n: {}",
             cmd_str,
             String::from_utf8_lossy(&command.stderr)

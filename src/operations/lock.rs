@@ -4,46 +4,48 @@ use std::path::Path;
 use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
-use crate::lock::Lock;
+use crate::lock;
+use crate::lock::BumpType;
+use crate::lock::Updater;
+use crate::lock::{git_bump, simple_bump};
 use crate::project::Metadata;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 /// Represents options passed to `dmenv lock`,
 /// see `cmd::SubCommand::Lock`
-pub struct LockOptions {
+pub struct UpdateOptions {
     pub python_version: Option<String>,
     pub sys_platform: Option<String>,
 }
 
-pub fn bump_in_lock(
+pub fn bump(
     lock_path: &Path,
     name: &str,
     version: &str,
-    git: bool,
+    bump_type: BumpType,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents =
         std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?;
-    let mut lock = Lock::from_string(&lock_contents)?;
-    let changed = if git {
-        lock.git_bump(name, version)
-    } else {
-        lock.bump(name, version)
+    let mut deps = lock::parse(&lock_contents)?;
+    let changed = match bump_type {
+        BumpType::Git => git_bump(&mut deps, name, version),
+        BumpType::Simple => simple_bump(&mut deps, name, version),
     }?;
     if !changed {
         print_warning(&format!("Dependency {} already up-to-date", name.bold()));
         return Ok(());
     }
-    let new_contents = lock.to_string();
+    let new_contents = lock::dump(deps);
     write_lock(lock_path, &new_contents, metadata)?;
     println!("{}", "ok!".green());
     Ok(())
 }
 
-pub fn lock_dependencies(
+pub fn update(
     lock_path: &Path,
     frozen_deps: Vec<FrozenDependency>,
-    lock_options: &LockOptions,
+    update_options: UpdateOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     let lock_contents = if lock_path.exists() {
@@ -52,16 +54,12 @@ pub fn lock_dependencies(
         String::new()
     };
 
-    let mut lock = Lock::from_string(&lock_contents)?;
-    if let Some(python_version) = &lock_options.python_version {
-        lock.python_version(&python_version);
-    }
-    if let Some(ref sys_platform) = lock_options.sys_platform {
-        lock.sys_platform(&sys_platform);
-    }
-    lock.freeze(&frozen_deps);
+    let mut updater = Updater::new();
+    updater.set_options(update_options);
+    let mut locked_deps = lock::parse(&lock_contents)?;
+    updater.update(&mut locked_deps, &frozen_deps);
 
-    let new_contents = lock.to_string();
+    let new_contents = lock::dump(locked_deps);
     write_lock(lock_path, &new_contents, metadata)
 }
 
