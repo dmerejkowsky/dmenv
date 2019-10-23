@@ -28,7 +28,7 @@ run_tests() {
   case $TRAVIS_OS_NAME in
     windows)
       # Make sure Python installed by choco is first in PATH
-      export PATH=/c/Python37:${PATH}
+      export PATH=/c/Python38:${PATH}
       ;;
     linux)
       # Do not use -m venv (buggy on Debian)
