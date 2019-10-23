@@ -269,14 +269,17 @@ impl Project {
             message.push_str(" using 'dev' extra dependencies");
         }
         print_info_2(&message);
+        let cmd = self.get_install_editable_cmd();
+        self.venv_runner.run(&cmd)
+    }
 
+    fn get_install_editable_cmd(&self) -> [&str; 6] {
         let extra = if self.settings.production {
             ".[prod]"
         } else {
             ".[dev]"
         };
-        let cmd = &["python", "-m", "pip", "install", "--editable", extra];
-        self.venv_runner.run(cmd)
+        ["python", "-m", "pip", "install", "--editable", extra]
     }
 
     fn metadata(&self) -> Metadata {
