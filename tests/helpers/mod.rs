@@ -41,6 +41,16 @@ impl TestApp {
         }
     }
 
+    pub fn override_lock(&self, contents: &str) {
+        let path = self.path().join(dmenv::DEV_LOCK_FILENAME);
+        std::fs::write(path, contents).unwrap();
+    }
+
+    pub fn override_setup_cfg(&self, contents: &str) {
+        let path = self.path().join("setup.cfg");
+        std::fs::write(path, contents).unwrap();
+    }
+
     pub fn remove_setup_py(&self) {
         self.remove_file("setup.py");
     }

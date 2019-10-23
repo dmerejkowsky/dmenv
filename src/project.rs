@@ -261,6 +261,23 @@ impl Project {
         self.venv_runner.run(cmd)
     }
 
+    // Re-generate a clean lock:
+    //   - clean the virtualenv
+    //   - re-create it from scratch, while
+    //     making sure no package is updated,
+    //     hence the use of `pip install --constraint`
+    //     in `self.install_editable_with_constraint()`
+    //  - re-generate the lock by only keeping existing dependencies:
+    //    see `operations::lock::tidy()`
+    pub fn tidy(&self) -> Result<(), Error> {
+        self.clean_venv()?;
+        self.create_venv()?;
+        self.install_editable_with_constraint()?;
+        let metadata = &self.metadata();
+        let frozen_deps = self.get_frozen_deps()?;
+        operations::lock::tidy(&self.paths.lock, frozen_deps, &metadata)
+    }
+
     fn install_editable(&self) -> Result<(), Error> {
         let mut message = "Installing deps from setup.py".to_string();
         if self.settings.production {
@@ -270,6 +287,19 @@ impl Project {
         }
         print_info_2(&message);
         let cmd = self.get_install_editable_cmd();
+        self.venv_runner.run(&cmd)
+    }
+
+    fn install_editable_with_constraint(&self) -> Result<(), Error> {
+        let lock_path = &self.paths.lock;
+        let message = format!(
+            "Installing deps from setup.py, constrained by {}",
+            lock_path.display()
+        );
+        print_info_2(&message);
+        let lock_path_str = lock_path.to_string_lossy();
+        let mut cmd = self.get_install_editable_cmd().to_vec();
+        cmd.extend(&["--constraint", &lock_path_str]);
         self.venv_runner.run(&cmd)
     }
 
