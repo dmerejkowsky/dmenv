@@ -139,6 +139,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvPath {} => project.show_venv_path(),
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
 
+        SubCommand::Tidy {} => project.tidy(),
+
         SubCommand::UpgradePip {} => project.upgrade_pip(),
         _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
     }

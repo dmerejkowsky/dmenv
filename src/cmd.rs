@@ -127,6 +127,9 @@ pub enum SubCommand {
     )]
     ShowVenvBin {},
 
+    #[structopt(name = "tidy", about = "Re-generate a clean lock")]
+    Tidy {},
+
     #[structopt(name = "upgrade-pip", about = "Upgrade pip in the virtualenv")]
     UpgradePip {},
 }

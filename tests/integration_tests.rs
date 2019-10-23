@@ -132,3 +132,23 @@ fn test_process_scripts() {
     let command = std::process::Command::new(script_path).status().unwrap();
     assert!(command.success())
 }
+
+#[test]
+fn test_tidy() {
+    let test_app = TestApp::new();
+    // Setup is:
+    //  * `attrs` (outdated) and `appdirs` in the lock
+    //  * the `setup.cfg` file only contains 'attrs'
+    //
+    test_app.override_lock(include_str!("tidy/requirements.lock"));
+    test_app.override_setup_cfg(include_str!("tidy/setup.cfg"));
+
+    // Run tidy
+    test_app.assert_run_ok(&["tidy"]);
+
+    // Running `dmenv lock --clean` should remove `appdirs` from the lock
+    // but *not* bump `attrs`
+    let lock_contents = test_app.read_dev_lock();
+    assert!(!lock_contents.contains("appdirs"));
+    assert!(lock_contents.contains("attrs==19.2.0"));
+}
