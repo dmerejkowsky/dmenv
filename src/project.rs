@@ -61,7 +61,7 @@ impl Project {
     }
 
     /// Clean virtualenv. No-op if the virtualenv does not exist
-    pub fn clean(&self) -> Result<(), Error> {
+    pub fn clean_venv(&self) -> Result<(), Error> {
         operations::venv::clean(self.paths.venv.clone())
     }
 

@@ -103,7 +103,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             };
             project.process_scripts(mode)
         }
-        SubCommand::Clean {} => project.clean(),
+        SubCommand::Clean {} => project.clean_venv(),
         SubCommand::Develop {} => project.develop(),
         SubCommand::Lock {
             python_version,
