@@ -309,8 +309,6 @@ impl Project {
     }
 
     fn run_pip_freeze(&self) -> Result<String, Error> {
-        let lock_path = &self.paths.lock;
-        print_info_2(&format!("Generating {}", lock_path.display()));
         #[rustfmt::skip]
         let cmd = &[
             "python", "-m", "pip", "freeze",

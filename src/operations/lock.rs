@@ -48,6 +48,7 @@ pub fn update(
     update_options: UpdateOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
+    print_info_2(&format!("Generating {}", lock_path.display()));
     let lock_contents = if lock_path.exists() {
         std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?
     } else {
