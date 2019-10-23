@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "dmenv",
+    "spectral_helpers"
+]
+
