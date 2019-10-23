@@ -169,19 +169,22 @@ fn parse_python_version(string: &str) -> Result<String, Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use spectral::prelude::*;
 
     #[test]
     fn test_parse_python_version_ok() {
-        assert_eq!("< '3.6'", parse_python_version("< '3.6'").unwrap());
+        assert_that!(parse_python_version("< '3.6'"))
+            .is_ok()
+            .is_equal_to("< '3.6'".to_string());
     }
 
     #[test]
     fn test_parse_python_version_no_comparison() {
-        parse_python_version("3.6").unwrap_err();
+        assert_that!(parse_python_version("3.6")).is_err();
     }
 
     #[test]
     fn test_parse_python_version_not_quoted() {
-        parse_python_version("<= 3.6").unwrap_err();
+        assert_that!(parse_python_version("<= 3.6")).is_err();
     }
 }

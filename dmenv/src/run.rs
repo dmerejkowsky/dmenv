@@ -164,6 +164,7 @@ fn get_output<T: AsRef<str>>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use spectral::prelude::*;
 
     struct FileSystem {
         // This struct simply holds the tempdir so that the temp dir is
@@ -215,12 +216,12 @@ mod tests {
 
     impl RunnableCommand {
         fn assert_binary(&self, path: &Path) {
-            assert_eq!(&self.binary_path, path);
+            assert_that!(self.binary_path).is_equal_to(path.to_path_buf());
         }
 
         fn assert_args(&self, args: &[&str]) {
             let expected_args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
-            assert_eq!(self.args, expected_args);
+            assert_that!(self.args).is_equal_to(expected_args);
         }
     }
 

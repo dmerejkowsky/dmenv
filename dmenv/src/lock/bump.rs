@@ -57,25 +57,28 @@ fn bump_impl(
 mod tests {
     use super::*;
     use crate::lock::{dump, parse};
+    use spectral::prelude::*;
 
     #[test]
     fn simple_change() {
         let lock_contents = "bar==0.3\nfoo==0.42\n";
         let mut deps = parse(&lock_contents).unwrap();
-        let changed = simple_bump(&mut deps, "foo", "0.43").unwrap();
-        assert!(changed);
-        let actual = dump(deps);
-        assert_eq!(actual, "bar==0.3\nfoo==0.43\n");
+        assert_that!(simple_bump(&mut deps, "foo", "0.43"))
+            .is_ok()
+            .is_true();
+        let new_lock = dump(deps);
+        assert_that!(new_lock).is_equal_to("bar==0.3\nfoo==0.43\n".to_string());
     }
 
     #[test]
     fn simple_no_change() {
         let lock_contents = "bar==0.3\nfoo==0.42\n";
         let mut deps = parse(&lock_contents).unwrap();
-        let changed = simple_bump(&mut deps, "foo", "0.42").unwrap();
-        assert!(!changed);
-        let actual = dump(deps);
-        assert_eq!(actual, "bar==0.3\nfoo==0.42\n");
+        assert_that!(simple_bump(&mut deps, "foo", "0.42"))
+            .is_ok()
+            .is_false();
+        let new_lock = dump(deps);
+        assert_that!(new_lock).is_equal_to(lock_contents.to_string());
     }
 
     #[test]
@@ -84,7 +87,9 @@ mod tests {
         let mut deps = parse(&lock_contents).unwrap();
         let actual_error = simple_bump(&mut deps, "no-such", "1.2");
         match actual_error {
-            Err(Error::NothingToBump { name }) => assert_eq!(name, "no-such"),
+            Err(Error::NothingToBump { name }) => {
+                assert_that!(name).is_equal_to("no-such".to_string())
+            }
             _ => panic!("Expecting NothingToBump, got: {:?}", actual_error),
         }
     }
@@ -93,10 +98,11 @@ mod tests {
     fn bump_git_ref() {
         let lock_contents = "git@example.com/bar.git@dae42f#egg=bar\n";
         let mut deps = parse(&lock_contents).unwrap();
-        let changed = git_bump(&mut deps, "bar", "cda431").unwrap();
-        assert!(changed);
+        assert_that!(git_bump(&mut deps, "bar", "cda431"))
+            .is_ok()
+            .is_true();
         let actual = dump(deps);
         let expected = "git@example.com/bar.git@cda431#egg=bar\n";
-        assert_eq!(actual, expected);
+        assert_that!(actual).is_equal_to(expected.to_string());
     }
 }

@@ -1,3 +1,4 @@
+use spectral::prelude::*;
 use std::path::PathBuf;
 
 use ignore::Walk;
@@ -79,7 +80,7 @@ impl TestApp {
 
     pub fn assert_run_ok(&self, args: &[&str]) {
         let args = to_string_args(&args);
-        self.run(args).unwrap();
+        assert_that!(self.run(args)).is_ok();
     }
 
     pub fn read_dev_lock(&self) -> String {
@@ -97,12 +98,13 @@ impl TestApp {
     }
 
     pub fn assert_file(&self, name: &str) {
-        assert!(self.path().join(name).exists());
+        assert_that!(self.path().join(name)).exists();
     }
 
     pub fn assert_run_error(&self, args: &[&str]) -> String {
         let args = to_string_args(&args);
         let res = self.run(args);
+        assert_that!(res).is_err();
         res.unwrap_err().to_string()
     }
 

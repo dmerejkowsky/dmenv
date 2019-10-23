@@ -1,5 +1,7 @@
 mod helpers;
 use crate::helpers::TestApp;
+use spectral::prelude::*;
+use spectral_helpers::*;
 
 #[test]
 fn show_venv_path() {
@@ -27,8 +29,8 @@ fn init_works() {
 fn bump_in_lock_simple() {
     let test_app = TestApp::new();
     test_app.assert_run_ok(&["bump-in-lock", "attrs", "19.2.0"]);
-    let actual = test_app.read_dev_lock();
-    assert!(actual.contains("attrs==19.2.0"));
+    let lock = test_app.read_dev_lock();
+    assert_that!("attrs==19.2.0").is_present_in(&lock);
 }
 
 #[test]
@@ -50,8 +52,8 @@ fn lock_workflow() {
     let test_app = TestApp::new();
     test_app.assert_run_ok(&["lock"]);
     let lock_contents = test_app.read_dev_lock();
-    assert!(lock_contents.contains("pytest=="));
-    assert!(!lock_contents.contains("pkg-resources=="));
+    assert_that!("pytest==").is_present_in(&lock_contents);
+    assert_that!("pkg-resources==").is_absent_from(&lock_contents);
     test_app.assert_run_ok(&["show:deps"]);
     test_app.assert_run_ok(&["show:outdated"]);
     test_app.assert_run_ok(&["run", "--no-exec", "demo"]);
@@ -64,9 +66,9 @@ fn production_workflow() {
     test_app.remove_prod_lock();
     test_app.assert_run_ok(&["--production", "lock"]);
     let lock_contents = test_app.read_prod_lock();
-    assert!(!lock_contents.contains("pytest"));
-    assert!(lock_contents.contains("path.py"));
-    assert!(lock_contents.contains("gunicorn"));
+    assert_that!("pytest").is_absent_from(&lock_contents);
+    assert_that!("path.py").is_present_in(&lock_contents);
+    assert_that!("gunicorn").is_present_in(&lock_contents);
 
     test_app.assert_run_ok(&["--production", "clean"]);
     test_app.assert_run_ok(&["--production", "install"]);
@@ -128,9 +130,9 @@ fn test_process_scripts() {
     let script_path = scripts_path.join("demo");
     #[cfg(windows)]
     let script_path = scripts_path.join("demo.exe");
-    assert!(script_path.exists());
+    assert_that!(script_path).exists();
     let command = std::process::Command::new(script_path).status().unwrap();
-    assert!(command.success())
+    assert_that!(command.success()).is_true();
 }
 
 #[test]
@@ -149,6 +151,6 @@ fn test_tidy() {
     // Running `dmenv lock --clean` should remove `appdirs` from the lock
     // but *not* bump `attrs`
     let lock_contents = test_app.read_dev_lock();
-    assert!(!lock_contents.contains("appdirs"));
-    assert!(lock_contents.contains("attrs==19.2.0"));
+    assert_that!("appdirs").is_absent_from(&lock_contents);
+    assert_that!("attrs==19.2.0").is_present_in(&lock_contents);
 }

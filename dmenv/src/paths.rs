@@ -115,6 +115,8 @@ impl PathsResolver {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use spectral::prelude::*;
+    use spectral_helpers::*;
     use std::path::Path;
 
     fn get_venv_path(project_path: PathBuf, settings: Settings, python_version: &str) -> PathBuf {
@@ -129,7 +131,7 @@ mod tests {
         let project_path = Path::new("/tmp/foo");
         let settings = Settings::default();
         let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
-        assert!(path.to_string_lossy().contains("3.7"));
+        assert_that!("3.7").is_present_in(&path.to_string_lossy())
     }
 
     #[test]
@@ -137,7 +139,7 @@ mod tests {
         let project_path = Path::new("/tmp/foo");
         let settings = Settings::default();
         let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
-        assert!(path.to_string_lossy().contains("/tmp/foo"));
+        assert_that!("/tmp/foo").is_present_in(&path.to_string_lossy());
     }
 
     #[test]
@@ -148,7 +150,7 @@ mod tests {
             ..Default::default()
         };
         let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
-        assert!(!path.to_string_lossy().contains("/tmp/foo"));
+        assert_that!("/tmp/foo").is_absent_from(&path.to_string_lossy());
     }
 
     #[test]
@@ -166,6 +168,6 @@ mod tests {
         };
         let dev_path = get_venv_path(project_path.to_path_buf(), dev_settings, "3.7");
 
-        assert_ne!(prod_path, dev_path);
+        assert_that!(prod_path).is_not_equal_to(dev_path);
     }
 }

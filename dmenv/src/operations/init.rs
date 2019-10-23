@@ -90,6 +90,7 @@ fn write_from_template(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use spectral::prelude::*;
     use tempdir;
 
     #[test]
@@ -116,7 +117,7 @@ mod tests {
         run_init_no_setup_cfg(&tmp_path.to_path_buf()).unwrap();
 
         let setup_cfg_path = tmp_path.join("setup.cfg");
-        assert!(!setup_cfg_path.exists());
+        assert_that!(setup_cfg_path).does_not_exist();
 
         let setup_py = std::fs::read_to_string(tmp_path.join("setup.py")).unwrap();
         assert_contains(&setup_py, "\"foo\"");
