@@ -1,9 +1,9 @@
-name: CI
+name: Run tests
 
 on: [push]
 
 jobs:
-  build:
+  test:
 
     runs-on: ${{ matrix.os }}
     strategy:
