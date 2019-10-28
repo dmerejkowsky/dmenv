@@ -2,9 +2,8 @@
 
 [![Docs](https://img.shields.io/badge/docs-latest-green.svg)](https://tankerhq.github.io/dmenv/)
 [![crates.io image](https://img.shields.io/crates/v/dmenv.svg)](https://crates.io/crates/dmenv)
-[![Build](https://img.shields.io/travis/TankerHQ/dmenv.svg?branch=master)](https://travis-ci.org/TankerHQ/dmenv)
-[![Coverage](https://img.shields.io/codecov/c/github/TankerHQ/dmenv.svg?label=Coverage)](https://codecov.io/gh/TankerHQ/dmenv)
-
+[![Test Results](https://github.com/TankerHQ/dmenv/workflows/Run%20tests/badge.svg)](https:/github.com/TankerHQ/dmenv)
+[![Lint Results](https://github.com/TankerHQ/dmenv/workflows/Run%20linters/badge.svg)](https:/github.com/TankerHQ/dmenv)
 
 ## Overview
 
