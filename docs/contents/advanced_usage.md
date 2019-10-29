@@ -90,7 +90,7 @@ Give it a go, it often works better than you might think :)
 
 If something breaks (for instance when going from `path.py` 11.4 to `path.py`
 11.5), you can edit the `setup.cfg` to specify that you are *not* compatible
-with the latest of path.py:
+with the latest version of path.py:
 
 ```ini
 [options]

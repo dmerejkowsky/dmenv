@@ -125,7 +125,7 @@ This process is in two parts.
 * Then, run `dmenv lock` to update the corresponding `lock file`.
 
 The process changes lightly if you are working with a development dependency, or a dependency that is only used for production.
-See the [advaced usage](./advanced_usage.md)  section for details.
+See the [advanced usage](./advanced_usage.md)  section for details.
 
 ## Upgrading a top-level dependency
 
