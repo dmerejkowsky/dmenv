@@ -98,8 +98,22 @@ install_requires=
   path.py < 11.5
 ```
 
+## Re-generating a clean lock
+
+You can force the re-creation of a clean lock by running:
+
+```bash
+$ dmenv tidy
 ```
 
+This will:
+
+ * Clean the existing virtualenv
+ * Re-install dependencies listed in the `setup.cfg` file, constainted by the existing lock file
+ * Re-generate the lock file by only keeping dependencies that exist in the virtualenv
+
+This is better than running `dmenv clean && dmenv lock` because existing concrete dependencies won't
+be updated - see the section above if this is what you want.
 
 ## Freeze dev dependencies
 
