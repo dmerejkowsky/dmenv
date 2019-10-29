@@ -1,4 +1,4 @@
-# 0.18.0
+# 0.18.0 (2019-29-10)
 
 * Add a `tidy` command, to re-generate locks from a clean virtualenv.
 
