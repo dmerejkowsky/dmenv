@@ -1,6 +1,7 @@
 site_name: dmenv
 
 docs_dir: contents
+site_dir: site
 
 theme:
   name: readthedocs
