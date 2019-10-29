@@ -1,3 +1,7 @@
+# 0.18.0
+
+* Add a `tidy` command, to re-generate locks from a clean virtualenv.
+
 # 0.17.0 (2019-10-08)
 
 * Add a `process-scripts` command, to generate scripts in `DMENV_SCRIPTS_PATH`.
