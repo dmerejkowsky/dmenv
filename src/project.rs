@@ -270,6 +270,12 @@ impl Project {
     //  - re-generate the lock by only keeping existing dependencies:
     //    see `operations::lock::tidy()`
     pub fn tidy(&self) -> Result<(), Error> {
+        if std::env::var("VIRTUAL_ENV").is_ok() {
+            // Workaround for https://github.com/TankerHQ/dmenv/issues/110
+            return Err(new_error(
+                "Please exit the virtualenv before running `dmenv tidy`".to_string(),
+            ));
+        }
         self.clean_venv()?;
         self.create_venv()?;
         self.install_editable_with_constraint()?;
