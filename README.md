@@ -4,6 +4,7 @@
 [![crates.io image](https://img.shields.io/crates/v/dmenv.svg)](https://crates.io/crates/dmenv)
 [![Test Results](https://github.com/TankerHQ/dmenv/workflows/Run%20tests/badge.svg)](https://github.com/TankerHQ/dmenv)
 [![Lint Results](https://github.com/TankerHQ/dmenv/workflows/Run%20linters/badge.svg)](https://github.com/TankerHQ/dmenv)
+[![Audit Dependencies](https://github.com/TankerHQ/dmenv/workflows/Audit%20dependencies/badge.svg)](https://github.com/TankerHQ/dmenv)
 
 ## Overview
 
