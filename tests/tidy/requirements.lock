@@ -1,0 +1,2 @@
+attrs==19.2.0   # purposefuly outdated
+appdirs==1.4.2  # note that this is _not_ in the setup.cfg

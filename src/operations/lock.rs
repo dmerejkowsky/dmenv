@@ -48,6 +48,7 @@ pub fn update(
     update_options: UpdateOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
+    print_info_2(&format!("Generating {}", lock_path.display()));
     let lock_contents = if lock_path.exists() {
         std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?
     } else {
@@ -61,6 +62,28 @@ pub fn update(
 
     let new_contents = lock::dump(locked_deps);
     write_lock(lock_path, &new_contents, metadata)
+}
+
+pub fn tidy(
+    lock_path: &Path,
+    frozen_deps: Vec<FrozenDependency>,
+    metadata: &Metadata,
+) -> Result<(), Error> {
+    print_info_2(&format!("Tidying {}", lock_path.display()));
+    let frozen_names: Vec<_> = frozen_deps.into_iter().map(|x| x.name).collect();
+    let lock_contents =
+        std::fs::read_to_string(lock_path).map_err(|e| new_read_error(e, lock_path))?;
+    let locked_deps = lock::parse(&lock_contents)?;
+
+    // Remove from the lock file anything that is _not_ in the clean virtualenv
+    let (deps_to_keep, deps_to_remove): (Vec<_>, Vec<_>) = locked_deps
+        .into_iter()
+        .partition(|x| frozen_names.contains(&x.name()));
+    for dep in deps_to_remove {
+        println!("- {}", dep.name());
+    }
+    let new_contents = &lock::dump(deps_to_keep);
+    write_lock(lock_path, new_contents, metadata)
 }
 
 pub fn write_lock(lock_path: &Path, lock_contents: &str, metadata: &Metadata) -> Result<(), Error> {

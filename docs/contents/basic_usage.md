@@ -1,8 +1,14 @@
 # Usage
 
+## A note aobut setup.py and setup.cfg
+
+The following documentation assumes you are calling `setuptools.setup()` with no arguments and that all of `setuptools` options are set in the `setup.cfg` file. See [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html#configuring-setup-using-setup-cfg-files) for more details.
+
+`dmenv` will still work otherwise, but please bear in mind that you will have to adapt the code samples below.
+
 ## Setup
 
-First, `dmenv` needs a Python3 interpreter in PATH, which should be called `python` or `python3`. This should already be the case if you've just installed Python3, regardless of your operating system.
+First, `dmenv` needs a Python3 interpreter in PATH, which should be called `python` or `python3`. This is usually the case if you've just installed Python3, regardless of your operating system.
 
 Second, `dmenv` needs a `setup.py` file to work.
 
@@ -10,11 +16,10 @@ Second, `dmenv` needs a `setup.py` file to work.
   to generate one, alongside a `setup.cfg` file. In this case, make sure to read the comments inside
   and edit it to fit your needs.
 
-* If you already have a `setup.py` or a `setup.cfg` file that contains info about dependencies, please note that `dmenv` the
- **extras require** dependencies to specify development dependencies.
+* If you already have a `setup.py` or a `setup.cfg` file that contains info about dependencies, please note that `dmenv` uses
+ **"extras require"** dependencies to specify development dependencies, under the `dev` key.
 
 You are now ready to use `dmenv`. Keep on reading about the two main commands: `dmenv lock` and `dmenv install`.
-
 
 ## dmenv lock
 
@@ -120,7 +125,7 @@ This process is in two parts.
 * Then, run `dmenv lock` to update the corresponding `lock file`.
 
 The process changes lightly if you are working with a development dependency, or a dependency that is only used for production.
-See the [advaced usage](./advanced_usage.md)  section for details.
+See the [advanced usage](./advanced_usage.md)  section for details.
 
 ## Upgrading a top-level dependency
 

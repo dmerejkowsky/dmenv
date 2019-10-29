@@ -41,7 +41,7 @@ To differentiate those dependencies from the rest, we say that `pytest` and
 
 Note that if you publish your code on pypi.org, consumers of your package will
 only see the *abstract*, *regular* dependencies, so be careful with the
-`install_requires` section of the `setup.py`!
+`install_requires` section of the `setup.cfg`!
 
 ## How the lock command works
 
@@ -50,14 +50,14 @@ and thus is only a reflection of the *state* of the virtual environment from whi
 was run.
 
 That means the result of the lock depends of something
-"stateful" that can change independently of the contents of the `setup.py`.
+"stateful" that can change independently of the contents of the `setup.cfg`.
 
 For instance, if you run `dmenv lock` in a empty virtual environment, every concrete
 dependency gets frozen to their latest compatible version.
 
 On the other hand, if you run `dmenv lock` from a virtual environment that already
 contains `foo`, the `foo` version won't change (unless something in the
-`setup.py` causes it to change).
+`setup.cfg` causes it to change).
 
 This may seem like an horrible bug but, as we'll see in the next section,
 it makes it possible to use various interesting workflows when upgrading
@@ -65,7 +65,7 @@ dependencies.
 
 Two features of `dmenv` make this work:
 
-* One, both `setup.py` and `requirements.lock` can be edited by hand.
+* One, both `setup.cfg` and `requirements.lock` can be edited by hand.
 * Two, when the lock file already exists, `dmenv lock` "applies" the result of `pip freeze`
   to the existing lock file, and thus can preserve manual changes.
 
@@ -84,24 +84,36 @@ $ dmenv lock
 ```
 
 That way, all existing dependencies from the `requirements.lock` will get
-ignored, and you'll get the latest version of everything listed in the
-`setup.py`.
+ignored, and you'll get the latest version of every concrete dependency.
 
 Give it a go, it often works better than you might think :)
 
 If something breaks (for instance when going from `path.py` 11.4 to `path.py`
-11.5), you can edit the `setup.py` to specify that you are *not* compatible
-with the latest of path.py:
+11.5), you can edit the `setup.cfg` to specify that you are *not* compatible
+with the latest version of path.py:
 
-```python
-setup(
-    ...
-    install_requires=[
-      "path.py < 11.5",
-    ],
-)
+```ini
+[options]
+install_requires=
+  path.py < 11.5
 ```
 
+## Re-generating a clean lock
+
+You can force the re-creation of a clean lock by running:
+
+```bash
+$ dmenv tidy
+```
+
+This will:
+
+ * Clean the existing virtualenv
+ * Re-install dependencies listed in the `setup.cfg` file, constainted by the existing lock file
+ * Re-generate the lock file by only keeping dependencies that exist in the virtualenv
+
+This is better than running `dmenv clean && dmenv lock` because existing concrete dependencies won't
+be updated - see the section above if this is what you want.
 
 ## Freeze dev dependencies
 
@@ -112,18 +124,12 @@ This is because new releases of those tools often cause new warnings or errors
 to be produced, so you only want to update them when you're ready.
 
 Thus, a good practice is to freeze the versions of those tools directly in the
-`setup.py`:
+`setup.cfg:
 
-```python
-setup(
-
-  extras_require={
-        "dev": [
-            "flake8==3.5.0",
-        ]
-  }
-
-)
+```ini
+[options.extras_require]
+  dev =
+    flake8==3.5.0
 ```
 
 That way you can freely re-run `dmenv lock`, even in a completely fresh
@@ -142,7 +148,7 @@ lock file directly:
 
 ## Upgrading just one regular dependency
 
-If the bug is in one of the concrete dependencies, you should update the `setup.py` file instead
+If the bug is in one of the concrete dependencies, you should update the `setup.cfg` file instead
 
 ```patch
     install_requires=[

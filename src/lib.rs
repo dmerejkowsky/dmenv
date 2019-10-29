@@ -103,7 +103,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             };
             project.process_scripts(mode)
         }
-        SubCommand::Clean {} => project.clean(),
+        SubCommand::Clean {} => project.clean_venv(),
         SubCommand::Develop {} => project.develop(),
         SubCommand::Lock {
             python_version,
@@ -138,6 +138,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowOutDated {} => project.show_outdated(),
         SubCommand::ShowVenvPath {} => project.show_venv_path(),
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
+
+        SubCommand::Tidy {} => project.tidy(),
 
         SubCommand::UpgradePip {} => project.upgrade_pip(),
         _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
