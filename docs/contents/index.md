@@ -1,7 +1,8 @@
 # dmenv: simple and practical virtual environment manager for Python
 
 [![crates.io image](https://img.shields.io/crates/v/dmenv.svg)](https://crates.io/crates/dmenv)
-[![Build](https://img.shields.io/travis/TankerHQ/dmenv.svg?branch=master)](https://travis-ci.org/TankerHQ/dmenv)
+[![Test Results](https://github.com/TankerHQ/dmenv/workflows/Run%20tests/badge.svg)](https://github.com/TankerHQ/dmenv)
+[![Lint Results](https://github.com/TankerHQ/dmenv/workflows/Run%20linters/badge.svg)](https://github.com/TankerHQ/dmenv)
 
 ## What it does
 
