@@ -1,5 +1,5 @@
 use colored::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 mod cmd;
 mod dependencies;
@@ -26,6 +26,7 @@ pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
+pub use crate::setup_cfg::SetupCfg;
 
 fn get_project_path_for_init(cmd: &Command) -> Result<PathBuf, Error> {
     if let Some(project_path) = &cmd.project_path {

@@ -24,6 +24,7 @@ pub struct Paths {
     pub venv: PathBuf,
     pub lock: PathBuf,
     pub setup_py: PathBuf,
+    pub setup_cfg: PathBuf,
 }
 
 #[derive(Debug)]
@@ -60,6 +61,7 @@ impl PathsResolver {
             venv: self.get_venv_path()?,
             lock: self.project_path.join(lock_path),
             setup_py: self.project_path.join("setup.py"),
+            setup_cfg: self.project_path.join("setup.cfg"),
         })
     }
 

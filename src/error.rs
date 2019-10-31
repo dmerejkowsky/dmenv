@@ -1,3 +1,4 @@
+use crate::setup_cfg;
 use std::path::{Path, PathBuf};
 
 /// Every variant matches a type of error we
@@ -73,6 +74,11 @@ pub enum Error {
         name: String,
         expected_type: String,
     },
+
+    MalformedSetupCfg {
+        path: std::path::PathBuf,
+        message: String,
+    },
 }
 
 pub fn new_error(message: String) -> Error {
@@ -90,6 +96,14 @@ pub fn new_write_error(error: std::io::Error, path: &Path) -> Error {
     Error::WriteError {
         path: path.to_path_buf(),
         io_error: error,
+    }
+}
+
+impl std::convert::From<setup_cfg::GetterError> for Error {
+    fn from(getter_error: setup_cfg::GetterError) -> Error {
+        Error::Other {
+            message: getter_error.to_string(),
+        }
     }
 }
 
@@ -159,6 +173,11 @@ impl std::fmt::Display for Error {
                 name,
                 expected_type,
             } => format!("{} is not a {} dependency", name, expected_type),
+
+            Error::MalformedSetupCfg{
+                path, message,
+            } => format!("Could not parse {}\n{}", path.display(), message),
+
         };
         write!(f, "{}", message)
     }
