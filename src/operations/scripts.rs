@@ -2,9 +2,9 @@ use colored::Colorize;
 use ini::Ini;
 use std::path::{Path, PathBuf};
 
-use crate::cmd;
 use crate::error::*;
 use crate::paths::{Paths, SCRIPTS_SUBDIR};
+use crate::ui::*;
 use crate::ProcessScriptsMode::{self, Override, Safe};
 
 pub fn process(paths: &Paths, mode: ProcessScriptsMode) -> Result<(), Error> {
@@ -14,7 +14,7 @@ pub fn process(paths: &Paths, mode: ProcessScriptsMode) -> Result<(), Error> {
     let scripts_path = Path::new(&scripts_path);
     let egg_info_path = find_egg_info(&paths.project)?;
     let console_scripts = read_entry_points(&egg_info_path)?;
-    cmd::print_info_1(&format!(
+    print_info_1(&format!(
         "found {} console script(s)",
         console_scripts.len()
     ));
@@ -58,7 +58,7 @@ fn process_script_with_name(
 ) -> Result<(), Error> {
     let src_path = venv_path.join(SCRIPTS_SUBDIR).join(name);
     let dest_path = scripts_path.join(name);
-    cmd::print_info_2(&format!("Creating script: {}", name.bold()));
+    print_info_2(&format!("Creating script: {}", name.bold()));
     if !src_path.exists() {
         return Err(new_error(format!(
             "{} does not exist. You may want to call `dmenv develop` now",

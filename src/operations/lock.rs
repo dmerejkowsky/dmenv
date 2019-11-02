@@ -1,13 +1,13 @@
 use colored::*;
 use std::path::Path;
 
-use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock;
 use crate::lock::BumpType;
 use crate::lock::Updater;
 use crate::lock::{git_bump, simple_bump};
+use crate::ui::*;
 use crate::Metadata;
 
 #[derive(Default, Debug)]

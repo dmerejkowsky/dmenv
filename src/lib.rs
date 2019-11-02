@@ -11,12 +11,12 @@ mod paths;
 mod python_info;
 mod run;
 mod settings;
+mod ui;
 #[cfg(windows)]
 mod win_job;
 
 pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
-pub use crate::cmd::{print_error, print_info_1, print_info_2};
 use crate::dependencies::FrozenDependency;
 pub use crate::error::*;
 use crate::lock::BumpType;
@@ -26,6 +26,7 @@ pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::python_info::PythonInfo;
 use crate::run::VenvRunner;
 pub use crate::settings::Settings;
+pub use crate::ui::{print_error, print_info_1, print_info_2};
 
 #[derive(Debug)]
 pub struct Metadata {

@@ -1,11 +1,11 @@
 use colored::*;
 use std::path::{Path, PathBuf};
 
-use crate::cmd::*;
 use crate::error::*;
 use crate::python_info::PythonInfo;
 use crate::run::run;
 use crate::settings::Settings;
+use crate::ui::*;
 
 pub fn clean(venv_path: PathBuf) -> Result<(), Error> {
     print_info_1(&format!("Cleaning {}", venv_path.display()));
