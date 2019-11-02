@@ -78,16 +78,10 @@ pub fn run(cmd: Command) -> Result<(), Error> {
 
     let project_path = get_project_path(&cmd)?;
     let python_info = PythonInfo::new(&cmd.python_binary)?;
-    let mut project = Project::new(project_path, python_info, settings)?;
+    let project = Project::new(project_path, python_info, settings)?;
 
     match &cmd.sub_cmd {
-        SubCommand::Install {
-            no_develop,
-            system_site_packages,
-        } => {
-            if *system_site_packages {
-                project.use_system_site_packages()
-            }
+        SubCommand::Install { no_develop } => {
             let post_install_action = if *no_develop {
                 PostInstallAction::None
             } else {
@@ -108,15 +102,11 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::Lock {
             python_version,
             sys_platform,
-            system_site_packages,
         } => {
             let update_options = UpdateOptions {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
             };
-            if *system_site_packages {
-                project.use_system_site_packages();
-            }
             project.update_lock(update_options)
         }
         SubCommand::BumpInLock { name, version, git } => {

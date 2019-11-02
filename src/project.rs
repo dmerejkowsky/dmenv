@@ -55,11 +55,6 @@ impl Project {
         })
     }
 
-    /// Allow created virtual environments to access system site packages
-    pub fn use_system_site_packages(&mut self) {
-        self.settings.system_site_packages = true;
-    }
-
     /// Clean virtualenv. No-op if the virtualenv does not exist
     pub fn clean_venv(&self) -> Result<(), Error> {
         operations::venv::clean(self.paths.venv.clone())

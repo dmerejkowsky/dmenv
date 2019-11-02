@@ -30,6 +30,7 @@ pub struct Paths {
 pub struct PathsResolver {
     venv_outside_project: bool,
     production: bool,
+    system_site_packages: bool,
     python_version: String,
     project_path: PathBuf,
 }
@@ -46,6 +47,7 @@ impl PathsResolver {
             project_path,
             python_version,
             production: settings.production,
+            system_site_packages: settings.system_site_packages,
         }
     }
 
@@ -75,12 +77,8 @@ impl PathsResolver {
     }
 
     fn get_venv_path_inside(&self) -> Result<PathBuf, Error> {
-        let subdir = if self.production { "prod" } else { "dev" };
-        let res = self
-            .project_path
-            .join(".venv")
-            .join(subdir)
-            .join(&self.python_version);
+        let subdir = &self.sub_dir();
+        let res = self.project_path.join(".venv").join(subdir);
         Ok(res)
     }
 
@@ -97,18 +95,25 @@ impl PathsResolver {
                     e.to_string()
                 ))
             })?;
-        let subdir = if self.production { "prod" } else { "dev" };
+        let subdir = &self.sub_dir();
         let project_name = self.project_path.file_name().ok_or_else(|| {
             new_error(format!(
                 "project path: {} has no file name",
                 self.project_path.display()
             ))
         })?;
-        let res = data_dir
-            .join(subdir)
-            .join(&self.python_version)
-            .join(project_name);
+        let res = data_dir.join(subdir).join(project_name);
         Ok(res)
+    }
+
+    fn sub_dir(&self) -> String {
+        let prod_or_dev = if self.production { "prod" } else { "dev" };
+        let system_prefix = if self.system_site_packages {
+            "-system"
+        } else {
+            ""
+        };
+        format!("{}{}/{}", prod_or_dev, system_prefix, &self.python_version)
     }
 }
 
@@ -167,5 +172,24 @@ mod tests {
         let dev_path = get_venv_path(project_path.to_path_buf(), dev_settings, "3.7");
 
         assert_ne!(prod_path, dev_path);
+    }
+
+    #[test]
+    fn test_resolving_paths_system_site_packages_differs() {
+        let project_path = Path::new("/tmp/foo");
+
+        let default_settings = Settings {
+            ..Default::default()
+        };
+        let default_path = get_venv_path(project_path.to_path_buf(), default_settings, "3.7");
+
+        let system_packages_settings = Settings {
+            system_site_packages: true,
+            ..Default::default()
+        };
+        let system_packages_path =
+            get_venv_path(project_path.to_path_buf(), system_packages_settings, "3.7");
+
+        assert_ne!(default_path, system_packages_path);
     }
 }

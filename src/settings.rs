@@ -30,6 +30,7 @@ impl Settings {
     pub fn from_shell(cmd: &Command) -> Settings {
         let mut res = Settings {
             production: cmd.production,
+            system_site_packages: cmd.system_site_packages,
             ..Default::default()
         };
         if std::env::var("DMENV_NO_VENV_STDLIB").is_ok() {
