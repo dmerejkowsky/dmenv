@@ -69,6 +69,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     }
 
     let python_info = PythonInfo::new(&cmd.python_binary)?;
+
         PathBuf::from(p)
     } else {
         look_up_for_project_path()?
@@ -113,7 +114,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             } else {
                 BumpType::Simple
             };
-            project.bump_in_lock(name, version, bump_type)
+            bump_in_lock(&context, name, version, bump_type)
         }
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
@@ -263,6 +264,19 @@ fn update_lock(context: &Context, update_options: operations::UpdateOptions) -> 
     let frozen_deps = get_frozen_deps(&context)?;
     let lock_path = &paths.lock;
     operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
+}
+
+/// Bump a dependency in the lock file
+fn bump_in_lock(
+    context: &Context,
+    name: &str,
+    version: &str,
+    bump_type: BumpType,
+) -> Result<(), Error> {
+    print_info_1(&format!("Bumping {} to {} ...", name, version));
+    let metadata = metadata(&context);
+    let Context { paths, .. } = context;
+    operations::lock::bump(&paths.lock, name, version, bump_type, &metadata)
 }
 
 /// Runs `python setup.py` develop. Also called by `install` (unless InstallOptions.develop is false)
