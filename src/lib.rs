@@ -22,19 +22,41 @@ pub use crate::cmd::{print_error, print_info_1, print_info_2};
 pub use crate::error::*;
 use crate::lock::BumpType;
 use crate::operations::{InitOptions, UpdateOptions};
+use crate::paths::{Paths, PathsResolver};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
+use crate::run::VenvRunner;
 pub use crate::settings::Settings;
 
+struct Context {
+    paths: Paths,
+    python_info: PythonInfo,
+    settings: Settings,
+    venv_runner: VenvRunner,
+}
+
+fn get_context(cmd: &Command) -> Result<Context, Error> {
+    let project_path = if let Some(p) = &cmd.project_path {
         PathBuf::from(p)
     } else {
+        look_up_for_project_path()?
     };
+    let python_info = PythonInfo::new(&cmd.python_binary)?;
+    let python_version = python_info.version.clone();
+    let settings = Settings::from_shell(&cmd);
+    let paths_resolver = PathsResolver::new(project_path.clone(), python_version, &settings);
+    let paths = paths_resolver.paths()?;
+    let venv_runner = VenvRunner::new(&project_path, &paths.venv);
+    Ok(Context {
+        paths,
+        python_info,
+        settings,
+        venv_runner,
+    })
 }
 
 pub fn run(cmd: Command) -> Result<(), Error> {
-    let settings = Settings::from_shell(&cmd);
-
     if let SubCommand::Init {
         name,
         version,
@@ -45,13 +67,15 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         return init(cmd.project_path, name, version, author, !no_setup_cfg);
     }
 
-    let project_path = if let Some(p) = cmd.project_path {
+    let python_info = PythonInfo::new(&cmd.python_binary)?;
         PathBuf::from(p)
     } else {
         look_up_for_project_path()?
     };
-    let python_info = PythonInfo::new(&cmd.python_binary)?;
+    let settings = Settings::from_shell(&cmd);
     let project = Project::new(project_path, python_info, settings)?;
+
+    let context = get_context(&cmd)?;
 
     match &cmd.sub_cmd {
         SubCommand::Install { no_develop } => {
