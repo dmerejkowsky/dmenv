@@ -1,4 +1,4 @@
-use crate::cmd::Command;
+use crate::cli::syntax::Command;
 
 #[derive(Debug, Clone)]
 /// Represent variables that change behavior of

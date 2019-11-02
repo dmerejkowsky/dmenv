@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-mod cmd;
+mod cli;
 mod dependencies;
 mod error;
 #[cfg(unix)]
@@ -15,8 +15,8 @@ mod ui;
 #[cfg(windows)]
 mod win_job;
 
-pub use crate::cmd::Command;
-use crate::cmd::SubCommand;
+pub use crate::cli::syntax::Command;
+use crate::cli::syntax::SubCommand;
 use crate::dependencies::FrozenDependency;
 pub use crate::error::*;
 use crate::lock::BumpType;
