@@ -201,6 +201,11 @@ fn ensure_venv(context: &Context) -> Result<(), Error> {
     Ok(())
 }
 
+/// Create a new virtualenv
+//
+// Notes:
+// * The path comes from PathsResolver.paths()
+// * Called by `ensure_venv()` *if* the path does not exist
 fn create_venv(context: &Context) -> Result<(), Error> {
     let Context {
         paths,
@@ -208,10 +213,10 @@ fn create_venv(context: &Context) -> Result<(), Error> {
         settings,
         ..
     } = context;
-    // TODO: venv::create(context)
     operations::venv::create(&paths.venv, python_info, settings)
 }
 
+/// Clean virtualenv. No-op if the virtualenv does not exist
 fn clean_venv(context: &Context) -> Result<(), Error> {
     let Context { paths, .. } = context;
     operations::venv::clean(paths.venv.clone())
