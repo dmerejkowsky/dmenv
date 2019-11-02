@@ -1,3 +1,4 @@
+use colored::*;
 use std::path::{Path, PathBuf};
 
 use crate::cmd::*;
@@ -48,6 +49,12 @@ pub fn create(
         args.push("--system-site-packages");
     }
     let python_binary = &python_info.binary;
+    println!(
+        "{} {} {}",
+        "$".blue(),
+        python_binary.display(),
+        args.join(" ")
+    );
     run(&parent_venv_path.to_path_buf(), &python_binary, &args)
 }
 
