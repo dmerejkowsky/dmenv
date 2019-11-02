@@ -99,7 +99,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             } else {
                 ProcessScriptsMode::Safe
             };
-            process_scripts(&context?, mode)
+            commands::process_scripts(&context?, mode)
         }
         SubCommand::Clean {} => commands::clean_venv(&context?),
         SubCommand::Develop {} => commands::develop(&context?),
@@ -137,10 +137,6 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
 
         SubCommand::UpgradePip {} => commands::upgrade_pip(&context?),
     }
-}
-
-fn process_scripts(context: &Context, mode: ProcessScriptsMode) -> Result<(), Error> {
-    operations::scripts::process(&context.paths, mode)
 }
 
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
