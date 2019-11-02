@@ -27,26 +27,14 @@ use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
 pub use crate::settings::Settings;
 
-fn get_project_path_for_init(cmd: &Command) -> Result<PathBuf, Error> {
-    if let Some(project_path) = &cmd.project_path {
-        Ok(PathBuf::from(project_path))
+        PathBuf::from(p)
     } else {
-        std::env::current_dir().map_err(|e| Error::NoWorkingDirectory { io_error: e })
-    }
-}
-
-fn get_project_path(cmd: &Command) -> Result<PathBuf, Error> {
-    if let Some(project_path) = &cmd.project_path {
-        Ok(PathBuf::from(project_path))
-    } else {
-        look_up_for_project_path()
-    }
+    };
 }
 
 pub fn run(cmd: Command) -> Result<(), Error> {
     let settings = Settings::from_shell(&cmd);
 
-    // Init does not need an existing project
     if let SubCommand::Init {
         name,
         version,
@@ -54,15 +42,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         no_setup_cfg,
     } = &cmd.sub_cmd
     {
-        let project_path = get_project_path_for_init(&cmd)?;
-        let mut options = InitOptions::new(name.to_string(), version.to_string());
-        if *no_setup_cfg {
-            options.no_setup_cfg();
-        };
-        if let Some(author) = author {
-            options.author(author);
-        }
-        return operations::init(&project_path, &options);
+        return init(cmd.project_path, name, version, author, !no_setup_cfg);
     }
 
     // Run needs additional sanity checks when using `dmenv run`
@@ -76,7 +56,11 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
     }
 
-    let project_path = get_project_path(&cmd)?;
+    let project_path = if let Some(p) = cmd.project_path {
+        PathBuf::from(p)
+    } else {
+        look_up_for_project_path()?
+    };
     let python_info = PythonInfo::new(&cmd.python_binary)?;
     let project = Project::new(project_path, python_info, settings)?;
 
@@ -136,6 +120,28 @@ pub fn run(cmd: Command) -> Result<(), Error> {
     }
 }
 
+fn init(
+    project_path: Option<String>,
+    name: &str,
+    version: &str,
+    author: &Option<String>,
+    setup_cfg: bool,
+) -> Result<(), Error> {
+    let init_path = if let Some(p) = project_path {
+        PathBuf::from(p)
+    } else {
+        std::env::current_dir().map_err(|e| Error::NoWorkingDirectory { io_error: e })?
+    };
+
+    let mut init_options = InitOptions::new(name.to_string(), version.to_string());
+    if !setup_cfg {
+        init_options.no_setup_cfg();
+    };
+    if let Some(author) = author {
+        init_options.author(&author);
+    }
+    operations::init(&init_path, &init_options)
+}
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
     let mut candidate = std::env::current_dir()
         .map_err(|e| new_error(format!("Could not get current directory: {}", e)))?;
