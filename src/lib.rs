@@ -16,13 +16,14 @@ mod ui;
 mod win_job;
 
 use crate::cli::commands;
-pub use crate::cli::syntax::Command;
 use crate::cli::syntax::SubCommand;
-pub use crate::error::*;
 use crate::paths::{Paths, PathsResolver};
-pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::python_info::PythonInfo;
 use crate::run::VenvRunner;
+
+pub use crate::cli::syntax::Command;
+pub use crate::error::*;
+pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 pub use crate::settings::Settings;
 pub use crate::ui::{print_error, print_info_1, print_info_2};
 
