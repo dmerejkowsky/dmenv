@@ -74,7 +74,7 @@ impl TestApp {
         cmd.extend(vec!["--project".to_string(), tmp_path]);
         cmd.extend(args);
         let cmd = dmenv::Command::from_iter_safe(cmd).unwrap();
-        dmenv::run(cmd)
+        dmenv::run_cmd(cmd)
     }
 
     pub fn assert_run_ok(&self, args: &[&str]) {

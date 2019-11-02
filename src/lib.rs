@@ -57,7 +57,7 @@ fn get_context(cmd: &Command) -> Result<Context, Error> {
     })
 }
 
-pub fn run(cmd: Command) -> Result<(), Error> {
+pub fn run_cmd(cmd: Command) -> Result<(), Error> {
     if let SubCommand::Init {
         name,
         version,
@@ -118,9 +118,9 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         }
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
-                project.run(&cmd)
+                run(&context, &cmd)
             } else {
-                project.run_and_die(&cmd)
+                run_and_die(&context, &cmd)
             }
         }
         SubCommand::ShowDeps {} => project.show_deps(),
@@ -388,6 +388,37 @@ fn run_pip_freeze(context: &Context) -> Result<String, Error> {
             "--local",
         ];
     venv_runner.get_output(cmd)
+}
+
+/// Run a program from the virtualenv, making sure it dies
+/// when we get killed and that the exit code is forwarded
+fn run_and_die<T: AsRef<str>>(context: &Context, cmd: &[T]) -> Result<(), Error> {
+    let Context { venv_runner, .. } = context;
+    expect_venv(&context)?;
+    venv_runner.run_and_die(cmd)
+}
+
+/// On Windows:
+///   - same as run
+/// On Linux:
+///   - same as run, but create a new process instead of using execv()
+// Note: mostly for tests. We want to *check* the return code of
+// `dmenv run` and so we need a child process
+fn run<T: AsRef<str>>(context: &Context, cmd: &[T]) -> Result<(), Error> {
+    let Context { venv_runner, .. } = context;
+    expect_venv(&context)?;
+    venv_runner.run(cmd)
+}
+
+/// Make sure the virtualenv exists, or return an error
+//
+// Note: this must be called by any method that requires the
+// virtualenv to exist, like `show_deps` or `run`:
+// this ensures that error messages printed when the
+// virtualenv does not exist are consistent.
+fn expect_venv(context: &Context) -> Result<(), Error> {
+    let Context { paths, .. } = context;
+    operations::venv::expect(&paths.venv)
 }
 
 #[cfg(test)]

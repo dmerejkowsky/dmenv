@@ -86,24 +86,6 @@ impl Project {
             .map_err(|_| Error::UpgradePipError {})
     }
 
-    /// Run a program from the virtualenv, making sure it dies
-    /// when we get killed and that the exit code is forwarded
-    pub fn run_and_die<T: AsRef<str>>(&self, cmd: &[T]) -> Result<(), Error> {
-        self.expect_venv()?;
-        self.venv_runner.run_and_die(cmd)
-    }
-
-    /// On Windows:
-    ///   - same as run
-    /// On Linux:
-    ///   - same as run, but create a new process instead of using execv()
-    // Note: mostly for tests. We want to *check* the return code of
-    // `dmenv run` and so we need a child process
-    pub fn run<T: AsRef<str>>(&self, cmd: &[T]) -> Result<(), Error> {
-        self.expect_venv()?;
-        self.venv_runner.run(cmd)
-    }
-
     /// Show the dependencies inside the virtualenv.
     // Note: Run `pip list` so we get what's *actually* installed, not just
     // the contents of the lock file
