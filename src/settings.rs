@@ -2,7 +2,7 @@ use crate::cli::syntax::Command;
 
 #[derive(Debug, Clone)]
 /// Represent variables that change behavior of
-/// the Project  or PathsResolver structs.
+/// dmenv commands
 pub struct Settings {
     pub venv_from_stdlib: bool,
     pub venv_outside_project: bool,
