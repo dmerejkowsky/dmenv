@@ -53,7 +53,7 @@ pub enum BumpType {
 #[derive(Default, Debug)]
 /// Represents options passed to `dmenv lock`,
 /// see `cmd::SubCommand::Lock`
-pub struct UpdateOptions {
+pub struct UpdateLockOptions {
     pub python_version: Option<String>,
     pub sys_platform: Option<String>,
 }
@@ -123,7 +123,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             python_version,
             sys_platform,
         } => {
-            let update_options = UpdateOptions {
+            let update_options = UpdateLockOptions {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
             };

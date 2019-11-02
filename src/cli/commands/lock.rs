@@ -5,7 +5,7 @@ use crate::ui::*;
 use crate::BumpType;
 use crate::Context;
 use crate::Metadata;
-use crate::UpdateOptions;
+use crate::UpdateLockOptions;
 
 /// (Re)generate the lock file
 //
@@ -19,7 +19,7 @@ use crate::UpdateOptions;
 //      (such as `--local`, `--exclude-editable`) we use in the other functions
 // * The path of the lock file is computed by PathsResolver.
 //     See PathsResolver.paths() for details
-pub fn update_lock(context: &Context, update_options: UpdateOptions) -> Result<(), Error> {
+pub fn update_lock(context: &Context, update_options: UpdateLockOptions) -> Result<(), Error> {
     print_info_1("Updating lock");
     let Context { paths, .. } = context;
     if !&paths.setup_py.exists() {

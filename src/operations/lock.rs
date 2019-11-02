@@ -9,7 +9,7 @@ use crate::lock::{git_bump, simple_bump};
 use crate::ui::*;
 use crate::BumpType;
 use crate::Metadata;
-use crate::UpdateOptions;
+use crate::UpdateLockOptions;
 
 pub fn bump(
     lock_path: &Path,
@@ -38,7 +38,7 @@ pub fn bump(
 pub fn update(
     lock_path: &Path,
     frozen_deps: Vec<FrozenDependency>,
-    update_options: UpdateOptions,
+    update_options: UpdateLockOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     print_info_2(&format!("Generating {}", lock_path.display()));
