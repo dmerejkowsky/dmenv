@@ -87,6 +87,27 @@ fn get_context(cmd: &Command) -> Result<Context, Error> {
     })
 }
 
+fn look_up_for_project_path() -> Result<PathBuf, Error> {
+    let mut candidate = std::env::current_dir()
+        .map_err(|e| new_error(format!("Could not get current directory: {}", e)))?;
+    loop {
+        let setup_py_path = candidate.join("setup.py");
+        if setup_py_path.exists() {
+            return Ok(candidate);
+        } else {
+            let parent = candidate.parent();
+            match parent {
+                None => {
+                    return Err(new_error(
+                        "Could not find setup.py in any of the parent directories".to_string(),
+                    ))
+                }
+                Some(p) => candidate = p.to_path_buf(),
+            }
+        }
+    }
+}
+
 pub fn run_cmd(cmd: Command) -> Result<(), Error> {
     let context = get_context(&cmd);
 
@@ -154,27 +175,6 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvBin {} => commands::show_venv_bin_path(&context?),
 
         SubCommand::Tidy {} => commands::tidy(&cmd, &context?),
-    }
-}
-
-fn look_up_for_project_path() -> Result<PathBuf, Error> {
-    let mut candidate = std::env::current_dir()
-        .map_err(|e| new_error(format!("Could not get current directory: {}", e)))?;
-    loop {
-        let setup_py_path = candidate.join("setup.py");
-        if setup_py_path.exists() {
-            return Ok(candidate);
-        } else {
-            let parent = candidate.parent();
-            match parent {
-                None => {
-                    return Err(new_error(
-                        "Could not find setup.py in any of the parent directories".to_string(),
-                    ))
-                }
-                Some(p) => candidate = p.to_path_buf(),
-            }
-        }
     }
 }
 
