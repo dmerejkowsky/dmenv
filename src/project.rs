@@ -86,15 +86,6 @@ impl Project {
             .map_err(|_| Error::UpgradePipError {})
     }
 
-    /// Same has `show_venv_path`, but add the correct subfolder
-    /// (`bin` on Linux and macOS, `Scripts` on Windows).
-    pub fn show_venv_bin_path(&self) -> Result<(), Error> {
-        self.expect_venv()?;
-        let bin_path = self.venv_runner.binaries_path();
-        println!("{}", bin_path.display());
-        Ok(())
-    }
-
     // Re-generate a clean lock:
     //   - clean the virtualenv
     //   - re-create it from scratch, while

@@ -126,7 +126,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowDeps {} => show_deps(&context),
         SubCommand::ShowOutDated {} => show_outdated(&context),
         SubCommand::ShowVenvPath {} => show_venv_path(&context),
-        SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
+        SubCommand::ShowVenvBin {} => show_venv_bin_path(&context),
 
         SubCommand::Tidy {} => project.tidy(),
 
@@ -318,6 +318,16 @@ fn show_outdated(context: &Context) -> Result<(), Error> {
 fn show_venv_path(context: &Context) -> Result<(), Error> {
     let Context { paths, .. } = context;
     println!("{}", paths.venv.display());
+    Ok(())
+}
+
+/// Same has `show_venv_path`, but add the correct subfolder
+/// (`bin` on Linux and macOS, `Scripts` on Windows).
+fn show_venv_bin_path(context: &Context) -> Result<(), Error> {
+    let Context { venv_runner, .. } = context;
+    expect_venv(&context)?;
+    let bin_path = venv_runner.binaries_path();
+    println!("{}", bin_path.display());
     Ok(())
 }
 
