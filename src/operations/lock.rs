@@ -8,7 +8,7 @@ use crate::lock;
 use crate::lock::BumpType;
 use crate::lock::Updater;
 use crate::lock::{git_bump, simple_bump};
-use crate::project::Metadata;
+use crate::Metadata;
 
 #[derive(Default, Debug)]
 /// Represents options passed to `dmenv lock`,

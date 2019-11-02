@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use crate::cmd;
 use crate::error::*;
 use crate::paths::{Paths, SCRIPTS_SUBDIR};
-use crate::project::ProcessScriptsMode::{self, Override, Safe};
+use crate::ProcessScriptsMode::{self, Override, Safe};
 
 pub fn process(paths: &Paths, mode: ProcessScriptsMode) -> Result<(), Error> {
     let key = "DMENV_SCRIPTS_PATH";

@@ -8,7 +8,6 @@ mod execv;
 mod lock;
 mod operations;
 mod paths;
-mod project;
 mod python_info;
 mod run;
 mod settings;
@@ -24,11 +23,28 @@ use crate::lock::BumpType;
 use crate::operations::{InitOptions, UpdateOptions};
 use crate::paths::{Paths, PathsResolver};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
-use crate::project::Metadata;
-use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
 use crate::run::VenvRunner;
 pub use crate::settings::Settings;
+
+#[derive(Debug)]
+pub struct Metadata {
+    pub dmenv_version: String,
+    pub python_platform: String,
+    pub python_version: String,
+}
+
+#[derive(Debug)]
+pub enum PostInstallAction {
+    RunSetupPyDevelop,
+    None,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum ProcessScriptsMode {
+    Safe,
+    Override,
+}
 
 struct Context {
     paths: Paths,
@@ -67,15 +83,6 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
     {
         return init(cmd.project_path, name, version, author, !no_setup_cfg);
     }
-
-    let python_info = PythonInfo::new(&cmd.python_binary)?;
-
-        PathBuf::from(p)
-    } else {
-        look_up_for_project_path()?
-    };
-    let settings = Settings::from_shell(&cmd);
-    let project = Project::new(project_path, python_info, settings)?;
 
     let context = get_context(&cmd)?;
 
