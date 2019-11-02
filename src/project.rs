@@ -60,23 +60,6 @@ impl Project {
         operations::venv::clean(self.paths.venv.clone())
     }
 
-    /// Ensure the virtualenv exists
-    //
-    // Note: this is *only* called by `install()` and `lock()`.
-    // All the other methods require the virtualenv to exist and
-    // won't create it.
-    fn ensure_venv(&self) -> Result<(), Error> {
-        if self.paths.venv.exists() {
-            print_info_2(&format!(
-                "Using existing virtualenv: {}",
-                self.paths.venv.display()
-            ));
-        } else {
-            self.create_venv()?;
-        }
-        Ok(())
-    }
-
     /// Create a new virtualenv
     //
     // Notes:
@@ -102,32 +85,6 @@ impl Project {
         self.venv_runner
             .run(cmd)
             .map_err(|_| Error::UpgradePipError {})
-    }
-
-    /// (Re)generate the lock file
-    //
-    // Notes:
-    //
-    // * Abort if `setup.py` is not found
-    // * Create the virtualenv if required
-    // * Always upgrade pip :
-    //    * If that fails, we know if the virtualenv is broken
-    //    * Also, we know sure that `pip` can handle all the options
-    //      (such as `--local`, `--exclude-editable`) we use in the other functions
-    // * The path of the lock file is computed by PathsResolver.
-    //     See PathsResolver.paths() for details
-    pub fn update_lock(&self, update_options: operations::UpdateOptions) -> Result<(), Error> {
-        print_info_1("Updating lock");
-        if !self.paths.setup_py.exists() {
-            return Err(Error::MissingSetupPy {});
-        }
-        self.ensure_venv()?;
-        self.upgrade_pip()?;
-        self.install_editable()?;
-        let metadata = self.metadata();
-        let frozen_deps = self.get_frozen_deps()?;
-        let lock_path = &self.paths.lock;
-        operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
     }
 
     /// Bump a dependency in the lock file
@@ -215,18 +172,6 @@ impl Project {
         let metadata = &self.metadata();
         let frozen_deps = self.get_frozen_deps()?;
         operations::lock::tidy(&self.paths.lock, frozen_deps, &metadata)
-    }
-
-    fn install_editable(&self) -> Result<(), Error> {
-        let mut message = "Installing deps from setup.py".to_string();
-        if self.settings.production {
-            message.push_str(" using 'prod' extra dependencies");
-        } else {
-            message.push_str(" using 'dev' extra dependencies");
-        }
-        print_info_2(&message);
-        let cmd = self.get_install_editable_cmd();
-        self.venv_runner.run(&cmd)
     }
 
     fn install_editable_with_constraint(&self) -> Result<(), Error> {

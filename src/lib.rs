@@ -18,11 +18,13 @@ mod win_job;
 pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
 pub use crate::cmd::{print_error, print_info_1, print_info_2};
+use crate::dependencies::FrozenDependency;
 pub use crate::error::*;
 use crate::lock::BumpType;
 use crate::operations::{InitOptions, UpdateOptions};
 use crate::paths::{Paths, PathsResolver};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
+use crate::project::Metadata;
 use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
 use crate::run::VenvRunner;
@@ -103,7 +105,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
             };
-            project.update_lock(update_options)
+            update_lock(&context, update_options)
         }
         SubCommand::BumpInLock { name, version, git } => {
             let bump_type = if *git {
@@ -236,6 +238,33 @@ fn install_from_lock(context: &Context) -> Result<(), Error> {
     venv_runner.run(cmd)
 }
 
+/// (Re)generate the lock file
+//
+// Notes:
+//
+// * Abort if `setup.py` is not found
+// * Create the virtualenv if required
+// * Always upgrade pip :
+//    * If that fails, we know if the virtualenv is broken
+//    * Also, we know sure that `pip` can handle all the options
+//      (such as `--local`, `--exclude-editable`) we use in the other functions
+// * The path of the lock file is computed by PathsResolver.
+//     See PathsResolver.paths() for details
+fn update_lock(context: &Context, update_options: operations::UpdateOptions) -> Result<(), Error> {
+    print_info_1("Updating lock");
+    let Context { paths, .. } = context;
+    if !&paths.setup_py.exists() {
+        return Err(Error::MissingSetupPy {});
+    }
+    ensure_venv(&context)?;
+    upgrade_pip(&context)?;
+    install_editable(&context)?;
+    let metadata = metadata(&context);
+    let frozen_deps = get_frozen_deps(&context)?;
+    let lock_path = &paths.lock;
+    operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
+}
+
 /// Runs `python setup.py` develop. Also called by `install` (unless InstallOptions.develop is false)
 // Note: `lock()` will use `pip install --editable .` to achieve the same effect
 fn develop(context: &Context) -> Result<(), Error> {
@@ -248,6 +277,52 @@ fn develop(context: &Context) -> Result<(), Error> {
     }
 
     venv_runner.run(&["python", "setup.py", "develop", "--no-deps"])
+}
+
+fn upgrade_pip(context: &Context) -> Result<(), Error> {
+    let Context { venv_runner, .. } = context;
+    print_info_2("Upgrading pip");
+    let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
+    venv_runner.run(cmd).map_err(|_| Error::UpgradePipError {})
+}
+
+fn install_editable(context: &Context) -> Result<(), Error> {
+    let Context {
+        settings,
+        venv_runner,
+        ..
+    } = context;
+    let mut message = "Installing deps from setup.py".to_string();
+    if settings.production {
+        message.push_str(" using 'prod' extra dependencies");
+    } else {
+        message.push_str(" using 'dev' extra dependencies");
+    }
+    print_info_2(&message);
+    let cmd = get_install_editable_cmd(&context);
+    venv_runner.run(&cmd)
+}
+
+fn get_install_editable_cmd(context: &Context) -> [&str; 6] {
+    let Context { settings, .. } = context;
+    let extra = if settings.production {
+        ".[prod]"
+    } else {
+        ".[dev]"
+    };
+    ["python", "-m", "pip", "install", "--editable", extra]
+}
+
+fn metadata(context: &Context) -> Metadata {
+    let Context { python_info, .. } = context;
+    let dmenv_version = env!("CARGO_PKG_VERSION");
+    let python_platform = &python_info.platform;
+    let python_version = &python_info.version;
+    Metadata {
+        dmenv_version: dmenv_version.to_string(),
+        python_platform: python_platform.to_string(),
+        python_version: python_version.to_string(),
+    }
 }
 
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
@@ -269,6 +344,36 @@ fn look_up_for_project_path() -> Result<PathBuf, Error> {
             }
         }
     }
+}
+
+/// Get the list of the *actual* deps in the virtualenv by calling `pip freeze`.
+fn get_frozen_deps(context: &Context) -> Result<Vec<FrozenDependency>, Error> {
+    let freeze_output = run_pip_freeze(&context)?;
+    // First, collect all the `pip freeze` lines into frozen dependencies
+    let deps: Result<Vec<_>, _> = freeze_output
+        .lines()
+        .map(|x| FrozenDependency::from_string(x.into()))
+        .collect();
+    let deps = deps?;
+    // Then filter out pkg-resources: this works around a Debian bug in pip:
+    // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=871790
+    let res: Vec<_> = deps
+        .into_iter()
+        .filter(|x| x.name != "pkg-resources")
+        .collect();
+    Ok(res)
+}
+
+fn run_pip_freeze(context: &Context) -> Result<String, Error> {
+    let Context { venv_runner, .. } = context;
+    #[rustfmt::skip]
+        let cmd = &[
+            "python", "-m", "pip", "freeze",
+            "--exclude-editable",
+            "--all",
+            "--local",
+        ];
+    venv_runner.get_output(cmd)
 }
 
 #[cfg(test)]
