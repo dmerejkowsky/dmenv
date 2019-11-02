@@ -128,10 +128,10 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
                 run_and_die(&context?, &cmd)
             }
         }
-        SubCommand::ShowDeps {} => show_deps(&context?),
-        SubCommand::ShowOutDated {} => show_outdated(&context?),
-        SubCommand::ShowVenvPath {} => show_venv_path(&context?),
-        SubCommand::ShowVenvBin {} => show_venv_bin_path(&context?),
+        SubCommand::ShowDeps {} => commands::show_deps(&context?),
+        SubCommand::ShowOutDated {} => commands::show_outdated(&context?),
+        SubCommand::ShowVenvPath {} => commands::show_venv_path(&context?),
+        SubCommand::ShowVenvBin {} => commands::show_venv_bin_path(&context?),
 
         SubCommand::Tidy {} => tidy(&cmd, &context?),
 
@@ -162,44 +162,6 @@ fn tidy(cmd: &Command, context: &Context) -> Result<(), Error> {
     let frozen_deps = commands::get_frozen_deps(&context)?;
     let Context { paths, .. } = context;
     operations::lock::tidy(&paths.lock, frozen_deps, &metadata)
-}
-
-/// Show the dependencies inside the virtualenv.
-// Note: Run `pip list` so we get what's *actually* installed, not just
-// the contents of the lock file
-fn show_deps(context: &Context) -> Result<(), Error> {
-    let Context { venv_runner, .. } = context;
-    venv_runner.run(&["python", "-m", "pip", "list"])
-}
-
-fn show_outdated(context: &Context) -> Result<(), Error> {
-    let Context { venv_runner, .. } = context;
-    #[rustfmt::skip]
-    let cmd = &[
-        "python", "-m", "pip",
-        "list", "--outdated",
-        "--format", "columns",
-    ];
-    venv_runner.run(cmd)
-}
-
-/// Show the resolved virtualenv path.
-//
-// See `PathsResolver.paths()` for details
-fn show_venv_path(context: &Context) -> Result<(), Error> {
-    let Context { paths, .. } = context;
-    println!("{}", paths.venv.display());
-    Ok(())
-}
-
-/// Same has `show_venv_path`, but add the correct subfolder
-/// (`bin` on Linux and macOS, `Scripts` on Windows).
-fn show_venv_bin_path(context: &Context) -> Result<(), Error> {
-    let Context { venv_runner, .. } = context;
-    commands::expect_venv(&context)?;
-    let bin_path = venv_runner.binaries_path();
-    println!("{}", bin_path.display());
-    Ok(())
 }
 
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
