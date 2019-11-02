@@ -128,7 +128,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvPath {} => show_venv_path(&context),
         SubCommand::ShowVenvBin {} => show_venv_bin_path(&context),
 
-        SubCommand::Tidy {} => project.tidy(),
+        SubCommand::Tidy {} => tidy(&context),
 
         SubCommand::UpgradePip {} => project.upgrade_pip(),
         _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
@@ -293,6 +293,32 @@ fn develop(context: &Context) -> Result<(), Error> {
     venv_runner.run(&["python", "setup.py", "develop", "--no-deps"])
 }
 
+// Re-generate a clean lock:
+//   - clean the virtualenv
+//   - re-create it from scratch, while
+//     making sure no package is updated,
+//     hence the use of `pip install --constraint`
+//     in `self.install_editable_with_constraint()`
+//  - re-generate the lock by only keeping existing dependencies:
+//    see `operations::lock::tidy()`
+fn tidy(context: &Context) -> Result<(), Error> {
+    if std::env::var("VIRTUAL_ENV").is_ok() {
+        // Workaround for https://github.com/TankerHQ/dmenv/issues/110
+        return Err(new_error(
+            "Please exit the virtualenv before running `dmenv tidy`".to_string(),
+        ));
+    }
+    clean_venv(&context)?;
+
+    // TODO: new context
+    create_venv(&context)?;
+    install_editable_with_constraint(&context)?;
+    let metadata = metadata(&context);
+    let frozen_deps = get_frozen_deps(&context)?;
+    let Context { paths, .. } = context;
+    operations::lock::tidy(&paths.lock, frozen_deps, &metadata)
+}
+
 /// Show the dependencies inside the virtualenv.
 // Note: Run `pip list` so we get what's *actually* installed, not just
 // the contents of the lock file
@@ -352,6 +378,22 @@ fn install_editable(context: &Context) -> Result<(), Error> {
     }
     print_info_2(&message);
     let cmd = get_install_editable_cmd(&context);
+    venv_runner.run(&cmd)
+}
+
+fn install_editable_with_constraint(context: &Context) -> Result<(), Error> {
+    let Context {
+        paths, venv_runner, ..
+    } = context;
+    let lock_path = &paths.lock;
+    let message = format!(
+        "Installing deps from setup.py, constrained by {}",
+        lock_path.display()
+    );
+    print_info_2(&message);
+    let lock_path_str = lock_path.to_string_lossy();
+    let mut cmd = get_install_editable_cmd(&context).to_vec();
+    cmd.extend(&["--constraint", &lock_path_str]);
     venv_runner.run(&cmd)
 }
 
