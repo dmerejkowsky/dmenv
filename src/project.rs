@@ -86,13 +86,6 @@ impl Project {
             .map_err(|_| Error::UpgradePipError {})
     }
 
-    /// Show the dependencies inside the virtualenv.
-    // Note: Run `pip list` so we get what's *actually* installed, not just
-    // the contents of the lock file
-    pub fn show_deps(&self) -> Result<(), Error> {
-        self.venv_runner.run(&["python", "-m", "pip", "list"])
-    }
-
     /// Show the resolved virtualenv path.
     //
     // See `PathsResolver.paths()` for details

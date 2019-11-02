@@ -123,7 +123,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
                 run_and_die(&context, &cmd)
             }
         }
-        SubCommand::ShowDeps {} => project.show_deps(),
+        SubCommand::ShowDeps {} => show_deps(&context),
         SubCommand::ShowOutDated {} => project.show_outdated(),
         SubCommand::ShowVenvPath {} => project.show_venv_path(),
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
@@ -291,6 +291,14 @@ fn develop(context: &Context) -> Result<(), Error> {
     }
 
     venv_runner.run(&["python", "setup.py", "develop", "--no-deps"])
+}
+
+/// Show the dependencies inside the virtualenv.
+// Note: Run `pip list` so we get what's *actually* installed, not just
+// the contents of the lock file
+fn show_deps(context: &Context) -> Result<(), Error> {
+    let Context { venv_runner, .. } = context;
+    venv_runner.run(&["python", "-m", "pip", "list"])
 }
 
 fn upgrade_pip(context: &Context) -> Result<(), Error> {
