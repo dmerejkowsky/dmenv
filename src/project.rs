@@ -68,24 +68,6 @@ impl Project {
         operations::venv::create(&self.paths.venv, &self.python_info, &self.settings)
     }
 
-    /// Make sure the virtualenv exists, or return an error
-    //
-    // Note: this must be called by any method that requires the
-    // virtualenv to exist, like `show_deps` or `run`:
-    // this ensures that error messages printed when the
-    // virtualenv does not exist are consistent.
-    fn expect_venv(&self) -> Result<(), Error> {
-        operations::venv::expect(&self.paths.venv)
-    }
-
-    pub fn upgrade_pip(&self) -> Result<(), Error> {
-        print_info_2("Upgrading pip");
-        let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
-        self.venv_runner
-            .run(cmd)
-            .map_err(|_| Error::UpgradePipError {})
-    }
-
     fn get_install_editable_cmd(&self) -> [&str; 6] {
         let extra = if self.settings.production {
             ".[prod]"

@@ -130,7 +130,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
 
         SubCommand::Tidy {} => tidy(&context),
 
-        SubCommand::UpgradePip {} => project.upgrade_pip(),
+        SubCommand::UpgradePip {} => upgrade_pip(&context),
         _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
     }
 }
