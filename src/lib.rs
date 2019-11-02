@@ -93,8 +93,8 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             };
             process_scripts(&context, mode)
         }
-        SubCommand::Clean {} => project.clean_venv(),
-        SubCommand::Develop {} => project.develop(),
+        SubCommand::Clean {} => clean_venv(&context),
+        SubCommand::Develop {} => develop(&context),
         SubCommand::Lock {
             python_version,
             sys_platform,
@@ -209,6 +209,11 @@ fn create_venv(context: &Context) -> Result<(), Error> {
     operations::venv::create(&paths.venv, python_info, settings)
 }
 
+fn clean_venv(context: &Context) -> Result<(), Error> {
+    let Context { paths, .. } = context;
+    operations::venv::clean(paths.venv.clone())
+}
+
 fn install_from_lock(context: &Context) -> Result<(), Error> {
     let Context {
         paths, venv_runner, ..
@@ -231,6 +236,8 @@ fn install_from_lock(context: &Context) -> Result<(), Error> {
     venv_runner.run(cmd)
 }
 
+/// Runs `python setup.py` develop. Also called by `install` (unless InstallOptions.develop is false)
+// Note: `lock()` will use `pip install --editable .` to achieve the same effect
 fn develop(context: &Context) -> Result<(), Error> {
     let Context {
         paths, venv_runner, ..

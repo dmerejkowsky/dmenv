@@ -60,18 +60,6 @@ impl Project {
         operations::venv::clean(self.paths.venv.clone())
     }
 
-    /// Runs `python setup.py` develop. Also called by `install` (unless InstallOptions.develop is false)
-    // Note: `lock()` will use `pip install --editable .` to achieve the same effect
-    pub fn develop(&self) -> Result<(), Error> {
-        print_info_2("Running setup_py.py develop");
-        if !self.paths.setup_py.exists() {
-            return Err(Error::MissingSetupPy {});
-        }
-
-        self.venv_runner
-            .run(&["python", "setup.py", "develop", "--no-deps"])
-    }
-
     /// Ensure the virtualenv exists
     //
     // Note: this is *only* called by `install()` and `lock()`.
