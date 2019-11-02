@@ -46,6 +46,7 @@ pub enum ProcessScriptsMode {
     Override,
 }
 
+#[derive(Debug)]
 struct Context {
     paths: Paths,
     python_info: PythonInfo,
@@ -74,26 +75,22 @@ fn get_context(cmd: &Command) -> Result<Context, Error> {
 }
 
 pub fn run_cmd(cmd: Command) -> Result<(), Error> {
-    if let SubCommand::Init {
-        name,
-        version,
-        author,
-        no_setup_cfg,
-    } = &cmd.sub_cmd
-    {
-        return init(cmd.project_path, name, version, author, !no_setup_cfg);
-    }
-
-    let context = get_context(&cmd)?;
+    let context = get_context(&cmd);
 
     match &cmd.sub_cmd {
+        SubCommand::Init {
+            name,
+            version,
+            author,
+            no_setup_cfg,
+        } => init(cmd.project_path, name, version, author, !no_setup_cfg),
         SubCommand::Install { no_develop } => {
             let post_install_action = if *no_develop {
                 PostInstallAction::None
             } else {
                 PostInstallAction::RunSetupPyDevelop
             };
-            install(&context, post_install_action)
+            install(&context?, post_install_action)
         }
         SubCommand::ProcessScripts { force } => {
             let mode = if *force {
@@ -101,10 +98,10 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             } else {
                 ProcessScriptsMode::Safe
             };
-            process_scripts(&context, mode)
+            process_scripts(&context?, mode)
         }
-        SubCommand::Clean {} => clean_venv(&context),
-        SubCommand::Develop {} => develop(&context),
+        SubCommand::Clean {} => clean_venv(&context?),
+        SubCommand::Develop {} => develop(&context?),
         SubCommand::Lock {
             python_version,
             sys_platform,
@@ -113,7 +110,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
                 python_version: python_version.clone(),
                 sys_platform: sys_platform.clone(),
             };
-            update_lock(&context, update_options)
+            update_lock(&context?, update_options)
         }
         SubCommand::BumpInLock { name, version, git } => {
             let bump_type = if *git {
@@ -121,24 +118,23 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             } else {
                 BumpType::Simple
             };
-            bump_in_lock(&context, name, version, bump_type)
+            bump_in_lock(&context?, name, version, bump_type)
         }
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
-                run(&context, &cmd)
+                run(&context?, &cmd)
             } else {
-                run_and_die(&context, &cmd)
+                run_and_die(&context?, &cmd)
             }
         }
-        SubCommand::ShowDeps {} => show_deps(&context),
-        SubCommand::ShowOutDated {} => show_outdated(&context),
-        SubCommand::ShowVenvPath {} => show_venv_path(&context),
-        SubCommand::ShowVenvBin {} => show_venv_bin_path(&context),
+        SubCommand::ShowDeps {} => show_deps(&context?),
+        SubCommand::ShowOutDated {} => show_outdated(&context?),
+        SubCommand::ShowVenvPath {} => show_venv_path(&context?),
+        SubCommand::ShowVenvBin {} => show_venv_bin_path(&context?),
 
-        SubCommand::Tidy {} => tidy(&cmd, &context),
+        SubCommand::Tidy {} => tidy(&cmd, &context?),
 
-        SubCommand::UpgradePip {} => upgrade_pip(&context),
-        _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
+        SubCommand::UpgradePip {} => upgrade_pip(&context?),
     }
 }
 
