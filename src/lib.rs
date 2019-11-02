@@ -49,7 +49,7 @@ pub enum ProcessScriptsMode {
 }
 
 #[derive(Debug)]
-struct Context {
+pub struct Context {
     paths: Paths,
     python_info: PythonInfo,
     settings: Settings,
@@ -92,7 +92,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             } else {
                 PostInstallAction::RunSetupPyDevelop
             };
-            install(&context?, post_install_action)
+            commands::install(&context?, post_install_action)
         }
         SubCommand::ProcessScripts { force } => {
             let mode = if *force {
@@ -102,8 +102,8 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             };
             process_scripts(&context?, mode)
         }
-        SubCommand::Clean {} => clean_venv(&context?),
-        SubCommand::Develop {} => develop(&context?),
+        SubCommand::Clean {} => commands::clean_venv(&context?),
+        SubCommand::Develop {} => commands::develop(&context?),
         SubCommand::Lock {
             python_version,
             sys_platform,
@@ -140,90 +140,8 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
     }
 }
 
-fn install(context: &Context, post_install_action: PostInstallAction) -> Result<(), Error> {
-    let Context {
-        settings, paths, ..
-    } = context;
-    if settings.production {
-        print_info_1("Preparing project for production")
-    } else {
-        print_info_1("Preparing project for development")
-    };
-    let lock_path = &paths.lock;
-    if !lock_path.exists() {
-        return Err(Error::MissingLock {
-            expected_path: lock_path.to_path_buf(),
-        });
-    }
-
-    ensure_venv(context)?;
-    install_from_lock(context)?;
-
-    match post_install_action {
-        PostInstallAction::RunSetupPyDevelop => develop(context)?,
-        PostInstallAction::None => (),
-    }
-    Ok(())
-}
-
 fn process_scripts(context: &Context, mode: ProcessScriptsMode) -> Result<(), Error> {
     operations::scripts::process(&context.paths, mode)
-}
-
-fn ensure_venv(context: &Context) -> Result<(), Error> {
-    let Context { paths, .. } = context;
-    if paths.venv.exists() {
-        print_info_2(&format!(
-            "Using existing virtualenv: {}",
-            paths.venv.display()
-        ));
-    } else {
-        create_venv(context)?;
-    }
-    Ok(())
-}
-
-/// Create a new virtualenv
-//
-// Notes:
-// * The path comes from PathsResolver.paths()
-// * Called by `ensure_venv()` *if* the path does not exist
-fn create_venv(context: &Context) -> Result<(), Error> {
-    let Context {
-        paths,
-        python_info,
-        settings,
-        ..
-    } = context;
-    operations::venv::create(&paths.venv, python_info, settings)
-}
-
-/// Clean virtualenv. No-op if the virtualenv does not exist
-fn clean_venv(context: &Context) -> Result<(), Error> {
-    let Context { paths, .. } = context;
-    operations::venv::clean(paths.venv.clone())
-}
-
-fn install_from_lock(context: &Context) -> Result<(), Error> {
-    let Context {
-        paths, venv_runner, ..
-    } = context;
-    let lock_path = &paths.lock;
-    print_info_2(&format!(
-        "Installing dependencies from {}",
-        lock_path.display()
-    ));
-    // Since we'll be running the command using self.paths.project
-    // as working directory, we must use the *relative* lock file
-    // name when calling `pip install`.
-    let lock_name = paths
-        .lock
-        .file_name()
-        .unwrap_or_else(|| panic!("self.path.lock has no filename component"));
-
-    let as_str = lock_name.to_string_lossy();
-    let cmd = &["python", "-m", "pip", "install", "--requirement", &as_str];
-    venv_runner.run(cmd)
 }
 
 /// (Re)generate the lock file
@@ -244,7 +162,7 @@ fn update_lock(context: &Context, update_options: operations::UpdateOptions) -> 
     if !&paths.setup_py.exists() {
         return Err(Error::MissingSetupPy {});
     }
-    ensure_venv(&context)?;
+    commands::ensure_venv(&context)?;
     upgrade_pip(&context)?;
     install_editable(&context)?;
     let metadata = metadata(&context);
@@ -266,20 +184,6 @@ fn bump_in_lock(
     operations::lock::bump(&paths.lock, name, version, bump_type, &metadata)
 }
 
-/// Runs `python setup.py` develop. Also called by `install` (unless InstallOptions.develop is false)
-// Note: `lock()` will use `pip install --editable .` to achieve the same effect
-fn develop(context: &Context) -> Result<(), Error> {
-    let Context {
-        paths, venv_runner, ..
-    } = context;
-    print_info_2("Running setup_py.py develop");
-    if !&paths.setup_py.exists() {
-        return Err(Error::MissingSetupPy {});
-    }
-
-    venv_runner.run(&["python", "setup.py", "develop", "--no-deps"])
-}
-
 // Re-generate a clean lock:
 //   - clean the virtualenv
 //   - re-create it from scratch, while
@@ -289,11 +193,11 @@ fn develop(context: &Context) -> Result<(), Error> {
 //  - re-generate the lock by only keeping existing dependencies:
 //    see `operations::lock::tidy()`
 fn tidy(cmd: &Command, context: &Context) -> Result<(), Error> {
-    clean_venv(&context)?;
+    commands::clean_venv(&context)?;
     // Re-create a context since we've potenntially just
     // deleted the python we used to clean the previous virtualenv
     let context = get_context(&cmd)?;
-    create_venv(&context)?;
+    commands::create_venv(&context)?;
     install_editable_with_constraint(&context)?;
     let metadata = metadata(&context);
     let frozen_deps = get_frozen_deps(&context)?;
