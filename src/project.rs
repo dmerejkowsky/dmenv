@@ -86,14 +86,6 @@ impl Project {
             .map_err(|_| Error::UpgradePipError {})
     }
 
-    /// Show the resolved virtualenv path.
-    //
-    // See `PathsResolver.paths()` for details
-    pub fn show_venv_path(&self) -> Result<(), Error> {
-        println!("{}", self.paths.venv.display());
-        Ok(())
-    }
-
     /// Same has `show_venv_path`, but add the correct subfolder
     /// (`bin` on Linux and macOS, `Scripts` on Windows).
     pub fn show_venv_bin_path(&self) -> Result<(), Error> {

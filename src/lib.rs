@@ -125,7 +125,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         }
         SubCommand::ShowDeps {} => show_deps(&context),
         SubCommand::ShowOutDated {} => show_outdated(&context),
-        SubCommand::ShowVenvPath {} => project.show_venv_path(),
+        SubCommand::ShowVenvPath {} => show_venv_path(&context),
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
 
         SubCommand::Tidy {} => project.tidy(),
@@ -310,6 +310,15 @@ fn show_outdated(context: &Context) -> Result<(), Error> {
         "--format", "columns",
     ];
     venv_runner.run(cmd)
+}
+
+/// Show the resolved virtualenv path.
+//
+// See `PathsResolver.paths()` for details
+fn show_venv_path(context: &Context) -> Result<(), Error> {
+    let Context { paths, .. } = context;
+    println!("{}", paths.venv.display());
+    Ok(())
 }
 
 fn upgrade_pip(context: &Context) -> Result<(), Error> {
