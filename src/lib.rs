@@ -133,7 +133,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvPath {} => commands::show_venv_path(&context?),
         SubCommand::ShowVenvBin {} => commands::show_venv_bin_path(&context?),
 
-        SubCommand::Tidy {} => tidy(&cmd, &context?),
+        SubCommand::Tidy {} => commands::tidy(&cmd, &context?),
 
         SubCommand::UpgradePip {} => commands::upgrade_pip(&context?),
     }
@@ -141,27 +141,6 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
 
 fn process_scripts(context: &Context, mode: ProcessScriptsMode) -> Result<(), Error> {
     operations::scripts::process(&context.paths, mode)
-}
-
-// Re-generate a clean lock:
-//   - clean the virtualenv
-//   - re-create it from scratch, while
-//     making sure no package is updated,
-//     hence the use of `pip install --constraint`
-//     in `self.install_editable_with_constraint()`
-//  - re-generate the lock by only keeping existing dependencies:
-//    see `operations::lock::tidy()`
-fn tidy(cmd: &Command, context: &Context) -> Result<(), Error> {
-    commands::clean_venv(&context)?;
-    // Re-create a context since we've potenntially just
-    // deleted the python we used to clean the previous virtualenv
-    let context = get_context(&cmd)?;
-    commands::create_venv(&context)?;
-    commands::install_editable_with_constraint(&context)?;
-    let metadata = commands::metadata(&context);
-    let frozen_deps = commands::get_frozen_deps(&context)?;
-    let Context { paths, .. } = context;
-    operations::lock::tidy(&paths.lock, frozen_deps, &metadata)
 }
 
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
