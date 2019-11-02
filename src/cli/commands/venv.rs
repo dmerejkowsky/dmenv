@@ -36,3 +36,14 @@ pub fn clean_venv(context: &Context) -> Result<(), Error> {
     let Context { paths, .. } = context;
     operations::venv::clean(paths.venv.clone())
 }
+
+/// Make sure the virtualenv exists, or return an error
+//
+// Note: this must be called by any method that requires the
+// virtualenv to exist, like `show_deps` or `run`:
+// this ensures that error messages printed when the
+// virtualenv does not exist are consistent.
+pub fn expect_venv(context: &Context) -> Result<(), Error> {
+    let Context { paths, .. } = context;
+    operations::venv::expect(&paths.venv)
+}

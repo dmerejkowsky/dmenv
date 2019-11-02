@@ -196,7 +196,7 @@ fn show_venv_path(context: &Context) -> Result<(), Error> {
 /// (`bin` on Linux and macOS, `Scripts` on Windows).
 fn show_venv_bin_path(context: &Context) -> Result<(), Error> {
     let Context { venv_runner, .. } = context;
-    expect_venv(&context)?;
+    commands::expect_venv(&context)?;
     let bin_path = venv_runner.binaries_path();
     println!("{}", bin_path.display());
     Ok(())
@@ -227,7 +227,7 @@ fn look_up_for_project_path() -> Result<PathBuf, Error> {
 /// when we get killed and that the exit code is forwarded
 fn run_and_die<T: AsRef<str>>(context: &Context, cmd: &[T]) -> Result<(), Error> {
     let Context { venv_runner, .. } = context;
-    expect_venv(&context)?;
+    commands::expect_venv(&context)?;
     venv_runner.run_and_die(cmd)
 }
 
@@ -239,19 +239,8 @@ fn run_and_die<T: AsRef<str>>(context: &Context, cmd: &[T]) -> Result<(), Error>
 // `dmenv run` and so we need a child process
 fn run<T: AsRef<str>>(context: &Context, cmd: &[T]) -> Result<(), Error> {
     let Context { venv_runner, .. } = context;
-    expect_venv(&context)?;
+    commands::expect_venv(&context)?;
     venv_runner.run(cmd)
-}
-
-/// Make sure the virtualenv exists, or return an error
-//
-// Note: this must be called by any method that requires the
-// virtualenv to exist, like `show_deps` or `run`:
-// this ensures that error messages printed when the
-// virtualenv does not exist are consistent.
-fn expect_venv(context: &Context) -> Result<(), Error> {
-    let Context { paths, .. } = context;
-    operations::venv::expect(&paths.venv)
 }
 
 #[cfg(test)]
