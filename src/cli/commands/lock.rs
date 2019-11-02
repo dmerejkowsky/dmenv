@@ -1,8 +1,8 @@
 use crate::cli::commands;
 use crate::error::*;
-use crate::lock::BumpType;
 use crate::operations;
 use crate::ui::*;
+use crate::BumpType;
 use crate::Context;
 use crate::Metadata;
 

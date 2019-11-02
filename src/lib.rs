@@ -19,7 +19,6 @@ use crate::cli::commands;
 pub use crate::cli::syntax::Command;
 use crate::cli::syntax::SubCommand;
 pub use crate::error::*;
-use crate::lock::BumpType;
 use crate::operations::UpdateOptions;
 use crate::paths::{Paths, PathsResolver};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
@@ -45,6 +44,11 @@ pub enum PostInstallAction {
 pub enum ProcessScriptsMode {
     Safe,
     Override,
+}
+
+pub enum BumpType {
+    Git,
+    Simple,
 }
 
 #[derive(Debug)]

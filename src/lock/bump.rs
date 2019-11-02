@@ -1,10 +1,6 @@
 use crate::dependencies::LockedDependency;
 use crate::error::Error;
-
-pub enum BumpType {
-    Git,
-    Simple,
-}
+use crate::BumpType;
 
 pub fn simple_bump(
     dependencies: &mut [LockedDependency],
