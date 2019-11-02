@@ -45,17 +45,6 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         return init(cmd.project_path, name, version, author, !no_setup_cfg);
     }
 
-    // Run needs additional sanity checks when using `dmenv run`
-    // TODO: try and handle this using StructOpt instead
-    if let SubCommand::Run { ref cmd, .. } = cmd.sub_cmd {
-        if cmd.is_empty() {
-            return Err(new_error(format!(
-                "Missing argument after '{}'",
-                "run".green()
-            )));
-        }
-    }
-
     let project_path = if let Some(p) = cmd.project_path {
         PathBuf::from(p)
     } else {

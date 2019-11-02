@@ -94,7 +94,7 @@ pub enum SubCommand {
         )]
         no_exec: bool,
 
-        #[structopt(name = "command")]
+        #[structopt(name = "command", raw(required = "true"))]
         cmd: Vec<String>,
     },
 
