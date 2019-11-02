@@ -1,8 +1,12 @@
 mod develop;
 mod init;
 mod install;
+mod lock;
+mod pip;
 mod venv;
 pub use develop::develop;
 pub use init::init;
 pub use install::install;
+pub use lock::{bump_in_lock, metadata, update_lock};
+pub use pip::{get_frozen_deps, install_editable, install_editable_with_constraint, upgrade_pip};
 pub use venv::{clean_venv, create_venv, ensure_venv};
