@@ -85,6 +85,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             author,
             no_setup_cfg,
         } => commands::init(cmd.project_path, name, version, author, !no_setup_cfg),
+
         SubCommand::Install { no_develop } => {
             let post_install_action = if *no_develop {
                 PostInstallAction::None
@@ -93,6 +94,11 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             };
             commands::install(&context?, post_install_action)
         }
+
+        SubCommand::Clean {} => commands::clean_venv(&context?),
+        SubCommand::Develop {} => commands::develop(&context?),
+        SubCommand::UpgradePip {} => commands::upgrade_pip(&context?),
+
         SubCommand::ProcessScripts { force } => {
             let mode = if *force {
                 ProcessScriptsMode::Override
@@ -101,8 +107,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             };
             commands::process_scripts(&context?, mode)
         }
-        SubCommand::Clean {} => commands::clean_venv(&context?),
-        SubCommand::Develop {} => commands::develop(&context?),
+
         SubCommand::Lock {
             python_version,
             sys_platform,
@@ -113,6 +118,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             };
             commands::update_lock(&context?, update_options)
         }
+
         SubCommand::BumpInLock { name, version, git } => {
             let bump_type = if *git {
                 BumpType::Git
@@ -121,6 +127,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             };
             commands::bump_in_lock(&context?, name, version, bump_type)
         }
+
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
                 commands::run(&context?, &cmd)
@@ -128,14 +135,13 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
                 commands::run_and_die(&context?, &cmd)
             }
         }
+
         SubCommand::ShowDeps {} => commands::show_deps(&context?),
         SubCommand::ShowOutDated {} => commands::show_outdated(&context?),
         SubCommand::ShowVenvPath {} => commands::show_venv_path(&context?),
         SubCommand::ShowVenvBin {} => commands::show_venv_bin_path(&context?),
 
         SubCommand::Tidy {} => commands::tidy(&cmd, &context?),
-
-        SubCommand::UpgradePip {} => commands::upgrade_pip(&context?),
     }
 }
 
