@@ -103,16 +103,6 @@ impl Project {
         Ok(())
     }
 
-    pub fn show_outdated(&self) -> Result<(), Error> {
-        #[rustfmt::skip]
-        let cmd = &[
-            "python", "-m", "pip",
-            "list", "--outdated",
-            "--format", "columns",
-        ];
-        self.venv_runner.run(cmd)
-    }
-
     // Re-generate a clean lock:
     //   - clean the virtualenv
     //   - re-create it from scratch, while

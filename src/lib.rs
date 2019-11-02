@@ -124,7 +124,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             }
         }
         SubCommand::ShowDeps {} => show_deps(&context),
-        SubCommand::ShowOutDated {} => project.show_outdated(),
+        SubCommand::ShowOutDated {} => show_outdated(&context),
         SubCommand::ShowVenvPath {} => project.show_venv_path(),
         SubCommand::ShowVenvBin {} => project.show_venv_bin_path(),
 
@@ -299,6 +299,17 @@ fn develop(context: &Context) -> Result<(), Error> {
 fn show_deps(context: &Context) -> Result<(), Error> {
     let Context { venv_runner, .. } = context;
     venv_runner.run(&["python", "-m", "pip", "list"])
+}
+
+fn show_outdated(context: &Context) -> Result<(), Error> {
+    let Context { venv_runner, .. } = context;
+    #[rustfmt::skip]
+    let cmd = &[
+        "python", "-m", "pip",
+        "list", "--outdated",
+        "--format", "columns",
+    ];
+    venv_runner.run(cmd)
 }
 
 fn upgrade_pip(context: &Context) -> Result<(), Error> {
