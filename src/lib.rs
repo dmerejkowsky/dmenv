@@ -135,7 +135,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvPath {} => show_venv_path(&context),
         SubCommand::ShowVenvBin {} => show_venv_bin_path(&context),
 
-        SubCommand::Tidy {} => tidy(&context),
+        SubCommand::Tidy {} => tidy(&cmd, &context),
 
         SubCommand::UpgradePip {} => upgrade_pip(&context),
         _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
@@ -313,16 +313,11 @@ fn develop(context: &Context) -> Result<(), Error> {
 //     in `self.install_editable_with_constraint()`
 //  - re-generate the lock by only keeping existing dependencies:
 //    see `operations::lock::tidy()`
-fn tidy(context: &Context) -> Result<(), Error> {
-    if std::env::var("VIRTUAL_ENV").is_ok() {
-        // Workaround for https://github.com/TankerHQ/dmenv/issues/110
-        return Err(new_error(
-            "Please exit the virtualenv before running `dmenv tidy`".to_string(),
-        ));
-    }
+fn tidy(cmd: &Command, context: &Context) -> Result<(), Error> {
     clean_venv(&context)?;
-
-    // TODO: new context
+    // Re-create a context since we've potenntially just
+    // deleted the python we used to clean the previous virtualenv
+    let context = get_context(&cmd)?;
     create_venv(&context)?;
     install_editable_with_constraint(&context)?;
     let metadata = metadata(&context);
