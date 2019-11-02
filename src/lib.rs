@@ -15,12 +15,13 @@ mod ui;
 #[cfg(windows)]
 mod win_job;
 
+use crate::cli::commands;
 pub use crate::cli::syntax::Command;
 use crate::cli::syntax::SubCommand;
 use crate::dependencies::FrozenDependency;
 pub use crate::error::*;
 use crate::lock::BumpType;
-use crate::operations::{InitOptions, UpdateOptions};
+use crate::operations::UpdateOptions;
 use crate::paths::{Paths, PathsResolver};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::python_info::PythonInfo;
@@ -84,7 +85,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             version,
             author,
             no_setup_cfg,
-        } => init(cmd.project_path, name, version, author, !no_setup_cfg),
+        } => commands::init(cmd.project_path, name, version, author, !no_setup_cfg),
         SubCommand::Install { no_develop } => {
             let post_install_action = if *no_develop {
                 PostInstallAction::None
@@ -137,29 +138,6 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
 
         SubCommand::UpgradePip {} => upgrade_pip(&context?),
     }
-}
-
-fn init(
-    project_path: Option<String>,
-    name: &str,
-    version: &str,
-    author: &Option<String>,
-    setup_cfg: bool,
-) -> Result<(), Error> {
-    let init_path = if let Some(p) = project_path {
-        PathBuf::from(p)
-    } else {
-        std::env::current_dir().map_err(|e| Error::NoWorkingDirectory { io_error: e })?
-    };
-
-    let mut init_options = InitOptions::new(name.to_string(), version.to_string());
-    if !setup_cfg {
-        init_options.no_setup_cfg();
-    };
-    if let Some(author) = author {
-        init_options.author(&author);
-    }
-    operations::init(&init_path, &init_options)
 }
 
 fn install(context: &Context, post_install_action: PostInstallAction) -> Result<(), Error> {
