@@ -19,7 +19,6 @@ use crate::cli::commands;
 pub use crate::cli::syntax::Command;
 use crate::cli::syntax::SubCommand;
 pub use crate::error::*;
-use crate::operations::UpdateOptions;
 use crate::paths::{Paths, PathsResolver};
 pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::python_info::PythonInfo;
@@ -49,6 +48,14 @@ pub enum ProcessScriptsMode {
 pub enum BumpType {
     Git,
     Simple,
+}
+
+#[derive(Default, Debug)]
+/// Represents options passed to `dmenv lock`,
+/// see `cmd::SubCommand::Lock`
+pub struct UpdateOptions {
+    pub python_version: Option<String>,
+    pub sys_platform: Option<String>,
 }
 
 #[derive(Debug)]

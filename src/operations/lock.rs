@@ -9,14 +9,7 @@ use crate::lock::{git_bump, simple_bump};
 use crate::ui::*;
 use crate::BumpType;
 use crate::Metadata;
-
-#[derive(Default, Debug)]
-/// Represents options passed to `dmenv lock`,
-/// see `cmd::SubCommand::Lock`
-pub struct UpdateOptions {
-    pub python_version: Option<String>,
-    pub sys_platform: Option<String>,
-}
+use crate::UpdateOptions;
 
 pub fn bump(
     lock_path: &Path,

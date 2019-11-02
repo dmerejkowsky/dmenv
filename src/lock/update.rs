@@ -1,5 +1,5 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
-use crate::operations::UpdateOptions;
+use crate::UpdateOptions;
 
 #[derive(Debug)]
 pub struct Updater {
