@@ -13,18 +13,19 @@ mod project;
 mod python_info;
 mod run;
 mod settings;
+mod setup_cfg;
 #[cfg(windows)]
 mod win_job;
-
-pub use crate::cmd::Command;
 use crate::cmd::SubCommand;
-pub use crate::cmd::{print_error, print_info_1, print_info_2};
-pub use crate::error::*;
 use crate::lock::BumpType;
 use crate::operations::{InitOptions, UpdateOptions};
-pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 use crate::project::{PostInstallAction, ProcessScriptsMode, Project};
 use crate::python_info::PythonInfo;
+
+pub use crate::cmd::Command;
+pub use crate::cmd::{print_error, print_info_1, print_info_2};
+pub use crate::error::*;
+pub use crate::paths::{DEV_LOCK_FILENAME, PROD_LOCK_FILENAME};
 pub use crate::settings::Settings;
 pub use crate::setup_cfg::SetupCfg;
 
