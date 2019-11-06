@@ -11,8 +11,10 @@ $ dmenv install --system-site-packages
 **>= 0.19**:
 ```
 $ dmenv --system-site-packages  install
-# virtualenv created in .venv/dev-systeem/3.7/
+# virtualenv created in .venv/dev-system/3.7/
 ```
+
+* Fix #110: `dmenv tidy` now works even from a virtualenv
 
 # 0.18.0 (2019-29-10)
 
