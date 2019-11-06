@@ -207,6 +207,7 @@ impl Parser {
                 continue;
             }
             check_section(lineno, line)?;
+            check_key(lineno, line)?;
             if let Some(section) = is_section(line) {
                 self.section = section;
                 // Reset current key as well
@@ -235,6 +236,12 @@ impl Parser {
     fn advance(&mut self, lineno: usize) -> Result<(), ParseError> {
         match self.state {
             ParseState::Section => {
+                if self.res.sections.contains_key(&self.section) {
+                    return Err(ParseError::new(
+                        lineno,
+                        &format!("duplicate section: '{}'", self.section),
+                    ));
+                }
                 let new_section = Section::new(&self.section);
                 self.res.sections.insert(self.section.clone(), new_section);
             }
@@ -253,6 +260,12 @@ impl Parser {
                     self.value
                 );
                 let contents = &mut section.unwrap().contents;
+                if contents.contains_key(&self.key) {
+                    return Err(ParseError::new(
+                        lineno,
+                        &format!("duplicate key: '{}'", &self.key),
+                    ));
+                }
                 contents.insert(self.key.clone(), vec![self.value.clone()]);
             }
 
@@ -269,6 +282,12 @@ impl Parser {
                     self.key
                 );
                 let contents = &mut section.unwrap().contents;
+                if contents.contains_key(&self.key) {
+                    return Err(ParseError::new(
+                        lineno,
+                        &format!("duplicate key: '{}'", &self.key),
+                    ));
+                }
                 contents.insert(self.key.clone(), vec![]);
             }
 
@@ -329,6 +348,18 @@ fn check_section(lineno: usize, line: &str) -> Result<(), ParseError> {
     }
     if line == "[]" {
         return Err(ParseError::new(lineno, "empty section"));
+    }
+    Ok(())
+}
+
+fn check_key(lineno: usize, line: &str) -> Result<(), ParseError> {
+    let trimmed = line.trim();
+    if let Some(first_char) = trimmed.chars().nth(0) {
+        for c in &SEPARATOR {
+            if first_char == *c {
+                return Err(ParseError::new(lineno, "Empty key"));
+            }
+        }
     }
     Ok(())
 }
@@ -552,6 +583,30 @@ dev =
 foo
 ";
         assert_parse_error(text, 4);
+    }
+
+    #[test]
+    fn test_duplicate_section() {
+        let text = "[s1]\nkey=value\n[s2]\nfoo=bar\n[s1]\nother_key=other_value";
+        assert_parse_error(text, 5);
+    }
+
+    #[test]
+    fn test_duplicate_key1() {
+        let text = "[s1]\nk1=v1\nk1=v2";
+        assert_parse_error(text, 3);
+    }
+
+    #[test]
+    fn test_duplicate_key2() {
+        let text = "[s1]\nk1=v1\nk1=\n  v2";
+        assert_parse_error(text, 3);
+    }
+
+    #[test]
+    fn test_value_without_key() {
+        let text = "[s1]\n=value";
+        assert_parse_error(text, 2);
     }
 
     fn assert_get_error<F, R>(text: &str, get_func: F, expected_error: GetterError)
