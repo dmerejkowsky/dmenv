@@ -72,10 +72,6 @@ impl Project {
             .run(&["python", "setup.py", "develop", "--no-deps"])
     }
 
-    pub fn process_scripts(&self, mode: ProcessScriptsMode) -> Result<(), Error> {
-        operations::scripts::process(&self.paths, mode)
-    }
-
     /// Ensure the virtualenv exists
     //
     // Note: this is *only* called by `install()` and `lock()`.
@@ -110,52 +106,6 @@ impl Project {
     // virtualenv does not exist are consistent.
     fn expect_venv(&self) -> Result<(), Error> {
         operations::venv::expect(&self.paths.venv)
-    }
-
-    /// Install dependencies from the lock file (production.lock or requirements.lock), depending
-    /// on how paths were resolved by PathsResolver
-    /// Abort if virtualenv or lock file does not exist
-    pub fn install(&self, post_install_action: PostInstallAction) -> Result<(), Error> {
-        if self.settings.production {
-            print_info_1("Preparing project for production")
-        } else {
-            print_info_1("Preparing project for development")
-        };
-        let lock_path = &self.paths.lock;
-        if !lock_path.exists() {
-            return Err(Error::MissingLock {
-                expected_path: lock_path.to_path_buf(),
-            });
-        }
-
-        self.ensure_venv()?;
-        self.install_from_lock()?;
-
-        match post_install_action {
-            PostInstallAction::RunSetupPyDevelop => self.develop()?,
-            PostInstallAction::None => (),
-        }
-        Ok(())
-    }
-
-    fn install_from_lock(&self) -> Result<(), Error> {
-        let lock_path = &self.paths.lock;
-        print_info_2(&format!(
-            "Installing dependencies from {}",
-            lock_path.display()
-        ));
-        // Since we'll be running the command using self.paths.project
-        // as working directory, we must use the *relative* lock file
-        // name when calling `pip install`.
-        let lock_name = &self
-            .paths
-            .lock
-            .file_name()
-            .unwrap_or_else(|| panic!("self.path.lock has no filename component"));
-
-        let as_str = lock_name.to_string_lossy();
-        let cmd = &["python", "-m", "pip", "install", "--requirement", &as_str];
-        self.venv_runner.run(cmd)
     }
 
     pub fn upgrade_pip(&self) -> Result<(), Error> {

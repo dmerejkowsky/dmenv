@@ -1,4 +1,3 @@
-use colored::*;
 use std::path::PathBuf;
 
 mod cmd;
@@ -84,7 +83,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             } else {
                 PostInstallAction::RunSetupPyDevelop
             };
-            project.install(post_install_action)
+            install(&context, post_install_action)
         }
         SubCommand::ProcessScripts { force } => {
             let mode = if *force {
@@ -92,7 +91,7 @@ pub fn run(cmd: Command) -> Result<(), Error> {
             } else {
                 ProcessScriptsMode::Safe
             };
-            project.process_scripts(mode)
+            process_scripts(&context, mode)
         }
         SubCommand::Clean {} => project.clean_venv(),
         SubCommand::Develop {} => project.develop(),
@@ -155,6 +154,95 @@ fn init(
     }
     operations::init(&init_path, &init_options)
 }
+
+fn install(context: &Context, post_install_action: PostInstallAction) -> Result<(), Error> {
+    let Context {
+        settings, paths, ..
+    } = context;
+    if settings.production {
+        print_info_1("Preparing project for production")
+    } else {
+        print_info_1("Preparing project for development")
+    };
+    let lock_path = &paths.lock;
+    if !lock_path.exists() {
+        return Err(Error::MissingLock {
+            expected_path: lock_path.to_path_buf(),
+        });
+    }
+
+    ensure_venv(context)?;
+    install_from_lock(context)?;
+
+    match post_install_action {
+        PostInstallAction::RunSetupPyDevelop => develop(context)?,
+        PostInstallAction::None => (),
+    }
+    Ok(())
+}
+
+fn process_scripts(context: &Context, mode: ProcessScriptsMode) -> Result<(), Error> {
+    operations::scripts::process(&context.paths, mode)
+}
+
+fn ensure_venv(context: &Context) -> Result<(), Error> {
+    let Context { paths, .. } = context;
+    if paths.venv.exists() {
+        print_info_2(&format!(
+            "Using existing virtualenv: {}",
+            paths.venv.display()
+        ));
+    } else {
+        create_venv(context)?;
+    }
+    Ok(())
+}
+
+fn create_venv(context: &Context) -> Result<(), Error> {
+    let Context {
+        paths,
+        python_info,
+        settings,
+        ..
+    } = context;
+    // TODO: venv::create(context)
+    operations::venv::create(&paths.venv, python_info, settings)
+}
+
+fn install_from_lock(context: &Context) -> Result<(), Error> {
+    let Context {
+        paths, venv_runner, ..
+    } = context;
+    let lock_path = &paths.lock;
+    print_info_2(&format!(
+        "Installing dependencies from {}",
+        lock_path.display()
+    ));
+    // Since we'll be running the command using self.paths.project
+    // as working directory, we must use the *relative* lock file
+    // name when calling `pip install`.
+    let lock_name = paths
+        .lock
+        .file_name()
+        .unwrap_or_else(|| panic!("self.path.lock has no filename component"));
+
+    let as_str = lock_name.to_string_lossy();
+    let cmd = &["python", "-m", "pip", "install", "--requirement", &as_str];
+    venv_runner.run(cmd)
+}
+
+fn develop(context: &Context) -> Result<(), Error> {
+    let Context {
+        paths, venv_runner, ..
+    } = context;
+    print_info_2("Running setup_py.py develop");
+    if !&paths.setup_py.exists() {
+        return Err(Error::MissingSetupPy {});
+    }
+
+    venv_runner.run(&["python", "setup.py", "develop", "--no-deps"])
+}
+
 fn look_up_for_project_path() -> Result<PathBuf, Error> {
     let mut candidate = std::env::current_dir()
         .map_err(|e| new_error(format!("Could not get current directory: {}", e)))?;
