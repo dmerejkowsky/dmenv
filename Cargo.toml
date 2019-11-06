@@ -1,27 +1,26 @@
 [package]
-edition = "2018"
 authors = ["Dimitri Merejkowsky <d.merej@gmail.com>"]
-name = "dmenv"
-version = "0.18.0"
+categories = ["command-line-utilities"]
 description = "Simple and practical virtualenv manager for Python"
+documentation = "https://tankerhq.github.io/dmenv/"
+edition = "2018"
+keywords = ["python", "virtualenv"]
 license = "BSD-3-Clause"
+name = "dmenv"
 readme = "README.md"
 repository = "https://github.com/TankerHQ/dmenv"
-documentation = "https://tankerhq.github.io/dmenv/"
-
-keywords = ["python", "virtualenv"]
-categories = ["command-line-utilities"]
+version = "0.18.0"
 
 [dependencies]
+app_dirs = "1.2.1"
 colored = "1.6"
-structopt = "0.2"
-which = "2.0"
 libc = "0.2.46"
 regex = "1.1.0"
-app_dirs = "1.2.1"
-smallvec = "0.6.10"
 rust-ini = "0.13.0"
+smallvec = "0.6.10"
+structopt = "0.2"
+which = "2.0"
 
 [dev-dependencies]
-tempdir = "0.3"
 ignore = "0.4.6"
+tempdir = "0.3"
