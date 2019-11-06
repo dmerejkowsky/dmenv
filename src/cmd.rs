@@ -132,6 +132,12 @@ pub enum SubCommand {
 
     #[structopt(name = "upgrade-pip", about = "Upgrade pip in the virtualenv")]
     UpgradePip {},
+
+    #[structopt(
+        name = "dump-setup-cfg",
+        about = "Dump contents of setup.cfg as json - for debug purposes"
+    )]
+    DumpSetupCfg {},
 }
 
 pub fn print_error(description: &str) {

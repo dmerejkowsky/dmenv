@@ -144,6 +144,15 @@ pub fn run(cmd: Command) -> Result<(), Error> {
         SubCommand::Tidy {} => project.tidy(),
 
         SubCommand::UpgradePip {} => project.upgrade_pip(),
+        SubCommand::DumpSetupCfg {} => {
+            let path = Path::new("setup.cfg");
+            let setup_cfg = SetupCfg::read(&path)?;
+            println!("Project name is: {:?}", setup_cfg.project_name()?);
+            println!("Dependencies: {:?}", setup_cfg.dependencies()?);
+            println!("Dev dependencies: {:?}", setup_cfg.dev_dependencies()?);
+            println!("Prod dependencies: {:?}", setup_cfg.prod_dependencies()?);
+            Ok(())
+        }
         _ => unimplemented!("Subcommand {:?} not handled", cmd.sub_cmd),
     }
 }
