@@ -1,22 +1,15 @@
 use colored::*;
 use std::path::Path;
 
-use crate::cmd::*;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::lock;
-use crate::lock::BumpType;
 use crate::lock::Updater;
 use crate::lock::{git_bump, simple_bump};
-use crate::project::Metadata;
-
-#[derive(Default, Debug)]
-/// Represents options passed to `dmenv lock`,
-/// see `cmd::SubCommand::Lock`
-pub struct UpdateOptions {
-    pub python_version: Option<String>,
-    pub sys_platform: Option<String>,
-}
+use crate::ui::*;
+use crate::BumpType;
+use crate::Metadata;
+use crate::UpdateLockOptions;
 
 pub fn bump(
     lock_path: &Path,
@@ -45,7 +38,7 @@ pub fn bump(
 pub fn update(
     lock_path: &Path,
     frozen_deps: Vec<FrozenDependency>,
-    update_options: UpdateOptions,
+    update_options: UpdateLockOptions,
     metadata: &Metadata,
 ) -> Result<(), Error> {
     print_info_2(&format!("Generating {}", lock_path.display()));

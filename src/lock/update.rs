@@ -1,5 +1,5 @@
 use crate::dependencies::{FrozenDependency, LockedDependency, SimpleDependency};
-use crate::operations::UpdateOptions;
+use crate::UpdateLockOptions;
 
 #[derive(Debug)]
 pub struct Updater {
@@ -17,10 +17,10 @@ impl Updater {
 
     pub fn set_options(
         &mut self,
-        UpdateOptions {
+        UpdateLockOptions {
             python_version,
             sys_platform,
-        }: UpdateOptions,
+        }: UpdateLockOptions,
     ) {
         self.python_version = python_version;
         self.sys_platform = sys_platform;
@@ -200,7 +200,7 @@ mod tests {
     #[test]
     fn different_python_version() {
         let mut updater = Updater::new();
-        updater.set_options(UpdateOptions {
+        updater.set_options(UpdateLockOptions {
             python_version: Some("< '3.6'".to_string()),
             sys_platform: None,
         });
@@ -218,7 +218,7 @@ mod tests {
     #[test]
     fn different_platform() {
         let mut updater = Updater::new();
-        updater.set_options(UpdateOptions {
+        updater.set_options(UpdateLockOptions {
             python_version: None,
             sys_platform: Some("win32".to_string()),
         });

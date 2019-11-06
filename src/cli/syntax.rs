@@ -1,4 +1,3 @@
-use colored::*;
 use regex::Regex;
 use structopt::StructOpt;
 
@@ -19,6 +18,12 @@ pub struct Command {
     #[structopt(long = "production", help = "Ignore dev dependencies")]
     pub production: bool,
 
+    #[structopt(
+        long = "--system-site-packages",
+        help = "Give the virtual environment access to the system site-packages dir"
+    )]
+    pub system_site_packages: bool,
+
     #[structopt(subcommand)]
     pub sub_cmd: SubCommand,
 }
@@ -35,11 +40,6 @@ pub enum SubCommand {
     Install {
         #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]
         no_develop: bool,
-        #[structopt(
-            long = "--system-site-packages",
-            help = "Give the virtual environment access to the system site-packages dir"
-        )]
-        system_site_packages: bool,
     },
 
     #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]
@@ -83,12 +83,6 @@ pub enum SubCommand {
 
         #[structopt(long = "platform", help = "Restrict platform")]
         sys_platform: Option<String>,
-
-        #[structopt(
-            long = "--system-site-packages",
-            help = "Give the virtual environment access to the system site-packages dir"
-        )]
-        system_site_packages: bool,
     },
 
     #[structopt(name = "run", about = "Run the given binary from the virtualenv")]
@@ -99,7 +93,7 @@ pub enum SubCommand {
         )]
         no_exec: bool,
 
-        #[structopt(name = "command")]
+        #[structopt(name = "command", raw(required = "true"))]
         cmd: Vec<String>,
     },
 
@@ -132,22 +126,6 @@ pub enum SubCommand {
 
     #[structopt(name = "upgrade-pip", about = "Upgrade pip in the virtualenv")]
     UpgradePip {},
-}
-
-pub fn print_error(description: &str) {
-    eprintln!("{}: {}", "Error".bold().red(), description);
-}
-
-pub fn print_warning(description: &str) {
-    eprintln!("{}: {}", "Warning".bold().yellow(), description);
-}
-
-pub fn print_info_1(message: &str) {
-    println!("{} {}", "::".blue(), message);
-}
-
-pub fn print_info_2(message: &str) {
-    println!("{} {}", "->".blue(), message);
 }
 
 // Make sure the `--python-version` option used in `dmenv lock`

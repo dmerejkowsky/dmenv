@@ -1,3 +1,19 @@
+# 0.19.0
+
+* **Breaking**: the `--system-site-packages` option must be passed *before* any subcommand, and the path for virtualenv has changed
+
+**<= 0.18**:
+```
+$ dmenv install --system-site-packages
+# virtualenv created in .venv/dev/3.7/
+```
+
+**>= 0.19**:
+```
+$ dmenv --system-site-packages  installs
+# virtualenv created in .venv/dev-systeem/3.7/
+```
+
 # 0.18.0 (2019-29-10)
 
 * Add a `tidy` command, to re-generate locks from a clean virtualenv.

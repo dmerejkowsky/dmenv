@@ -105,12 +105,6 @@ fn install_without_lock() {
 }
 
 #[test]
-fn run_without_args() {
-    let test_app = TestApp::new();
-    test_app.assert_run_error(&["run"]);
-}
-
-#[test]
 fn run_without_virtualenv() {
     let test_app = TestApp::new();
     test_app.assert_run_error(&["run", "python"]);

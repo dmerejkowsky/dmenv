@@ -1,5 +1,5 @@
-use crate::cmd::*;
 use crate::error::*;
+use crate::ui::*;
 use std::path::Path;
 
 #[derive(Debug)]
@@ -54,9 +54,9 @@ pub fn init(project_path: &Path, options: &InitOptions) -> Result<(), Error> {
 
     if options.setup_cfg {
         ensure_path_does_not_exist(&setup_cfg_path)?;
-        write_from_template(include_str!("setup.in.cfg"), &setup_cfg_path, options)?;
+        write_from_template(include_str!("init/setup.in.cfg"), &setup_cfg_path, options)?;
     } else {
-        write_from_template(include_str!("setup.in.py"), &setup_py_path, options)?;
+        write_from_template(include_str!("init/setup.in.py"), &setup_py_path, options)?;
     }
 
     if options.setup_cfg {
