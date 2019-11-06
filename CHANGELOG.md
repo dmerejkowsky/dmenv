@@ -1,6 +1,6 @@
-# 0.19.0
+# 0.19.0 (2019-O6-11)
 
-* **Breaking**: the `--system-site-packages` option must be passed *before* any subcommand, and the path for virtualenv has changed
+* **Breaking**: the `--system-site-packages` option must be passed *before* any subcommand, and the path for virtualenv has changed:
 
 **<= 0.18**:
 ```
@@ -10,7 +10,7 @@ $ dmenv install --system-site-packages
 
 **>= 0.19**:
 ```
-$ dmenv --system-site-packages  installs
+$ dmenv --system-site-packages  install
 # virtualenv created in .venv/dev-systeem/3.7/
 ```
 
