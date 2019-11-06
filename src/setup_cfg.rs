@@ -1,4 +1,5 @@
 use crate::error::*;
+use serde::ser::{Serialize, SerializeMap, Serializer};
 
 use std::collections::HashMap;
 
@@ -87,6 +88,19 @@ impl SetupCfg {
         }
         let values = &section_contents[key];
         Ok(values.to_vec())
+    }
+}
+
+impl Serialize for SetupCfg {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(self.sections.len()))?;
+        for (name, section) in &self.sections {
+            map.serialize_entry(&name, &section.contents)?;
+        }
+        map.end()
     }
 }
 
@@ -574,6 +588,15 @@ foo
                 key: "my_list".to_string(),
             },
         );
+    }
+
+    use serde_json;
+    #[test]
+    fn test_json_serialization() {
+        let text = "[s1]\nkey=value";
+        let parsed = parse(text).unwrap();
+        let as_json = serde_json::to_string_pretty(&parsed).unwrap();
+        println!("{}", as_json);
     }
 
     fn does_not_crash_when_parsing(text: &str) {
