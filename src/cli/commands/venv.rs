@@ -32,9 +32,11 @@ pub fn create_venv(context: &Context) -> Result<(), Error> {
 }
 
 /// Clean virtualenv. No-op if the virtualenv does not exist
-pub fn clean_venv(context: &Context) -> Result<(), Error> {
+// Note: the Context is moved because if you call this function
+// from inside a virtualenv, the Python binary gets invalidated
+pub fn clean_venv(context: Context) -> Result<(), Error> {
     let Context { paths, .. } = context;
-    operations::venv::clean(paths.venv.clone())
+    operations::venv::clean(paths.venv)
 }
 
 /// Make sure the virtualenv exists, or return an error
