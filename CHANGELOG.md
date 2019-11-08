@@ -1,3 +1,7 @@
+# Next release
+
+* Do not change the working directory when creating a virtual environment. This makes combining `dmenv` and `pyenv` much easier.
+
 # 0.19.0 (2019-O6-11)
 
 * **Breaking**: the `--system-site-packages` option must be passed *before* any subcommand, and the path of the virtual environment has changed:

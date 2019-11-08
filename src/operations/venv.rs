@@ -55,7 +55,8 @@ pub fn create(
         python_binary.display(),
         args.join(" ")
     );
-    run(&parent_venv_path.to_path_buf(), &python_binary, &args)
+    let cwd = std::env::current_dir().map_err(|e| Error::NoWorkingDirectory { io_error: e })?;
+    run(&cwd, &python_binary, &args)
 }
 
 pub fn expect(venv_path: &Path) -> Result<(), Error> {
