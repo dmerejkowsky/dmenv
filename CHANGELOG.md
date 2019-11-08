@@ -1,24 +1,24 @@
 # 0.19.0 (2019-O6-11)
 
-* **Breaking**: the `--system-site-packages` option must be passed *before* any subcommand, and the path for virtualenv has changed:
+* **Breaking**: the `--system-site-packages` option must be passed *before* any subcommand, and the path of the virtual environment has changed:
 
 **<= 0.18**:
 ```
 $ dmenv install --system-site-packages
-# virtualenv created in .venv/dev/3.7/
+# virtual environment created in .venv/dev/3.7/
 ```
 
 **>= 0.19**:
 ```
 $ dmenv --system-site-packages  install
-# virtualenv created in .venv/dev-system/3.7/
+# virtual environment created in .venv/dev-system/3.7/
 ```
 
-* Fix #110: `dmenv tidy` now works even from a virtualenv
+* Fix #110: `dmenv tidy` now works even from an activated virtual environment.
 
 # 0.18.0 (2019-29-10)
 
-* Add a `tidy` command, to re-generate locks from a clean virtualenv.
+* Add a `tidy` command, to re-generate locks from a clean virtual environment.
 
 # 0.17.0 (2019-10-08)
 
@@ -51,12 +51,12 @@ $ dmenv --system-site-packages  install
 
 # 0.14.2 (2019-04-29)
 
-* Restore generation of precompiled binaries from travis.
+* Restore generation of pre-compiled binaries from travis.
 
 # 0.14.1 (2019-04-29)
 
 * Fix incorrect `--help` message
-* Better error handling when virtualenv or binary path do not exist
+* Better error handling when the virtual environment or binary path do not exist
 * Fix typo in `setup.cfg` template
 
 All reported by @theodelrieu. Thanks, man.
@@ -84,14 +84,14 @@ need compatibility with old Python versions.
 
 * `dmenv install` and `dmenv lock` commands learned the `--system-site-packages` option to create virtual environments that have access to packages installed globally on the system.
 
-## Allow skipping dev dependencies
+## Allow skipping development dependencies
 
 This is done with the `--production` flag. For instance, `dmenv --production install`.
 `dmenv --production lock` will create a `production.lock` that contains no development dependencies.
 
 ## Breaking changes
 
-Virtualenv location has changed to allow both production and full virtual environments to coexist:
+Virtual environment location has changed to allow both production and full virtual environments to coexist:
 
 * When using `DMENV_VENV_OUTSIDE_PROJECT`
 
@@ -158,7 +158,7 @@ Virtualenv location has changed to allow both production and full virtual enviro
 # 0.8.1 (2019-01-08)
 
 * `dmenv run` now uses `execv` from `libc`. This means the child process is killed when killing `dmenv`.
-   The previous behavior (starting a new subprocess) can be activated with the `--no-exec` option.
+   The previous behavior (starting a new process) can be activated with the `--no-exec` option.
 
 # 0.8.0 (2018-12-21)
 
