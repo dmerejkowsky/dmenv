@@ -128,7 +128,8 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             commands::install(&context?, post_install_action)
         }
 
-        SubCommand::Clean {} => commands::clean_venv(&context?),
+        SubCommand::Create {} => commands::create_venv(&context?),
+        SubCommand::Clean {} => commands::clean_venv(context?),
         SubCommand::Develop {} => commands::develop(&context?),
         SubCommand::UpgradePip {} => commands::upgrade_pip(&context?),
 
@@ -174,7 +175,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
         SubCommand::ShowVenvPath {} => commands::show_venv_path(&context?),
         SubCommand::ShowVenvBin {} => commands::show_venv_bin_path(&context?),
 
-        SubCommand::Tidy {} => commands::tidy(&cmd, &context?),
+        SubCommand::Tidy {} => commands::tidy(&cmd, context?),
     }
 }
 

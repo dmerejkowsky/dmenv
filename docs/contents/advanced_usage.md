@@ -274,18 +274,23 @@ You can use `dmenv --python /path/to/other/binary` to specify the full path to t
 [pyenv](https://github.com/pyenv/pyenv) is a generic tool to manage several Python installations on the same machine.
 
 Here's how you can combine the too, for instance to check if your project is compatible with both Python3.7 and Python3.8,
-and assuming the "system" python is 3.7:
+and assuming the "system" python is 3.7.
+
+First, use `pyenv` to compile and install Python 3.8 from sources
 
 ```console
-$ pyenv install 3.8
-$ pyenv local system 3.8
+$ pyenv install 3.8.0
+```
 
-# Use the first `python3` program found in $PATH
-$ dmenv --python install
-# Create a Python3.7 compatible virtualenv in .venv/dev/3.7.4
+Then you can switch Python versions by setting the `PYENV_VERSION` environment variable when using `dmenv`.
 
-# Use the `python3.8` binary from pyenv installation
-$ dmenv --python $(pyenv which python3.8) install
-# Create a Python3.8 compatible virtualenv in .venv/dev/3.8.0
+```console
+$ dmenv install
+# Nothing set, creates a virtual environment for 3.7 in .venv/dev/3.7.4
+```
+
+```console
+$ PYENV_VERSION=3.8.0 dmenv install
+# Creates a Python3.8 compatible virtualenv in .venv/dev/3.8.0
 ```
 

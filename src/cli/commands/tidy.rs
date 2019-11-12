@@ -12,8 +12,8 @@ use crate::{get_context, Context};
 //     in `self.install_editable_with_constraint()`
 //  - re-generate the lock by only keeping existing dependencies:
 //    see `operations::lock::tidy()`
-pub fn tidy(cmd: &Command, context: &Context) -> Result<(), Error> {
-    commands::clean_venv(&context)?;
+pub fn tidy(cmd: &Command, context: Context) -> Result<(), Error> {
+    commands::clean_venv(context)?;
     // Re-create a context since we've potenntially just
     // deleted the python we used to clean the previous virtualenv
     let context = get_context(&cmd)?;
