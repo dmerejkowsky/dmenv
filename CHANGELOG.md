@@ -1,4 +1,4 @@
-# Next release
+# 0.20.0 (2019-11-12)
 
 * Do not change the working directory when creating a virtual environment. This makes combining `dmenv` and `pyenv` much easier.
 * Add `dmenv create` command to create an empty virtual environment.
