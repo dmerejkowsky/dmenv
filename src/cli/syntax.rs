@@ -36,6 +36,9 @@ pub enum SubCommand {
     #[structopt(name = "develop", about = "Run setup.py develop")]
     Develop {},
 
+    #[structopt(name = "create", about = "Create an empty vritualenv")]
+    Create {},
+
     #[structopt(name = "install", about = "Install all dependencies")]
     Install {
         #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]

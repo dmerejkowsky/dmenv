@@ -128,6 +128,7 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             commands::install(&context?, post_install_action)
         }
 
+        SubCommand::Create {} => commands::create_venv(&context?),
         SubCommand::Clean {} => commands::clean_venv(context?),
         SubCommand::Develop {} => commands::develop(&context?),
         SubCommand::UpgradePip {} => commands::upgrade_pip(&context?),
