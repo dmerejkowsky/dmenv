@@ -1,6 +1,6 @@
 # Usage
 
-## A note aobut setup.py and setup.cfg
+## A note about setup.py and setup.cfg
 
 The following documentation assumes you are calling `setuptools.setup()` with no arguments and that all of `setuptools` options are set in the `setup.cfg` file. See [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html#configuring-setup-using-setup-cfg-files) for more details.
 
@@ -160,5 +160,5 @@ You can now inspect the differences in the lock file by hand, and if they are co
 That's all for the basic usage of `dmenv`, you may proceed to the [goodies section](./goodies.md) or read on about [advanced dmenv usage](./advanced_usage.md)
 
 
-[^1]: If you *do* need `foolib` in version 1.4 or later, you should express this constraint in the setup.py file instead, as explained in the *[upgrading juste one regular dependency](./advanced_usage.md#upgrading_just_one_development_dependency)*
+[^1]: If you *do* need `foolib` in version 1.4 or later, you should express this constraint in the setup.py file instead, as explained in the *[upgrading just one regular dependency](./advanced_usage.md#upgrading_just_one_development_dependency)*
 section.
