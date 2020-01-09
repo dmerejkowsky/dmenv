@@ -1,13 +1,54 @@
+use crate::cli::commands;
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
+use crate::operations;
 use crate::ui::*;
 use crate::Context;
+use crate::UpdateLockOptions;
 
 pub fn upgrade_pip(context: &Context) -> Result<(), Error> {
     let Context { venv_runner, .. } = context;
     print_info_2("Upgrading pip");
     let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
     venv_runner.run(cmd).map_err(|_| Error::UpgradePipError {})
+}
+
+pub fn upgrade_dep(context: &Context, name: &str, version: Option<&str>) -> Result<(), Error> {
+    install_dep_then_lock("Upgrading", context, name, version)
+}
+
+pub fn downgrade_dep(context: &Context, name: &str, version: &str) -> Result<(), Error> {
+    install_dep_then_lock("Downgrading", context, name, Some(version))
+}
+
+pub fn install_dep_then_lock(
+    desc: &'static str,
+    context: &Context,
+    name: &str,
+    version: Option<&str>,
+) -> Result<(), Error> {
+    let Context {
+        venv_runner, paths, ..
+    } = context;
+    let mut upgrade_arg = name.to_string();
+    if let Some(v) = version {
+        upgrade_arg = format!("{}=={}", name, v)
+    }
+
+    print_info_1(&format!("{} dependency {}", desc, name));
+    let cmd = &["python", "-m", "pip", "install", "--upgrade", &upgrade_arg];
+    venv_runner.run(cmd)?;
+
+    print_info_1("Updating lock");
+    let metadata = commands::metadata(&context);
+    let frozen_deps = get_frozen_deps(&context)?;
+    let lock_path = &paths.lock;
+    operations::lock::update(
+        lock_path,
+        frozen_deps,
+        UpdateLockOptions::default(),
+        &metadata,
+    )
 }
 
 pub fn install_editable(context: &Context) -> Result<(), Error> {

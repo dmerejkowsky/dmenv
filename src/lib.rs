@@ -162,6 +162,13 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             commands::bump_in_lock(&context?, name, version, bump_type)
         }
 
+        SubCommand::Upgrade { name, version } => {
+            commands::upgrade_dep(&context?, name, version.as_deref())
+        }
+        SubCommand::Downgrade { name, version } => {
+            commands::downgrade_dep(&context?, name, version)
+        }
+
         SubCommand::Run { ref cmd, no_exec } => {
             if *no_exec {
                 commands::run(&context?, &cmd)
