@@ -113,5 +113,5 @@ impl TestApp {
 }
 
 pub fn to_string_args(args: &[&str]) -> Vec<String> {
-    args.iter().map(|x| x.to_string()).collect()
+    args.iter().map(|x| (*x).to_string()).collect()
 }

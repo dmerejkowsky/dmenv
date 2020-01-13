@@ -186,8 +186,8 @@ mod tests {
 
             let res = FileSystem {
                 tmp_dir,
-                project: project_path.to_path_buf(),
-                venv: venv_path.to_path_buf(),
+                project: project_path,
+                venv: venv_path,
             };
             res.init_venv();
             res
@@ -219,7 +219,7 @@ mod tests {
         }
 
         fn assert_args(&self, args: &[&str]) {
-            let expected_args: Vec<String> = args.iter().map(|x| x.to_string()).collect();
+            let expected_args: Vec<String> = args.iter().map(|x| (*x).to_string()).collect();
             assert_eq!(self.args, expected_args);
         }
     }
