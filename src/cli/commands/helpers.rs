@@ -1,13 +1,18 @@
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
 use crate::ui::*;
-use crate::Context;
+use crate::{Context, Metadata};
 
-pub fn upgrade_pip(context: &Context) -> Result<(), Error> {
-    let Context { venv_runner, .. } = context;
-    print_info_2("Upgrading pip");
-    let cmd = &["python", "-m", "pip", "install", "pip", "--upgrade"];
-    venv_runner.run(cmd).map_err(|_| Error::UpgradePipError {})
+pub fn lock_metadata(context: &Context) -> Metadata {
+    let Context { python_info, .. } = context;
+    let dmenv_version = env!("CARGO_PKG_VERSION");
+    let python_platform = &python_info.platform;
+    let python_version = &python_info.version;
+    Metadata {
+        dmenv_version: dmenv_version.to_string(),
+        python_platform: python_platform.to_string(),
+        python_version: python_version.to_string(),
+    }
 }
 
 pub fn install_editable(context: &Context) -> Result<(), Error> {
