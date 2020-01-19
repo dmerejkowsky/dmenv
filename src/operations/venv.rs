@@ -1,5 +1,5 @@
 use colored::*;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::error::*;
 use crate::python_info::PythonInfo;
@@ -7,7 +7,7 @@ use crate::run::run;
 use crate::settings::Settings;
 use crate::ui::*;
 
-pub fn clean(venv_path: PathBuf) -> Result<(), Error> {
+pub fn clean(venv_path: &Path) -> Result<(), Error> {
     print_info_1(&format!("Cleaning {}", venv_path.display()));
     if !venv_path.exists() {
         return Ok(());

@@ -1,10 +1,11 @@
 use crate::commands;
 use crate::error::*;
+use crate::operations;
 use crate::ui::*;
 use crate::Context;
-use crate::PostInstallAction;
+use crate::InstallOptions;
 
-pub fn install(context: &Context, post_install_action: PostInstallAction) -> Result<(), Error> {
+pub fn install(context: &Context, options: &InstallOptions) -> Result<(), Error> {
     let Context {
         settings, paths, ..
     } = context;
@@ -13,6 +14,11 @@ pub fn install(context: &Context, post_install_action: PostInstallAction) -> Res
     } else {
         print_info_1("Preparing project for development")
     };
+
+    if options.clean_first {
+        operations::venv::clean(&paths.venv)?;
+    }
+
     let lock_path = &paths.lock;
     if !lock_path.exists() {
         return Err(Error::MissingLock {
@@ -23,9 +29,8 @@ pub fn install(context: &Context, post_install_action: PostInstallAction) -> Res
     commands::ensure_venv(context)?;
     install_from_lock(context)?;
 
-    match post_install_action {
-        PostInstallAction::RunSetupPyDevelop => commands::develop(context)?,
-        PostInstallAction::None => (),
+    if options.run_develop_py {
+        commands::develop(context)?
     }
     Ok(())
 }

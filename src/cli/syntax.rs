@@ -43,6 +43,9 @@ pub enum SubCommand {
     Install {
         #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]
         no_develop: bool,
+
+        #[structopt(long = "--clean", help = "Clean the virtual environment first")]
+        clean_first: bool,
     },
 
     #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]
