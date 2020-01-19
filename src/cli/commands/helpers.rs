@@ -1,7 +1,8 @@
 use crate::dependencies::FrozenDependency;
 use crate::error::*;
+use crate::operations;
 use crate::ui::*;
-use crate::{Context, Metadata};
+use crate::{Context, Metadata, UpdateLockOptions};
 
 pub fn lock_metadata(context: &Context) -> Metadata {
     let Context { python_info, .. } = context;
@@ -86,4 +87,34 @@ fn run_pip_freeze(context: &Context) -> Result<String, Error> {
             "--local",
         ];
     venv_runner.get_output(cmd)
+}
+
+pub fn install_dep_then_lock(
+    desc: &'static str,
+    context: &Context,
+    name: &str,
+    version: Option<&str>,
+) -> Result<(), Error> {
+    let Context {
+        venv_runner, paths, ..
+    } = context;
+    let mut upgrade_arg = name.to_string();
+    if let Some(v) = version {
+        upgrade_arg = format!("{}=={}", name, v)
+    }
+
+    print_info_1(&format!("{} dependency {}", desc, name));
+    let cmd = &["python", "-m", "pip", "install", "--upgrade", &upgrade_arg];
+    venv_runner.run(cmd)?;
+
+    print_info_1("Updating lock");
+    let metadata = lock_metadata(&context);
+    let frozen_deps = get_frozen_deps(&context)?;
+    let lock_path = &paths.lock;
+    operations::lock::update(
+        lock_path,
+        frozen_deps,
+        UpdateLockOptions::default(),
+        &metadata,
+    )
 }

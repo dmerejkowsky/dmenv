@@ -40,15 +40,6 @@ pub struct InstallOptions {
     clean_first: bool,
 }
 
-impl Default for InstallOptions {
-    fn default() -> Self {
-        Self {
-            run_develop_py: true,
-            clean_first: false,
-        }
-    }
-}
-
 #[derive(Debug, Copy, Clone)]
 pub enum ProcessScriptsMode {
     Safe,
@@ -171,6 +162,13 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
                 BumpType::Simple
             };
             commands::bump_in_lock(&context?, name, version, bump_type)
+        }
+
+        SubCommand::Upgrade { name, version } => {
+            commands::upgrade_dep(&context?, name, version.as_deref())
+        }
+        SubCommand::Downgrade { name, version } => {
+            commands::downgrade_dep(&context?, name, version)
         }
 
         SubCommand::Run { ref cmd, no_exec } => {
