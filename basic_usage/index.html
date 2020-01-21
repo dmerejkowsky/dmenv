@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Basic Usage - dmenv</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Basic Usage";
+    var mkdocs_page_input_path = "basic_usage.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> dmenv</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../installation/">Installation</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Basic Usage</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#usage">Usage</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#a_note_about_setuppy_and_setupcfg">A note about setup.py and setup.cfg</a></li>
+        
+            <li><a class="toctree-l3" href="#setup">Setup</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_lock">dmenv lock</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_install">dmenv install</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_run">dmenv run</a></li>
+        
+            <li><a class="toctree-l3" href="#configuring_other_tools">Configuring other tools</a></li>
+        
+            <li><a class="toctree-l3" href="#upgrading_dmenv">Upgrading dmenv</a></li>
+        
+            <li><a class="toctree-l3" href="#adding_a_new_dependency">Adding a new dependency</a></li>
+        
+            <li><a class="toctree-l3" href="#upgrading_a_top-level_dependency">Upgrading a top-level dependency</a></li>
+        
+            <li><a class="toctree-l3" href="#going_further">Going further</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../goodies/">Goodies</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../advanced_usage/">Advanced Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/">FAQ</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../changelog/">Changelog</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">dmenv</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Basic Usage</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h1>
+<h2 id="a_note_about_setuppy_and_setupcfg">A note about setup.py and setup.cfg<a class="headerlink" href="#a_note_about_setuppy_and_setupcfg" title="Permanent link">&para;</a></h2>
+<p>The following documentation assumes you are calling <code>setuptools.setup()</code> with no arguments and that all of <code>setuptools</code> options are set in the <code>setup.cfg</code> file. See <a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#configuring-setup-using-setup-cfg-files">setuptools documentation</a> for more details.</p>
+<p><code>dmenv</code> will still work otherwise, but please bear in mind that you will have to adapt the code samples below.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>First, <code>dmenv</code> needs a Python3 interpreter in PATH, which should be called <code>python</code> or <code>python3</code>. This is usually the case if you've just installed Python3, regardless of your operating system.</p>
+<p>Second, <code>dmenv</code> needs a <code>setup.py</code> file to work.</p>
+<ul>
+<li>
+<p>If you don't have a <code>setup.py</code> yet, you can run <code>dmenv init &lt;project name&gt;</code>
+  to generate one, alongside a <code>setup.cfg</code> file. In this case, make sure to read the comments inside
+  and edit it to fit your needs.</p>
+</li>
+<li>
+<p>If you already have a <code>setup.py</code> or a <code>setup.cfg</code> file that contains info about dependencies, please note that <code>dmenv</code> uses
+ <strong>"extras require"</strong> dependencies to specify development dependencies, under the <code>dev</code> key.</p>
+</li>
+</ul>
+<p>You are now ready to use <code>dmenv</code>. Keep on reading about the two main commands: <code>dmenv lock</code> and <code>dmenv install</code>.</p>
+<h2 id="dmenv_lock">dmenv lock<a class="headerlink" href="#dmenv_lock" title="Permanent link">&para;</a></h2>
+<p>Here's what <code>dmenv lock</code> does:</p>
+<ul>
+<li>It looks for a binary named <code>python3</code> or <code>python</code> in the <code>PATH</code> environment variable.</li>
+<li>It runs a bit of Python code to determine the interpreter version (3.6, 3.7 ...).</li>
+<li>
+<p>Then, it creates a virtual environment in <code>.venv/dev/&lt;version&gt;</code> using <code>python -m venv</code>.
+  (This step is skipped if <code>dmenv</code> detects it is run from an existing virtual environment).
+  Note that you may have to <a href="../advanced_usage/#configuring-other-tools">configure other tools</a> to ignore this directory.</p>
+</li>
+<li>
+<p>Then it runs <code>pip install --editable .[dev]</code> so that your dev dependencies are
+  installed, and the scripts listed in <code>entry_points</code> are created.</p>
+</li>
+<li>
+<p>Finally, it runs <code>pip freeze</code> to generate a <code>requirements.lock</code> file.</p>
+</li>
+</ul>
+<p>Now you can add the <code>requirements.lock</code> file to your version control system.</p>
+<p>This leads us to the next command:</p>
+<h2 id="dmenv_install">dmenv install<a class="headerlink" href="#dmenv_install" title="Permanent link">&para;</a></h2>
+<p>Now that the complete list of dependencies and their versions is written in the
+<code>requirements.lock</code> file, anyone can run <code>dmenv install</code> to install all the
+dependencies and get exactly the same versions you got when you ran <code>dmenv lock</code>.</p>
+<p>Hooray reproducible builds!</p>
+<h2 id="dmenv_run">dmenv run<a class="headerlink" href="#dmenv_run" title="Permanent link">&para;</a></h2>
+<p>One the virtual environment has been created, you can run any binary from the venv with the command
+<code>dmenv run</code>.</p>
+<p>For instance, assuming <code>pytest</code> is declared as a dependency:</p>
+<pre><code class="bash">$ dmenv run pytest
+</code></pre>
+
+<p>Note that you can also use <code>dmenv run</code> to run scripts from your project:</p>
+<pre><code class="bash">$ dmenv run foo.py
+# Equivalent to:
+$ dmenv run python foo.py
+</code></pre>
+
+<h2 id="configuring_other_tools">Configuring other tools<a class="headerlink" href="#configuring_other_tools" title="Permanent link">&para;</a></h2>
+<p>Depending of your usage, you may need to tell other tools to ignore the <code>.venv</code> directory.</p>
+<ul>
+<li><strong>git</strong>: add a line containing <code>.venv/</code> to the <code>.gitignore</code>.</li>
+</ul>
+<pre><code class="text"># should be already there if you use
+# setup.py
+*.egg-info
+build/
+dist/
+
+# only directory in which `dmenv` will write files:
+.venv/
+</code></pre>
+
+<ul>
+<li><strong>pyflakes</strong>, <strong>pylint</strong> and other linters: add some configuration in the <code>setup.cfg</code> file:</li>
+</ul>
+<pre><code class="ini">exclude =
+  .venv
+</code></pre>
+
+<p>As an alternative, you can also ask <code>dmenv</code> to create its virtual environment <em>outside</em> your project,
+by setting the <code>DMENV_VENV_OUTSIDE_PROJECT</code> environment variable to a non-empty value like <code>1</code>. It will then use
+the <a href="https://crates.io/crates/app_dirs">app_dirs crate</a> as a location to store the created virtual environments.</p>
+<h2 id="upgrading_dmenv">Upgrading dmenv<a class="headerlink" href="#upgrading_dmenv" title="Permanent link">&para;</a></h2>
+<p>If you have <code>wget</code> installed and used a pre-compiled binary, upgrading <code>dmenv</code> can be done in just one command:</p>
+<pre><code class="bash"># Replace &lt;version&gt; and &lt;arch&gt; with their correct value
+$ wget \
+  https://github.com/TankerHQ/dmenv/releases/download/v&lt;version&gt;/dmenv-&lt;arch&gt; \
+  -O $(which dmenv)
+</code></pre>
+
+<p>If you've installed <code>dmenv</code> from source:</p>
+<pre><code class="bash">rustup update stable  # dmenv usually requires latest rust stable version
+cargo install --force dmenv
+</code></pre>
+
+<h2 id="adding_a_new_dependency">Adding a new dependency<a class="headerlink" href="#adding_a_new_dependency" title="Permanent link">&para;</a></h2>
+<p>This process is in two parts.</p>
+<ul>
+<li>First, add the dependency in <code>setup.cfg</code> or <code>setup.py</code>, in the <code>install_requires</code> section.</li>
+<li>Then, run <code>dmenv lock</code> to update the corresponding <code>lock file</code>.</li>
+</ul>
+<p>The process changes lightly if you are working with a development dependency, or a dependency that is only used for production.
+See the <a href="../advanced_usage/">advanced usage</a>  section for details.</p>
+<h2 id="upgrading_a_top-level_dependency">Upgrading a top-level dependency<a class="headerlink" href="#upgrading_a_top-level_dependency" title="Permanent link">&para;</a></h2>
+<p>Let's say your project depends on <code>foolib</code>. Version <code>1.3</code> works fine, but
+<code>1.4</code> just came out and even if you don't need any new feature from <code>1.4</code>,
+you'd like to check wether your project is compatible. <sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup></p>
+<p>Assuming you already have a virtual environment containing <code>foolib 1.3</code>, you can can do so by running:</p>
+<pre><code class="bash">$ git status  # check that requirements.lock is clean
+$ dmenv run -- pip install --upgrade foolib
+</code></pre>
+
+<p>Most of the time, <code>pip install --upgrade foolib</code> will do the right thing:</p>
+<ul>
+<li>it will keep other dependencies installed at their current version</li>
+<li>it will install new dependencies of <code>foolib 1.4</code> if they are missing</li>
+<li>if <code>foolib 1.4</code> contains a <code>bar &gt;= 3.0</code> constraint and you have <code>bar == 2.0</code> in the virtualenv, <code>bar</code> will
+  be upgraded too.</li>
+</ul>
+<p>Then it's time to register the new dependencies in the lock:</p>
+<pre><code class="bash">$ dmenv lock
+</code></pre>
+
+<p>You can now inspect the differences in the lock file by hand, and if they are correct, commit and push a new version of the lock file.</p>
+<h2 id="going_further">Going further<a class="headerlink" href="#going_further" title="Permanent link">&para;</a></h2>
+<p>That's all for the basic usage of <code>dmenv</code>, you may proceed to the <a href="../goodies/">goodies section</a> or read on about <a href="../advanced_usage/">advanced dmenv usage</a></p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>If you <em>do</em> need <code>foolib</code> in version 1.4 or later, you should express this constraint in the setup.py file instead, as explained in the <em><a href="../advanced_usage/#upgrading_just_one_development_dependency">upgrading just one regular dependency</a></em>
+section.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../goodies/" class="btn btn-neutral float-right" title="Goodies">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../installation/" class="btn btn-neutral" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../installation/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../goodies/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

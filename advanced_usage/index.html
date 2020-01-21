@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Advanced Usage - dmenv</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Advanced Usage";
+    var mkdocs_page_input_path = "advanced_usage.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> dmenv</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../installation/">Installation</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../basic_usage/">Basic Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../goodies/">Goodies</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Advanced Usage</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#advanced_usage">Advanced Usage</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#some_definitions">Some definitions</a></li>
+        
+            <li><a class="toctree-l3" href="#how_the_lock_command_works">How the lock command works</a></li>
+        
+            <li><a class="toctree-l3" href="#upgrade_all_the_things">Upgrade all the things!</a></li>
+        
+            <li><a class="toctree-l3" href="#re-generating_a_clean_lock">Re-generating a clean lock</a></li>
+        
+            <li><a class="toctree-l3" href="#freeze_dev_dependencies">Freeze dev dependencies</a></li>
+        
+            <li><a class="toctree-l3" href="#upgrading_just_one_development_dependency">Upgrading just one development dependency</a></li>
+        
+            <li><a class="toctree-l3" href="#upgrading_just_one_regular_dependency">Upgrading just one regular dependency</a></li>
+        
+            <li><a class="toctree-l3" href="#using_dependencies_from_git_urls">Using dependencies from git URLs</a></li>
+        
+            <li><a class="toctree-l3" href="#using_dependencies_only_for_a_given_platform">Using dependencies only for a given platform</a></li>
+        
+            <li><a class="toctree-l3" href="#using_dependencies_only_for_a_given_python_version">Using dependencies only for a given Python version</a></li>
+        
+            <li><a class="toctree-l3" href="#skipping_development_dependencies">Skipping development dependencies</a></li>
+        
+            <li><a class="toctree-l3" href="#allowing_access_to_python_packages_from_the_system">Allowing access to Python packages from the system</a></li>
+        
+            <li><a class="toctree-l3" href="#specifying_the_interpreter_binary">Specifying the interpreter binary</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/">FAQ</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../changelog/">Changelog</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">dmenv</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Advanced Usage</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="advanced_usage">Advanced Usage<a class="headerlink" href="#advanced_usage" title="Permanent link">&para;</a></h1>
+<h2 id="some_definitions">Some definitions<a class="headerlink" href="#some_definitions" title="Permanent link">&para;</a></h2>
+<p>Let's assume the following <code>setup.cfg</code>:</p>
+<pre><code class="ini">[metadata]
+name = foo
+version = 0.1.0
+
+[options]
+install_requires=
+  path.py
+
+[options.extras_require]
+  dev =
+    pytest
+</code></pre>
+
+<p>Since <code>pytest</code> is only used by the tests, and not the rest of the code,
+<code>path.py</code> is a <em>regular dependency</em>, and <code>pytest</code> is a <em>development
+dependency</em>.</p>
+<p>Now let's assume you've run <code>dmenv lock</code> and that the following lock file was produced:</p>
+<pre><code class="text"># requirements.lock
+path-py==11.4.0
+importlib-metadata==0.5
+pytest==3.9.0
+py==1.6.0
+</code></pre>
+
+<p><code>importlib-metadata</code> and <code>py</code> are dependencies of <code>path.py</code> and <code>pytest</code>
+respectively, and their version got "frozen" in the lock file.</p>
+<p>To differentiate those dependencies from the rest, we say that <code>pytest</code> and
+<code>path.py</code> are <em>abstract</em>, and than <code>importlib-metadata</code> and <code>py</code> are
+<em>concrete</em>.</p>
+<p>Note that if you publish your code on pypi.org, consumers of your package will
+only see the <em>abstract</em>, <em>regular</em> dependencies, so be careful with the
+<code>install_requires</code> section of the <code>setup.cfg</code>!</p>
+<h2 id="how_the_lock_command_works">How the lock command works<a class="headerlink" href="#how_the_lock_command_works" title="Permanent link">&para;</a></h2>
+<p>The <code>requirements.lock</code> is obtained by parsing the output of <code>pip freeze</code>,
+and thus is only a reflection of the <em>state</em> of the virtual environment from which <code>pip</code>
+was run.</p>
+<p>That means the result of the lock depends of something
+"stateful" that can change independently of the contents of the <code>setup.cfg</code>.</p>
+<p>For instance, if you run <code>dmenv lock</code> in a empty virtual environment, every concrete
+dependency gets frozen to their latest compatible version.</p>
+<p>On the other hand, if you run <code>dmenv lock</code> from a virtual environment that already
+contains <code>foo</code>, the <code>foo</code> version won't change (unless something in the
+<code>setup.cfg</code> causes it to change).</p>
+<p>This may seem like an horrible bug but, as we'll see in the next section,
+it makes it possible to use various interesting workflows when upgrading
+dependencies.</p>
+<p>Two features of <code>dmenv</code> make this work:</p>
+<ul>
+<li>One, both <code>setup.cfg</code> and <code>requirements.lock</code> can be edited by hand.</li>
+<li>Two, when the lock file already exists, <code>dmenv lock</code> "applies" the result of <code>pip freeze</code>
+  to the existing lock file, and thus can preserve manual changes.</li>
+</ul>
+<p>Let's see some examples.</p>
+<h2 id="upgrade_all_the_things">Upgrade all the things!<a class="headerlink" href="#upgrade_all_the_things" title="Permanent link">&para;</a></h2>
+<p>The simplest way is to just re-run <code>dmenv lock</code> after having cleaned the virtual environment.
+Runinng <code>dmenv show:outdated</code> allows you to have a preview of the upgrades first.</p>
+<pre><code>$ dmenv show:outdated
+$ dmenv clean
+$ dmenv lock
+</code></pre>
+
+<p>That way, all existing dependencies from the <code>requirements.lock</code> will get
+ignored, and you'll get the latest version of every concrete dependency.</p>
+<p>Give it a go, it often works better than you might think :)</p>
+<p>If something breaks (for instance when going from <code>path.py</code> 11.4 to <code>path.py</code>
+11.5), you can edit the <code>setup.cfg</code> to specify that you are <em>not</em> compatible
+with the latest version of path.py:</p>
+<pre><code class="ini">[options]
+install_requires=
+  path.py &lt; 11.5
+</code></pre>
+
+<h2 id="re-generating_a_clean_lock">Re-generating a clean lock<a class="headerlink" href="#re-generating_a_clean_lock" title="Permanent link">&para;</a></h2>
+<p>You can force the re-creation of a clean lock by running:</p>
+<pre><code class="bash">$ dmenv tidy
+</code></pre>
+
+<p>This will:</p>
+<ul>
+<li>Clean the existing virtualenv</li>
+<li>Re-install dependencies listed in the <code>setup.cfg</code> file, constainted by the existing lock file</li>
+<li>Re-generate the lock file by only keeping dependencies that exist in the virtualenv</li>
+</ul>
+<p>This is better than running <code>dmenv clean &amp;&amp; dmenv lock</code> because existing concrete dependencies won't
+be updated - see the section above if this is what you want.</p>
+<h2 id="freeze_dev_dependencies">Freeze dev dependencies<a class="headerlink" href="#freeze_dev_dependencies" title="Permanent link">&para;</a></h2>
+<p>The above approach does not work really well if you use a linter like <code>pylint</code>
+or <code>flake8</code>, of even a type checker like <code>mypy</code></p>
+<p>This is because new releases of those tools often cause new warnings or errors
+to be produced, so you only want to update them when you're ready.</p>
+<p>Thus, a good practice is to freeze the versions of those tools directly in the
+`setup.cfg:</p>
+<pre><code class="ini">[options.extras_require]
+  dev =
+    flake8==3.5.0
+</code></pre>
+
+<p>That way you can freely re-run <code>dmenv lock</code>, even in a completely fresh
+environment.</p>
+<h2 id="upgrading_just_one_development_dependency">Upgrading just one development dependency<a class="headerlink" href="#upgrading_just_one_development_dependency" title="Permanent link">&para;</a></h2>
+<p>For instance if there's a bug in <code>py</code>, you can bump <code>py</code> version by editing the
+lock file directly:</p>
+<pre><code class="patch">- py==1.6.0
++ py==1.7.0
+</code></pre>
+
+<h2 id="upgrading_just_one_regular_dependency">Upgrading just one regular dependency<a class="headerlink" href="#upgrading_just_one_regular_dependency" title="Permanent link">&para;</a></h2>
+<p>If the bug is in one of the concrete dependencies, you should update the <code>setup.cfg</code> file instead</p>
+<pre><code class="patch">    install_requires=[
+      &quot;path.py&quot;
++     &quot;importlib-metadata &gt;= 0.6&quot;
+  ]
+</code></pre>
+
+<p>That way consumers of your code <em>will</em> get the correct version.</p>
+<p>Then run <code>dmenv lock</code> without cleaning the virtual environment so that
+<code>importlib-metadata</code> gets upgraded and its new version frozen.</p>
+<h2 id="using_dependencies_from_git_urls">Using dependencies from git URLs<a class="headerlink" href="#using_dependencies_from_git_urls" title="Permanent link">&para;</a></h2>
+<p>Let's say you came across a bug that's only fixed on the <code>master</code> branch of
+<code>pytest</code> on GitHub, specifically at the commit <code>deadbeef</code>.</p>
+<p>One solution is to replace the line in <code>requirements.lock</code> to use a git URL
+like this:</p>
+<pre><code class="text"># requirements
+git+https://github.com/pytest-dev/pytest@deadbeef#egg=pytest
+</code></pre>
+
+<p>In that case, <code>pip freeze</code> will contain a line looking like <code>pytest==4.0b1</code>, where <code>4.0b1</code>
+is the <code>pytest</code> version at this particular commit.</p>
+<p>When it comes to re-generating the lock, <code>dmenv</code> will see that there is already a line
+specifying the <code>pytest</code> version in a more precise manner, so it will keep the <code>git</code> line
+in the lock and ignore the non-precise <code>4.0b1</code> version.</p>
+<h2 id="using_dependencies_only_for_a_given_platform">Using dependencies only for a given platform<a class="headerlink" href="#using_dependencies_only_for_a_given_platform" title="Permanent link">&para;</a></h2>
+<p>Sometimes a concrete dependency will only be available on a specify platform.</p>
+<p>So if you've generated the lock file on Linux, you may get different results on Windows.</p>
+<p>One way to solve this is to run <code>dmenv lock</code> with the <code>--platfrom</code> argument.</p>
+<p>Existing lines in the lock file will be kept, and any <em>new</em> dependency will be suffixed
+with a <a href="https://www.python.org/dev/peps/pep-0508/">platform marker</a>, like this:</p>
+<pre><code class="text"># requirements.lock, generated on liux
+foo==0.2
+
+&gt; dmenv lock --platform windows   # run on Windows
+
+# requirements.lock
+foo==0.2
+pywin2==0.42 ; platform == &quot;windows&quot;
+</code></pre>
+
+<h2 id="using_dependencies_only_for_a_given_python_version">Using dependencies only for a given Python version<a class="headerlink" href="#using_dependencies_only_for_a_given_python_version" title="Permanent link">&para;</a></h2>
+<p>If you want your code to be run across different Python versions, you may encounter similar issues.</p>
+<p>Sometimes one of your concrete dependency will <em>only</em> be required for old interpreters.</p>
+<p>For instance, the <code>pathlib2</code> package is only useful for 3.5 and below. After
+that you simply use the standard library.</p>
+<p>In than case, you can specify a python version requirement, like this:</p>
+<pre><code class="text"># requirements.lock , generated with Python 3.6
+foo==0.2
+
+$ dmenv lock --python '&lt; &quot;3.5&quot;'  &lt;- note the quotes
+
+# requirements.lock
+foo==0.2
+bar==0.42 ; python_version &lt; &quot;3.5&quot;
+</code></pre>
+
+<h2 id="skipping_development_dependencies">Skipping development dependencies<a class="headerlink" href="#skipping_development_dependencies" title="Permanent link">&para;</a></h2>
+<p>Sometimes you will want to skip development dependencies.</p>
+<p>In this case, prefix your <code>dmenv</code> command with a <code>--production</code> flag, like so:</p>
+<pre><code>$ dmenv --production lock
+$ dmenv --production install
+</code></pre>
+
+<p>Note that both the location of the virtual environment and the lock file will be different.</p>
+<p>You can also specify dependencies <em>just</em> for production, by using an extra requirement named <code>prod</code>:</p>
+<pre><code class="python">setup(
+   ...
+   extras_require={
+      &quot;dev&quot;: [&quot;foo&quot;, &quot;pytest&quot;],
+      &quot;prod&quot;: [&quot;foo-prod&quot;],
+   }
+)
+</code></pre>
+
+<h2 id="allowing_access_to_python_packages_from_the_system">Allowing access to Python packages from the system<a class="headerlink" href="#allowing_access_to_python_packages_from_the_system" title="Permanent link">&para;</a></h2>
+<p>Use <code>dmenv --system-site-packages install</code> and/or <code>dmenv --system-site-packages lock</code> to create a virtual environment that has access to the system's site packages. In the latter case, dependencies outside the virtual environment are <em>not</em> included in the lock file.</p>
+<h2 id="specifying_the_interpreter_binary">Specifying the interpreter binary<a class="headerlink" href="#specifying_the_interpreter_binary" title="Permanent link">&para;</a></h2>
+<p>By default, <code>dmenv</code> uses the following algorithm to find the Python binary:</p>
+<ul>
+<li>Look for a program named <code>python3</code> in the <code>PATH</code> environment variable</li>
+<li>If nothing is found, look for a program named <code>python</code></li>
+<li>Otherwise, fail</li>
+</ul>
+<p>You can use <code>dmenv --python /path/to/other/binary</code> to specify the full path to the Python binary.</p>
+<h3 id="combining_pyenv_and_dmenv">Combining pyenv and dmenv<a class="headerlink" href="#combining_pyenv_and_dmenv" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/pyenv/pyenv">pyenv</a> is a generic tool to manage several Python installations on the same machine.</p>
+<p>Here's how you can combine the too, for instance to check if your project is compatible with both Python3.7 and Python3.8,
+and assuming the "system" python is 3.7.</p>
+<p>First, use <code>pyenv</code> to compile and install Python 3.8 from sources</p>
+<pre><code class="console">$ pyenv install 3.8.0
+</code></pre>
+
+<p>Then you can switch Python versions by setting the <code>PYENV_VERSION</code> environment variable when using <code>dmenv</code>.</p>
+<pre><code class="console">$ dmenv install
+# Nothing set, creates a virtual environment for 3.7 in .venv/dev/3.7.4
+</code></pre>
+
+<pre><code class="console">$ PYENV_VERSION=3.8.0 dmenv install
+# Creates a Python3.8 compatible virtualenv in .venv/dev/3.8.0
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../faq/" class="btn btn-neutral float-right" title="FAQ">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../goodies/" class="btn btn-neutral" title="Goodies"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../goodies/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../faq/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

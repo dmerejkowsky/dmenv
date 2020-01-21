@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Changelog - dmenv</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Changelog";
+    var mkdocs_page_input_path = "changelog.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> dmenv</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../installation/">Installation</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../basic_usage/">Basic Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../goodies/">Goodies</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../advanced_usage/">Advanced Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/">FAQ</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Changelog</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#0200_2019-11-12">0.20.0 (2019-11-12)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0190_2019-o6-11">0.19.0 (2019-O6-11)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0180_2019-29-10">0.18.0 (2019-29-10)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0170_2019-10-08">0.17.0 (2019-10-08)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0162_2019-10-03">0.16.2 (2019-10-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0161_2019-07-24">0.16.1 (2019-07-24)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0160_2019-07-24">0.16.0 (2019-07-24)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0150_2019-06-26">0.15.0 (2019-06-26)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0143_2019-05-15">0.14.3 (2019-05-15)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0142_2019-04-29">0.14.2 (2019-04-29)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0141_2019-04-29">0.14.1 (2019-04-29)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0140_2019-04-05">0.14.0 (2019-04-05)</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#breaking_dmenv_init_now_uses_a_separate_setupcfg_file_alongside_setuppy">Breaking: dmenv init now uses a separate setup.cfg file alongside setup.py</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#0130_2019-04-03">0.13.0 (2019-04-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0120_2018-03-20">0.12.0 (2018-03-20)</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#show_outdated_dependencies">Show outdated dependencies</a></li>
+        
+            <li><a class="toctree-l3" href="#allow_access_to_system_site_packages">Allow access to system site packages</a></li>
+        
+            <li><a class="toctree-l3" href="#allow_skipping_development_dependencies">Allow skipping development dependencies</a></li>
+        
+            <li><a class="toctree-l3" href="#breaking_changes">Breaking changes</a></li>
+        
+            <li><a class="toctree-l3" href="#migrating_from_011">Migrating from 0.11</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#0111_2010-03-01">0.11.1 (2010-03-01)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#0110_2019-02-20">0.11.0 (2019-02-20)</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#breaking_changes_1">Breaking changes</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#0100_2019-01-30">0.10.0 (2019-01-30)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#090_2019-01-25">0.9.0 (2019-01-25)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#084_2019-01-15">0.8.4 (2019-01-15)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#083_2019-01-11">0.8.3 (2019-01-11)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#082_2019-01-09">0.8.2 (2019-01-09)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#081_2019-01-08">0.8.1 (2019-01-08)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#080_2018-12-21">0.8.0 (2018-12-21)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#070_2018-12-07">0.7.0 (2018-12-07)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#060_2018-11-09">0.6.0 (2018-11-09)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#050_2018-11-07">0.5.0 (2018-11-07)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#043_2018-11-06">0.4.3 (2018-11-06)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#042_2018-11-05">0.4.2 (2018-11-05)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#041_2018-11-04">0.4.1 (2018-11-04)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#040_2018-11-03">0.4.0 (2018-11-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#034_2018-11-03">0.3.4 (2018-11-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#033_2018-11-03">0.3.3 (2018-11-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#032_2018-11-03">0.3.2 (2018-11-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#031_2018-11-03">0.3.1 (2018-11-03)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#030_2018-11-01">0.3.0 (2018-11-01)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#023_2018-11-01">0.2.3 (2018-11-01)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#022_2018-11-01">0.2.2 (2018-11-01)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#021_2018-10-31">0.2.1 (2018-10-31)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#020_2018-10-31">0.2.0 (2018-10-31)</a></li>
+    
+
+    <li class="toctree-l2"><a href="#010_2018-10-31">0.1.0 (2018-10-31)</a></li>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">dmenv</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Changelog</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="0200_2019-11-12">0.20.0 (2019-11-12)<a class="headerlink" href="#0200_2019-11-12" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Do not change the working directory when creating a virtual environment. This makes combining <code>dmenv</code> and <code>pyenv</code> much easier.</li>
+<li>Add <code>dmenv create</code> command to create an empty virtual environment.</li>
+</ul>
+<h1 id="0190_2019-o6-11">0.19.0 (2019-O6-11)<a class="headerlink" href="#0190_2019-o6-11" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Breaking</strong>: the <code>--system-site-packages</code> option must be passed <em>before</em> any subcommand, and the path of the virtual environment has changed:</li>
+</ul>
+<p><strong>&lt;= 0.18</strong>:</p>
+<pre><code>$ dmenv install --system-site-packages
+# virtual environment created in .venv/dev/3.7/
+</code></pre>
+
+<p><strong>&gt;= 0.19</strong>:</p>
+<pre><code>$ dmenv --system-site-packages  install
+# virtual environment created in .venv/dev-system/3.7/
+</code></pre>
+
+<ul>
+<li>Fix #110: <code>dmenv tidy</code> now works even from an activated virtual environment.</li>
+</ul>
+<h1 id="0180_2019-29-10">0.18.0 (2019-29-10)<a class="headerlink" href="#0180_2019-29-10" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add a <code>tidy</code> command, to re-generate locks from a clean virtual environment.</li>
+</ul>
+<h1 id="0170_2019-10-08">0.17.0 (2019-10-08)<a class="headerlink" href="#0170_2019-10-08" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add a <code>process-scripts</code> command, to generate scripts in <code>DMENV_SCRIPTS_PATH</code>.</li>
+</ul>
+<h1 id="0162_2019-10-03">0.16.2 (2019-10-03)<a class="headerlink" href="#0162_2019-10-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix regression: <code>dmenv init</code> could only be used with the <code>--project</code> option</li>
+<li>Improve error messages when setup.py or requirements.lock is not found</li>
+<li>Improve error handling when parsing output from <code>info.py</code></li>
+<li>Fix message when using <code>dmenv --production install</code></li>
+</ul>
+<h1 id="0161_2019-07-24">0.16.1 (2019-07-24)<a class="headerlink" href="#0161_2019-07-24" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix regression that caused parsing output of <code>dmenv show</code> commands to stop working</li>
+</ul>
+<h1 id="0160_2019-07-24">0.16.0 (2019-07-24)<a class="headerlink" href="#0160_2019-07-24" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix #94: Look for <code>setup.py</code> in the parent directories when trying to resolve the project path.</li>
+</ul>
+<h1 id="0150_2019-06-26">0.15.0 (2019-06-26)<a class="headerlink" href="#0150_2019-06-26" title="Permanent link">&para;</a></h1>
+<ul>
+<li>When <code>foo.py</code> is present at the root of the project, you can us <code>dmenv run foo.py</code> directly instead of
+  the more awkward <code>dmenv run -- python foo.py</code></li>
+</ul>
+<h1 id="0143_2019-05-15">0.14.3 (2019-05-15)<a class="headerlink" href="#0143_2019-05-15" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix syntax of generated setup.py (#86)</li>
+<li>Fix regression: keep the top comment when running bump-in-lock</li>
+</ul>
+<h1 id="0142_2019-04-29">0.14.2 (2019-04-29)<a class="headerlink" href="#0142_2019-04-29" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Restore generation of pre-compiled binaries from travis.</li>
+</ul>
+<h1 id="0141_2019-04-29">0.14.1 (2019-04-29)<a class="headerlink" href="#0141_2019-04-29" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix incorrect <code>--help</code> message</li>
+<li>Better error handling when the virtual environment or binary path do not exist</li>
+<li>Fix typo in <code>setup.cfg</code> template</li>
+</ul>
+<p>All reported by @theodelrieu. Thanks, man.</p>
+<h1 id="0140_2019-04-05">0.14.0 (2019-04-05)<a class="headerlink" href="#0140_2019-04-05" title="Permanent link">&para;</a></h1>
+<h2 id="breaking_dmenv_init_now_uses_a_separate_setupcfg_file_alongside_setuppy">Breaking: <code>dmenv init</code> now uses a separate setup.cfg file alongside setup.py<a class="headerlink" href="#breaking_dmenv_init_now_uses_a_separate_setupcfg_file_alongside_setuppy" title="Permanent link">&para;</a></h2>
+<p>This leads to far more readable code.</p>
+<p>Note: this may break when using setuptools &lt;= 30.3.0 (roughly Python 3.5). Use <code>dmenv init --no-setup-cfg</code> if you
+need compatibility with old Python versions.</p>
+<h1 id="0130_2019-04-03">0.13.0 (2019-04-03)<a class="headerlink" href="#0130_2019-04-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Implement <a href="https://github.com/TankerHQ/dmenv/issues/77">#77</a>: Add a new <code>--production</code> flag to use <code>prod</code> extra requirements instead of <code>dev</code>. This allows having dependencies <em>just</em> for production environments.</li>
+</ul>
+<h1 id="0120_2018-03-20">0.12.0 (2018-03-20)<a class="headerlink" href="#0120_2018-03-20" title="Permanent link">&para;</a></h1>
+<h2 id="show_outdated_dependencies">Show outdated dependencies<a class="headerlink" href="#show_outdated_dependencies" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use <code>dmenv show:outdated</code>  to show outdated dependencies.</li>
+</ul>
+<h2 id="allow_access_to_system_site_packages">Allow access to system site packages<a class="headerlink" href="#allow_access_to_system_site_packages" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>dmenv install</code> and <code>dmenv lock</code> commands learned the <code>--system-site-packages</code> option to create virtual environments that have access to packages installed globally on the system.</li>
+</ul>
+<h2 id="allow_skipping_development_dependencies">Allow skipping development dependencies<a class="headerlink" href="#allow_skipping_development_dependencies" title="Permanent link">&para;</a></h2>
+<p>This is done with the <code>--production</code> flag. For instance, <code>dmenv --production install</code>.
+<code>dmenv --production lock</code> will create a <code>production.lock</code> that contains no development dependencies.</p>
+<h2 id="breaking_changes">Breaking changes<a class="headerlink" href="#breaking_changes" title="Permanent link">&para;</a></h2>
+<p>Virtual environment location has changed to allow both production and full virtual environments to coexist:</p>
+<ul>
+<li>When using <code>DMENV_VENV_OUTSIDE_PROJECT</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>version</th>
+<th>location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&lt;= 0.11</td>
+<td>DATA_DIR/dmenv/venv/3.7.1/foo/</td>
+</tr>
+<tr>
+<td>&gt;= 0.12, default</td>
+<td>DATA_DIR/dmenv/venv/dev/3.7.1/foo/</td>
+</tr>
+<tr>
+<td>&gt;= 0.12, with --production</td>
+<td>DATA_DIR/dmenv/venv/prod/3.7.1/foo/</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Otherwise:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>version</th>
+<th>location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&lt;= 0.11</td>
+<td>.venv/3.7.1/foo/</td>
+</tr>
+<tr>
+<td>&gt;= 0.12, default</td>
+<td>.venv/dev/3.7.1/foo/</td>
+</tr>
+<tr>
+<td>&gt;= 0.12, with --production</td>
+<td>.venv/prod/3.7.1/foo/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="migrating_from_011">Migrating from 0.11<a class="headerlink" href="#migrating_from_011" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Run <code>dmenv clean</code> with <code>dmenv 0.11</code> to clean up the deprecated location</li>
+<li>Upgrade to <code>dmenv 0.12</code></li>
+<li>Run <code>dmenv install</code>  to create the new virtual environment</li>
+</ul>
+<h1 id="0111_2010-03-01">0.11.1 (2010-03-01)<a class="headerlink" href="#0111_2010-03-01" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix metadata on Cargo to include new tagline.</li>
+</ul>
+<h1 id="0110_2019-02-20">0.11.0 (2019-02-20)<a class="headerlink" href="#0110_2019-02-20" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add <code>dmenv show:bin_path</code> to show the path of the virtual environment binaries.</li>
+</ul>
+<h2 id="breaking_changes_1">Breaking changes<a class="headerlink" href="#breaking_changes_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fix <a href="https://github.com/TankerHQ/dmenv/issues/31">#31</a>: make sure the wheel
+  package gets frozen when running <code>dmenv lock</code>. Note: this also causes other packages
+  like <code>setuptools</code> and <code>pip</code> itself to get frozen. As a consequence <code>dmenv
+  install</code> no longer upgrades pip automatically, and so the <code>--no-upgrade-pip</code> option
+  is gone.</li>
+</ul>
+<h1 id="0100_2019-01-30">0.10.0 (2019-01-30)<a class="headerlink" href="#0100_2019-01-30" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Allow using <code>dmenv</code> outside the current project, by setting an environment variable named <code>DMENV_VENV_OUTSIDE_PROJECT</code>.</li>
+</ul>
+<h1 id="090_2019-01-25">0.9.0 (2019-01-25)<a class="headerlink" href="#090_2019-01-25" title="Permanent link">&para;</a></h1>
+<ul>
+<li>
+<p>Fix <a href="https://github.com/TankerHQ/dmenv/issues/54">#54</a>: rename <code>--cwd</code> option to <code>--project</code>.</p>
+</li>
+<li>
+<p>Avoid blindly overwriting the <code>requirements.lock</code> file when running.
+  <code>dmenv lock</code>. See <a href="https://github.com/TankerHQ/dmenv/issues/11">#11</a> and <a href="https://github.com/TankerHQ/dmenv/issues/7">#7</a> for background.</p>
+</li>
+</ul>
+<h1 id="084_2019-01-15">0.8.4 (2019-01-15)<a class="headerlink" href="#084_2019-01-15" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix <a href="https://github.com/TankerHQ/dmenv/issues/49">#49</a>: return code was always 0 when using <code>dmenv run</code> on Windows. (regression introduced in <code>0.8.1</code>).</li>
+</ul>
+<h1 id="083_2019-01-11">0.8.3 (2019-01-11)<a class="headerlink" href="#083_2019-01-11" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add documentation link to <code>Cargo.toml</code>.</li>
+</ul>
+<h1 id="082_2019-01-09">0.8.2 (2019-01-09)<a class="headerlink" href="#082_2019-01-09" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix <a href="https://github.com/TankerHQ/dmenv/issues/45">#45</a>: <code>dmenv env</code> can be used with non-ASCII chars on Windows.</li>
+</ul>
+<h1 id="081_2019-01-08">0.8.1 (2019-01-08)<a class="headerlink" href="#081_2019-01-08" title="Permanent link">&para;</a></h1>
+<ul>
+<li><code>dmenv run</code> now uses <code>execv</code> from <code>libc</code>. This means the child process is killed when killing <code>dmenv</code>.
+   The previous behavior (starting a new process) can be activated with the <code>--no-exec</code> option.</li>
+</ul>
+<h1 id="080_2018-12-21">0.8.0 (2018-12-21)<a class="headerlink" href="#080_2018-12-21" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Allow using <code>python3 -m virtualenv</code> instead of <code>python3 -m venv</code> to create the virtual
+  environments by setting an environment variable named <code>DMENV_NO_VENV_STDLIB</code>. This can be used to work around
+  some bugs in Debian-based distributions.</li>
+</ul>
+<h1 id="070_2018-12-07">0.7.0 (2018-12-07)<a class="headerlink" href="#070_2018-12-07" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add <code>bump-in-lock</code> command. Use to bump version or git references in the <code>requirements.lock</code>
+  file.</li>
+</ul>
+<h1 id="060_2018-11-09">0.6.0 (2018-11-09)<a class="headerlink" href="#060_2018-11-09" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Run <code>setup.py develop</code> with <code>--no-deps</code>.</li>
+<li>Rename <code>show</code> to <code>show:venv_path</code>, add <code>show:deps</code> to display the list of dependencies.</li>
+</ul>
+<h1 id="050_2018-11-07">0.5.0 (2018-11-07)<a class="headerlink" href="#050_2018-11-07" title="Permanent link">&para;</a></h1>
+<ul>
+<li><code>dmenv init</code>: since name is required, it is now an argument, no longer an option.
+  So instead of <code>dmenv init --name foo --version 0.42</code>, use <code>dmenv init foo --version 0.42</code></li>
+<li>Add a command named <code>dmenv develop</code> that just runs <code>python setup.py develop</code> and nothing else.</li>
+<li><code>dmenv install</code>: add <code>--no-upgrade-pip</code> and <code>--no-develop</code> options.</li>
+</ul>
+<h1 id="043_2018-11-06">0.4.3 (2018-11-06)<a class="headerlink" href="#043_2018-11-06" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add a <code>--author</code> option to <code>dmenv init</code>, used when generating the <code>setup.py</code> file.</li>
+<li>Fix <a href="https://github.com/TankerHQ/dmenv/issues/12">#12</a>: <code>dmenv lock</code> now exits immediately if the lock file is missing.</li>
+<li>Workaround Debian bug in pip (See <a href="https://github.com/TankerHQ/dmenv/issues/15">#15</a> for details).</li>
+</ul>
+<h1 id="042_2018-11-05">0.4.2 (2018-11-05)<a class="headerlink" href="#042_2018-11-05" title="Permanent link">&para;</a></h1>
+<ul>
+<li>
+<p>Write some metadata inside the <code>requirements.lock</code> file.</p>
+</li>
+<li>
+<p>Improve <code>dmenv run</code>:</p>
+</li>
+<li>Suggest running <code>lock</code> or <code>install</code></li>
+<li>Do not crash if used without arguments</li>
+</ul>
+<h1 id="041_2018-11-04">0.4.1 (2018-11-04)<a class="headerlink" href="#041_2018-11-04" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix CI on Windows.</li>
+</ul>
+<h1 id="040_2018-11-03">0.4.0 (2018-11-03)<a class="headerlink" href="#040_2018-11-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li><code>dmenv</code> no longer needs a configuration file.</li>
+<li>Find the Python interpreter to use by looking in the PATH environment variable.</li>
+</ul>
+<h1 id="034_2018-11-03">0.3.4 (2018-11-03)<a class="headerlink" href="#034_2018-11-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix <a href="https://github.com/TankerHQ/dmenv/issues/9">#9</a>: If <code>dmenv</code> is run <em>inside an existing virtual environment</em>, just use it.</li>
+</ul>
+<h1 id="033_2018-11-03">0.3.3 (2018-11-03)<a class="headerlink" href="#033_2018-11-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Also upgrade pip when running <code>dmenv install</code>.</li>
+<li>Fix incorrect message when running <code>dmenv lock</code>.</li>
+</ul>
+<h1 id="032_2018-11-03">0.3.2 (2018-11-03)<a class="headerlink" href="#032_2018-11-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix regression introduced in 0.3.1: create config path parent subdirectory
+  before trying to write inside it.</li>
+</ul>
+<h1 id="031_2018-11-03">0.3.1 (2018-11-03)<a class="headerlink" href="#031_2018-11-03" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add a <code>dmenv</code> subdirectory to the configuration file path.</li>
+</ul>
+<h1 id="030_2018-11-01">0.3.0 (2018-11-01)<a class="headerlink" href="#030_2018-11-01" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Replace command <code>freeze</code> by <code>lock</code>.</li>
+</ul>
+<h1 id="023_2018-11-01">0.2.3 (2018-11-01)<a class="headerlink" href="#023_2018-11-01" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add command <code>dmenv init</code> to generate a working <code>setup.py</code> file.</li>
+</ul>
+<h1 id="022_2018-11-01">0.2.2 (2018-11-01)<a class="headerlink" href="#022_2018-11-01" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix running dmenv on Windows.</li>
+<li>The configuration file is now read from $HOME (<code>~/.config</code> on Linux and macOS, <code>%HOME%\AppData\Local</code> on Windows).</li>
+</ul>
+<h1 id="021_2018-10-31">0.2.1 (2018-10-31)<a class="headerlink" href="#021_2018-10-31" title="Permanent link">&para;</a></h1>
+<ul>
+<li>The <code>.dmenv.toml</code> file is now required.</li>
+</ul>
+<h1 id="020_2018-10-31">0.2.0 (2018-10-31)<a class="headerlink" href="#020_2018-10-31" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Can be used with multiple python versions, using the <code>.dmenv.toml</code> config file.</li>
+</ul>
+<h1 id="010_2018-10-31">0.1.0 (2018-10-31)<a class="headerlink" href="#010_2018-10-31" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Initial release.</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../faq/" class="btn btn-neutral" title="FAQ"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../faq/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

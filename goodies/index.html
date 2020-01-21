@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Goodies - dmenv</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Goodies";
+    var mkdocs_page_input_path = "goodies.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> dmenv</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../installation/">Installation</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../basic_usage/">Basic Usage</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Goodies</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#dmenv_goodies">dmenv goodies</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#dmenv_run">dmenv run</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_upgrade-pip">dmenv upgrade-pip</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_showvenv_path">dmenv show:venv_path</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_showbin_path">dmenv show:bin_path</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_showdeps">dmenv show:deps</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_bump-in-lock">dmenv bump-in-lock</a></li>
+        
+            <li><a class="toctree-l3" href="#dmenv_process-scripts">dmenv process-scripts</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../advanced_usage/">Advanced Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/">FAQ</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../changelog/">Changelog</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">dmenv</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Goodies</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="dmenv_goodies">dmenv goodies<a class="headerlink" href="#dmenv_goodies" title="Permanent link">&para;</a></h1>
+<p><code>dmenv</code> also comes with a few commands for carrying out boring tasks. You can
+view the full list by running <code>dmenv help</code>, here are a few more details:</p>
+<h2 id="dmenv_run">dmenv run<a class="headerlink" href="#dmenv_run" title="Permanent link">&para;</a></h2>
+<p>You can use:<code>dmenv run</code> to run any binary from the virtual environment. If the program you want to run
+needs command-line options, use a <code>--</code> separator, like so:</p>
+<pre><code class="console">dmenv run -- pytest --collect-only
+</code></pre>
+
+<h2 id="dmenv_upgrade-pip">dmenv upgrade-pip<a class="headerlink" href="#dmenv_upgrade-pip" title="Permanent link">&para;</a></h2>
+<p>Tired of <code>pip</code> telling you to upgrade itself? Run <code>dmenv upgrade-pip</code> :)</p>
+<p>It's exactly the same as typing <code>dmenv run -- python -m pip install --upgrade pip</code>, but with less keystrokes :P</p>
+<h2 id="dmenv_showvenv_path">dmenv show:venv_path<a class="headerlink" href="#dmenv_showvenv_path" title="Permanent link">&para;</a></h2>
+<p><code>dmenv show:venv_path</code> shows the path of the current virtual environment. Nothing more, nothing less.</p>
+<h2 id="dmenv_showbin_path">dmenv show:bin_path<a class="headerlink" href="#dmenv_showbin_path" title="Permanent link">&para;</a></h2>
+<p><code>dmenv show:bin_path</code> shows the path of the virtual environment's binaries.</p>
+<p>You can use it in CI scripts like this:</p>
+<pre><code class="yaml">script:
+  - dmenv install
+  - export PATH=$(dmenv show:bin_path):$PATH
+</code></pre>
+
+<h2 id="dmenv_showdeps">dmenv show:deps<a class="headerlink" href="#dmenv_showdeps" title="Permanent link">&para;</a></h2>
+<p>Just a wrapper for <code>pip list</code>:</p>
+<pre><code class="bash">$ dmenv show:deps
+Package            Version
+------------------ -------
+atomicwrites       1.2.1
+attrs              18.2.0
+importlib-metadata 0.6
+...
+</code></pre>
+
+<h2 id="dmenv_bump-in-lock">dmenv bump-in-lock<a class="headerlink" href="#dmenv_bump-in-lock" title="Permanent link">&para;</a></h2>
+<p>You can use <code>bump-in-lock</code> to bump versions directly in the <code>requirements.lock</code> file:</p>
+<pre><code class="text"># contents of requirements.lock:
+bar==0.3
+foo==1.2
+
+$ dmenv bump-in-lock bar 0.4
+
+# new contents:
+bar==0.4
+foo==1.2
+</code></pre>
+
+<p>If you used a git URL in the <code>requirements.lock</code> file, you can also bump the git reference:</p>
+<pre><code class="text"># contents of requirements.lock:
+bar==0.3
+foo==git@gitlab.com/foo/foo@master#egg=foo
+
+$ dmenv bump-in-lock --git foo deadbeef
+bar==0.3
+foo==git@gitlab.com/foo/foo@deadbeef#egg=foo
+</code></pre>
+
+<h2 id="dmenv_process-scripts">dmenv process-scripts<a class="headerlink" href="#dmenv_process-scripts" title="Permanent link">&para;</a></h2>
+<p>If you set the <code>DMENV_SCRIPTS_PATH</code> environment variable to a writeable directory in your $PATH,
+you can run <code>dmenv process-scripts</code> in any project, and it will create a script there for all the "console" entry points defined in <code>setup.cfg</code>:</p>
+<pre><code class="bash">$ export DMENV_SCRIPTS_PATH=$HOME/.local/bin
+$ cd foo-project
+$ cat foo/main.py
+def main():
+    print(&quot;Hello, this is foo&quot;)
+$ cat setup.cfg
+
+[options.entry_points]
+console_scripts = foo=foo:main
+
+$ dmenv process-scripts
+$ There is now a file named `foo` in `~/.local/bin`, so this works:
+$ foo
+Hello, this is foo
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../advanced_usage/" class="btn btn-neutral float-right" title="Advanced Usage">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../basic_usage/" class="btn btn-neutral" title="Basic Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../basic_usage/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../advanced_usage/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
