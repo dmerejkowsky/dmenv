@@ -1,6 +1,7 @@
-use crate::settings::Settings;
 use app_dirs::{AppDataType, AppInfo};
 use std::path::PathBuf;
+
+use crate::settings::Settings;
 
 const APP_INFO: AppInfo = AppInfo {
     name: "dmenv",
@@ -122,7 +123,7 @@ mod tests {
     use super::*;
     use std::path::Path;
 
-    fn get_venv_path(project_path: PathBuf, settings: Settings, python_version: &str) -> PathBuf {
+    fn get_venv_path(project_path: PathBuf, settings: &Settings, python_version: &str) -> PathBuf {
         let paths_resolver =
             PathsResolver::new(project_path, python_version.to_string(), &settings);
         let paths = paths_resolver.paths().unwrap();
@@ -133,7 +134,7 @@ mod tests {
     fn test_resolving_paths_contains_python_version() {
         let project_path = Path::new("/tmp/foo");
         let settings = Settings::default();
-        let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
+        let path = get_venv_path(project_path.to_path_buf(), &settings, "3.7");
         assert!(path.to_string_lossy().contains("3.7"));
     }
 
@@ -141,7 +142,7 @@ mod tests {
     fn test_resolving_paths_inside_by_default() {
         let project_path = Path::new("/tmp/foo");
         let settings = Settings::default();
-        let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
+        let path = get_venv_path(project_path.to_path_buf(), &settings, "3.7");
         assert!(path.to_string_lossy().contains("/tmp/foo"));
     }
 
@@ -152,7 +153,7 @@ mod tests {
             venv_outside_project: true,
             ..Default::default()
         };
-        let path = get_venv_path(project_path.to_path_buf(), settings, "3.7");
+        let path = get_venv_path(project_path.to_path_buf(), &settings, "3.7");
         assert!(!path.to_string_lossy().contains("/tmp/foo"));
     }
 
@@ -163,13 +164,13 @@ mod tests {
             production: true,
             ..Default::default()
         };
-        let prod_path = get_venv_path(project_path.to_path_buf(), prod_settings, "3.7");
+        let prod_path = get_venv_path(project_path.to_path_buf(), &prod_settings, "3.7");
 
         let dev_settings = Settings {
             production: false,
             ..Default::default()
         };
-        let dev_path = get_venv_path(project_path.to_path_buf(), dev_settings, "3.7");
+        let dev_path = get_venv_path(project_path.to_path_buf(), &dev_settings, "3.7");
 
         assert_ne!(prod_path, dev_path);
     }
@@ -178,17 +179,15 @@ mod tests {
     fn test_resolving_paths_system_site_packages_differs() {
         let project_path = Path::new("/tmp/foo");
 
-        let default_settings = Settings {
-            ..Default::default()
-        };
-        let default_path = get_venv_path(project_path.to_path_buf(), default_settings, "3.7");
+        let default_settings = Settings::default();
+        let default_path = get_venv_path(project_path.to_path_buf(), &default_settings, "3.7");
 
         let system_packages_settings = Settings {
             system_site_packages: true,
             ..Default::default()
         };
         let system_packages_path =
-            get_venv_path(project_path.to_path_buf(), system_packages_settings, "3.7");
+            get_venv_path(project_path.to_path_buf(), &system_packages_settings, "3.7");
 
         assert_ne!(default_path, system_packages_path);
     }
