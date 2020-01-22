@@ -1,4 +1,6 @@
 use app_dirs::{AppDataType, AppInfo};
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 
 use crate::settings::Settings;
@@ -103,7 +105,15 @@ impl PathsResolver {
                 self.project_path.display()
             ))
         })?;
-        let res = data_dir.join(subdir).join(project_name);
+        let mut hasher = DefaultHasher::new();
+        self.project_path.hash(&mut hasher);
+        let hash_str = format!("{:x}", hasher.finish());
+
+        let res = data_dir.join(subdir).join(format!(
+            "{}-{}",
+            project_name.to_string_lossy(),
+            &hash_str[..8]
+        ));
         Ok(res)
     }
 
@@ -190,5 +200,24 @@ mod tests {
             get_venv_path(project_path.to_path_buf(), &system_packages_settings, "3.7");
 
         assert_ne!(default_path, system_packages_path);
+    }
+
+    #[test]
+    /// When using DMENV_VENV_OUTSIDE_PROJECT we use the base path of the project as
+    /// a subdir to construct the virtualenv path.
+    /// But if we have the same base path at two different locations, we want to
+    /// have different virtualenvs.
+    fn test_it_handles_same_base_paths() {
+        let p1 = Path::new("/tmp/bar/foo");
+        let p2 = Path::new("/tmp/baz/foo");
+
+        let settings = Settings {
+            venv_outside_project: true,
+            ..Default::default()
+        };
+        let p1 = get_venv_path(p1.to_path_buf(), &settings, "3.7");
+        let p2 = get_venv_path(p2.to_path_buf(), &settings, "3.7");
+
+        assert_ne!(p1, p2);
     }
 }
