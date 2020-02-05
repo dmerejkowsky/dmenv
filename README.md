@@ -1,3 +1,5 @@
+*Caveat: this project is no longer maintained. If you are looking for an alternative, take a look at [poetry](https://python-poetry.org/).*
+
 # dmenv: simple and practical virtualenv manager for Python
 
 [![Docs](https://img.shields.io/badge/docs-latest-green.svg)](https://tankerhq.github.io/dmenv/)
