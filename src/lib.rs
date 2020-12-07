@@ -35,9 +35,9 @@ pub struct Metadata {
 }
 
 #[derive(Debug)]
-pub enum PostInstallAction {
-    RunSetupPyDevelop,
-    None,
+pub struct InstallOptions {
+    run_develop_py: bool,
+    clean_first: bool,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -119,13 +119,15 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
             no_setup_cfg,
         } => commands::init(cmd.project_path, name, version, author, !no_setup_cfg),
 
-        SubCommand::Install { no_develop } => {
-            let post_install_action = if *no_develop {
-                PostInstallAction::None
-            } else {
-                PostInstallAction::RunSetupPyDevelop
+        SubCommand::Install {
+            no_develop,
+            clean_first,
+        } => {
+            let install_options = InstallOptions {
+                clean_first: *clean_first,
+                run_develop_py: !*no_develop,
             };
-            commands::install(&context?, post_install_action)
+            commands::install(&context?, &install_options)
         }
 
         SubCommand::Create {} => commands::create_venv(&context?),
@@ -160,6 +162,13 @@ pub fn run_cmd(cmd: Command) -> Result<(), Error> {
                 BumpType::Simple
             };
             commands::bump_in_lock(&context?, name, version, bump_type)
+        }
+
+        SubCommand::Upgrade { name, version } => {
+            commands::upgrade_dep(&context?, name, version.as_deref())
+        }
+        SubCommand::Downgrade { name, version } => {
+            commands::downgrade_dep(&context?, name, version)
         }
 
         SubCommand::Run { ref cmd, no_exec } => {

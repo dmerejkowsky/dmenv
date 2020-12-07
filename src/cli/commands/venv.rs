@@ -36,7 +36,7 @@ pub fn create_venv(context: &Context) -> Result<(), Error> {
 // from inside a virtualenv, the Python binary gets invalidated
 pub fn clean_venv(context: Context) -> Result<(), Error> {
     let Context { paths, .. } = context;
-    operations::venv::clean(paths.venv)
+    operations::venv::clean(&paths.venv)
 }
 
 /// Make sure the virtualenv exists, or return an error

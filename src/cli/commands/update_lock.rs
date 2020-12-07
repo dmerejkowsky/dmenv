@@ -2,10 +2,7 @@ use crate::cli::commands;
 use crate::error::*;
 use crate::operations;
 use crate::ui::*;
-use crate::BumpType;
-use crate::Context;
-use crate::Metadata;
-use crate::UpdateLockOptions;
+use crate::{Context, UpdateLockOptions};
 
 /// (Re)generate the lock file
 //
@@ -28,33 +25,8 @@ pub fn update_lock(context: &Context, update_options: UpdateLockOptions) -> Resu
     commands::ensure_venv(&context)?;
     commands::upgrade_pip(&context)?;
     commands::install_editable(&context)?;
-    let metadata = commands::metadata(&context);
+    let metadata = commands::lock_metadata(&context);
     let frozen_deps = commands::get_frozen_deps(&context)?;
     let lock_path = &paths.lock;
     operations::lock::update(lock_path, frozen_deps, update_options, &metadata)
-}
-
-/// Bump a dependency in the lock file
-pub fn bump_in_lock(
-    context: &Context,
-    name: &str,
-    version: &str,
-    bump_type: BumpType,
-) -> Result<(), Error> {
-    print_info_1(&format!("Bumping {} to {} ...", name, version));
-    let metadata = commands::metadata(&context);
-    let Context { paths, .. } = context;
-    operations::lock::bump(&paths.lock, name, version, bump_type, &metadata)
-}
-
-pub fn metadata(context: &Context) -> Metadata {
-    let Context { python_info, .. } = context;
-    let dmenv_version = env!("CARGO_PKG_VERSION");
-    let python_platform = &python_info.platform;
-    let python_version = &python_info.version;
-    Metadata {
-        dmenv_version: dmenv_version.to_string(),
-        python_platform: python_platform.to_string(),
-        python_version: python_version.to_string(),
-    }
 }

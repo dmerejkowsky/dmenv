@@ -43,6 +43,9 @@ pub enum SubCommand {
     Install {
         #[structopt(long = "--no-develop", help = "Do not run setup.py develop")]
         no_develop: bool,
+
+        #[structopt(long = "--clean", help = "Clean the virtual environment first")]
+        clean_first: bool,
     },
 
     #[structopt(name = "bump-in-lock", about = "Bump a dependency in the lock file")]
@@ -126,6 +129,24 @@ pub enum SubCommand {
 
     #[structopt(name = "tidy", about = "Re-generate a clean lock")]
     Tidy {},
+
+    #[structopt(name = "upgrade", about = "Upgrade a dependency")]
+    Upgrade {
+        #[structopt(help = "name")]
+        name: String,
+
+        #[structopt(help = "version")]
+        version: Option<String>,
+    },
+
+    #[structopt(name = "downgrade", about = "Downgrade a dependency")]
+    Downgrade {
+        #[structopt(help = "name")]
+        name: String,
+
+        #[structopt(help = "version")]
+        version: String,
+    },
 
     #[structopt(name = "upgrade-pip", about = "Upgrade pip in the virtualenv")]
     UpgradePip {},

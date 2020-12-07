@@ -19,7 +19,7 @@ pub fn tidy(cmd: &Command, context: Context) -> Result<(), Error> {
     let context = get_context(&cmd)?;
     commands::create_venv(&context)?;
     commands::install_editable_with_constraint(&context)?;
-    let metadata = commands::metadata(&context);
+    let metadata = commands::lock_metadata(&context);
     let frozen_deps = commands::get_frozen_deps(&context)?;
     let Context { paths, .. } = context;
     operations::lock::tidy(&paths.lock, frozen_deps, &metadata)
