@@ -1,4 +1,4 @@
-*Caveat: this project is no longer maintained. If you are looking for an alternative, take a look at [poetry](https://python-poetry.org/).*
+*Caveat: this project is no longer maintained. If you are looking for an alternative, take a look at [rye](https://https://rye-up.com/).*
 
 # dmenv: simple and practical virtualenv manager for Python
 
